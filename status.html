@@ -1,272 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>River Valley Metro — Weather Tracker</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Metro Weather | 3-Day Forecast</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-<style>
-:root {
-  --rv-blue:#3FA9F5;
-  --rv-mid:#0b5fc1;
-  --black:#000;
-  --white:#fff;
-}
-
-/* ---------- GLOBAL ---------- */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-/* ---------- 9:16 PORTRAIT FRAME ---------- */
-.portrait-frame {
-  width: 100vw;
-  max-width: 430px;          /* iPhone Pro Max width */
-  aspect-ratio: 9 / 16;
-  margin: 0 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: linear-gradient(to bottom, var(--rv-mid), var(--rv-blue));
-  position: relative;
-}
-
-/* ---------- HEADER ---------- */
-header {
-  text-align: center;
-  background: var(--rv-mid);
-  color: var(--white);
-  padding: 16px 0;
-  font-size: 24px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-
-/* ---------- CONTENT CARD ---------- */
-.container {
-  margin: 24px auto;
-  width: 90%;
-  max-width: 400px;
-  background: rgba(255,255,255,0.92);
-  padding: 22px;
-  border-radius: 18px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-  text-align: center;
-}
-
-.section-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: var(--rv-mid);
-}
-
-#weather-info {
-  font-size: 17px;
-}
-
-#free-status {
-  margin-top: 14px;
-  font-size: 19px;
-  font-weight: bold;
-}
-
-/* ---------- BUTTON ---------- */
-button {
-  width: 100%;
-  background: var(--rv-mid);
-  color: var(--white);
-  font-size: 17px;
-  padding: 12px 0;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  margin-top: 18px;
-}
-
-/* ---------- ANIMATION LAYER ---------- */
-#animation {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.sun, .moon {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 88px;
-  opacity: 0.8;
-}
-
-.raindrop, .snowflake {
-  position: absolute;
-  animation: fall linear infinite;
-}
-
-.raindrop {
-  font-size: 22px;
-  color: #0b5fc1;
-  animation-duration: 2.5s;
-}
-
-.snowflake {
-  font-size: 22px;
-  color: white;
-  animation-duration: 5s;
-}
-
-@keyframes fall {
-  from { transform: translateY(-10vh); }
-  to { transform: translateY(110vh); }
-}
-</style>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; margin: 0; overflow: hidden; height: 100vh; }
+        .app-container { width: 100vw; height: 100vh; background: #f8fafc; position: relative; overflow-y: auto; scrollbar-width: none; }
+        .app-container::-webkit-scrollbar { display: none; }
+        .header-white { background: white; border-bottom: 1px solid #e2e8f0; }
+        .forecast-card { transition: transform 0.2s ease; }
+        #animation-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
+        .particle { position: absolute; top: -50px; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(100vh); } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-active { color: #60a5fa !important; }
+    </style>
 </head>
-
 <body>
 
-<div class="portrait-frame">
+<div class="app-container">
+    <div id="animation-layer"></div>
 
-<header>River Valley Metro — Weather Tracker</header>
+    <header class="header-white pt-12 pb-6 px-6 text-center sticky top-0 z-20 shadow-sm">
+        <img src="https://www.rivervalleymetro.com/wp-content/themes/wp-bootstrap-rivervalley/assets/images/logo-river-valley-metro-color.png" 
+             alt="River Valley Metro" class="w-48 mx-auto mb-2">
+        <div class="text-slate-400 text-[9px] font-black uppercase tracking-[0.4em]">3-Day Weather Outlook</div>
+    </header>
 
-<div class="container">
-  <div class="section-title">Current Weather</div>
-  <div id="weather-info">Loading weather...</div>
+    <div class="p-6 space-y-4 relative z-10 pb-32">
+        
+        <div class="bg-white rounded-[2.5rem] p-7 shadow-xl border border-slate-100 text-center">
+            <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1 block">Currently</span>
+            <h2 id="weather-desc" class="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tight">Loading...</h2>
+            
+            <div class="flex justify-center items-baseline gap-2 mb-4">
+                <span id="temp-val" class="text-5xl font-black text-slate-800">--</span>
+                <span class="text-slate-400 font-bold text-xl">°F</span>
+            </div>
 
-  <div class="section-title">Fare Status</div>
-  <div id="free-status">Checking...</div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-50 p-3 rounded-2xl">
+                    <span class="block text-[8px] font-bold text-slate-400 uppercase">Wind</span>
+                    <span id="wind-val" class="text-sm font-black text-slate-700">-- mph</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-2xl">
+                    <span class="block text-[8px] font-bold text-slate-400 uppercase">Humidity</span>
+                    <span id="hum-val" class="text-sm font-black text-slate-700">--%</span>
+                </div>
+            </div>
+        </div>
 
-  <button onclick="checkFreeStatus()">Check Route Status</button>
+        <div class="space-y-3" id="forecast-list"></div>
+
+        <button onclick="fetchWeather()" class="w-full bg-slate-900 text-white py-5 rounded-[2rem] font-bold shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-3 mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" ></path></svg>
+            Refresh Forecast
+        </button>
+    </div>
 </div>
 
-<div id="animation"></div>
-
-</div>
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-16 rounded-2xl flex items-center justify-around px-2 shadow-2xl z-[9000]">
+    <a href="./index.html" class="nav-link flex flex-col items-center gap-1 text-slate-400 py-2 flex-1" data-page="index.html">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="text-[8px] font-bold uppercase">Home</span>
+    </a>
+    <a href="./map.html" class="nav-link flex flex-col items-center gap-1 text-slate-400 py-2 flex-1" data-page="map.html">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        <span class="text-[8px] font-bold uppercase">Map</span>
+    </a>
+    <a href="./weather.html" class="nav-link flex flex-col items-center gap-1 text-slate-400 py-2 flex-1" data-page="weather.html">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+        <span class="text-[8px] font-bold uppercase">Weather</span>
+    </a>
+    <a href="./status.html" class="nav-link flex flex-col items-center gap-1 text-slate-400 py-2 flex-1" data-page="status.html">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-[8px] font-bold uppercase">Status</span>
+    </a>
+</nav>
 
 <script>
-const weatherBox = document.getElementById("weather-info");
-const freeStatus = document.getElementById("free-status");
-const animationBox = document.getElementById("animation");
+    const weatherCodes = {
+        0: "Clear Sky", 1: "Mainly Clear", 2: "Partly Cloudy", 3: "Overcast",
+        45: "Foggy", 51: "Drizzle", 61: "Rain", 71: "Snow", 95: "Thunderstorm"
+    };
 
-async function fetchWeather() {
-  try {
-    const response = await fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=41.1201&longitude=-87.8612¤t_weather=true&timezone=America/Chicago"
-    );
+    async function fetchWeather() {
+        try {
+            const url = "https://api.open-meteo.com/v1/forecast?latitude=41.1201&longitude=-87.8612&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America/Chicago";
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            const current = data.current;
+            document.getElementById("weather-desc").textContent = weatherCodes[current.weather_code] || "Fair";
+            document.getElementById("temp-val").textContent = Math.round(current.temperature_2m);
+            document.getElementById("wind-val").textContent = `${Math.round(current.wind_speed_10m)} mph`;
+            document.getElementById("hum-val").textContent = `${current.relative_humidity_2m}%`;
 
-    const data = await response.json();
-    const weather = data.current_weather;
-    if (!weather) throw new Error("Weather data missing");
-
-    const tempF = (weather.temperature * 9/5) + 32;
-    const windMph = weather.windspeed * 0.621371;
-    const code = weather.weathercode;
-    const hour = new Date().getHours();
-    const time = new Date().toLocaleTimeString("en-US", { timeZone: "America/Chicago" });
-
-    weatherBox.innerHTML = `
-      <p><strong>Time:</strong> ${time}</p>
-      <p><strong>Temperature:</strong> ${tempF.toFixed(1)} °F</p>
-      <p><strong>Wind:</strong> ${windMph.toFixed(1)} mph</p>
-    `;
-
-    renderAnimation(code, hour);
-    checkFreeStatus(tempF);
-
-  } catch (e) {
-    weatherBox.textContent = "⚠️ Weather unavailable";
-  }
-}
-
-function renderAnimation(code, hour) {
-  animationBox.innerHTML = "";
-  const isNight = hour >= 18 || hour < 6;
-
-  if (code >= 51 && code <= 67) {
-    for (let i = 0; i < 40; i++) {
-      const d = document.createElement("div");
-      d.className = "raindrop";
-      d.textContent = "💧";
-      d.style.left = Math.random() * 100 + "vw";
-      d.style.animationDelay = Math.random() * 2 + "s";
-      animationBox.appendChild(d);
+            renderForecast(data.daily);
+            renderVisuals(current.weather_code);
+        } catch (e) {
+            document.getElementById("weather-desc").textContent = "Error Loading";
+        }
     }
-  } else if (code >= 71 && code <= 77) {
-    for (let i = 0; i < 35; i++) {
-      const s = document.createElement("div");
-      s.className = "snowflake";
-      s.textContent = "❄️";
-      s.style.left = Math.random() * 100 + "vw";
-      s.style.animationDelay = Math.random() * 4 + "s";
-      animationBox.appendChild(s);
+
+    function renderForecast(daily) {
+        const list = document.getElementById("forecast-list");
+        list.innerHTML = ""; 
+        for(let i=0; i<3; i++) {
+            const date = new Date(daily.time[i] + "T00:00");
+            const dayName = i === 0 ? "Today" : date.toLocaleDateString('en-US', { weekday: 'long' });
+            const card = document.createElement("div");
+            card.className = "forecast-card bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm flex justify-between items-center fade-in";
+            card.innerHTML = `
+                <div>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">${dayName}</span>
+                    <span class="font-bold text-slate-800">${weatherCodes[daily.weather_code[i]] || "Fair"}</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-lg font-black text-slate-800">${Math.round(daily.temperature_2m_max[i])}°</span>
+                    <span class="text-sm font-bold text-slate-400 ml-1">${Math.round(daily.temperature_2m_min[i])}°</span>
+                </div>`;
+            list.appendChild(card);
+        }
     }
-  } else {
-    animationBox.innerHTML = isNight
-      ? `<div class="moon">🌙</div>`
-      : `<div class="sun">☀️</div>`;
-  }
-}
 
-function checkFreeStatus(tempF = null) {
-  const day = new Date().toLocaleString("en-US", {
-    weekday: "long",
-    timeZone: "America/Chicago"
-  });
+    function renderVisuals(code) {
+        const layer = document.getElementById("animation-layer");
+        layer.innerHTML = "";
+        if (code >= 61) { 
+            const char = code >= 71 ? "❄️" : "💧";
+            for(let i=0; i<30; i++) {
+                const p = document.createElement("div");
+                p.className = "particle";
+                p.textContent = char;
+                p.style.left = Math.random() * 100 + "vw";
+                p.style.animationDuration = (Math.random() * 2 + 2) + "s";
+                p.style.opacity = Math.random();
+                layer.appendChild(p);
+            }
+        }
+    }
 
-  if (day === "Monday") {
-    freeStatus.textContent = "✅ Free Ride Monday!";
-    freeStatus.style.color = "#0a8f3a";
-    return;
-  }
+    // Nav Active State logic
+    const path = window.location.pathname.split("/").pop() || "weather.html";
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if(link.getAttribute('data-page') === path) link.classList.add('nav-active');
+    });
 
-  if (tempF !== null && tempF <= 0) {
-    freeStatus.textContent = "✅ Free Rides Due to Extreme Cold!";
-    freeStatus.style.color = "#0a8f3a";
-  } else {
-    freeStatus.textContent = "Standard Fares Apply";
-    freeStatus.style.color = "#d40000";
-  }
-}
-
-fetchWeather();
-setInterval(fetchWeather, 300000);
+    fetchWeather();
 </script>
-<nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-gray-200 px-2 py-3 z-[2000] flex justify-around items-center shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-  
-  <a href="index.html" id="nav-home" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
-  </a>
-
-  <a href="tracker.html" id="nav-tracker" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Tracker</span>
-  </a>
-
-  <a href="midway.html" id="nav-midway" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 2v1.5h4V2h2v1.5h.5c1.1 0 2 .9 2 2v13c0 1.1-.9 2-2 2h-13c-1.1 0-2-.9-2-2v-13c0-1.1.9-2 2-2h.5V2h2v1.5h4V2h2zm3 8h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 0H7v2h2v-2zm0 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Midway</span>
-  </a>
-
-  <a href="tickets.html" id="nav-tickets" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Tickets</span>
-  </a>
-
-  <a href="status.html" id="nav-status" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-7.07 9.5l-1.79 1.79 1.41 1.41 1.79-1.79-1.41-1.41zM9 19H7v3h2v-3zm7 0h-2v3h2v-3z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Status</span>
-  </a>
-
-</nav>
 </body>
 </html>
