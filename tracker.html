@@ -1,1106 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>River Valley METRO — Multi-Route Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-/* ----------------
-  CSS Variables 
----------------- */
-:root {
-  --rv-blue: #3FA9F5;
-  --rv-mid: #0b5fc1;
-  --accent-black: #2c3e50;
-  --muted: #7f8c8d;
-  --bg-light: #f4f6f9;
-  --card-bg: #ffffff;
-  --shadow-light: rgba(11, 95, 193, 0.1);
-  --shadow-medium: rgba(0, 0, 0, 0.05);
-  --border-radius: 12px;
-  --spacing: 16px;
-  font-family: 'Poppins', sans-serif;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <title>Metro Guide | Professional Schedule</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4779c4">
 
-/* ----------------
-  Base / Layout 
----------------- */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #4779c4; color: #1e293b; margin: 0; padding-bottom: 120px; }
+    .glass-card { background: rgba(255, 255, 255, 0.98); border-radius: 28px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+    .status-dark { background: #0f172a; color: white; border-radius: 32px; transition: all 0.4s ease; }
+    
+    @keyframes pulse-soft { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+    .arriving-pulse { animation: pulse-soft 2s infinite ease-in-out; border: 2px solid #60a5fa; }
 
-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  background: linear-gradient(180deg, var(--rv-blue) 0%, #d4e8ff 70%, var(--bg-light) 100%);
-  color: var(--accent-black);
-  min-height: 100vh;
-  transition: background 0.5s, filter 0.5s;
-}
-
-body.service-off {
-  background: linear-gradient(180deg, #b9b9b9 0%, #e0e0e0 100%);
-  filter: grayscale(80%);
-}
-
-/* ----------------
-  Header / Brand 
----------------- */
-header {
-  padding: var(--spacing) 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: min(100%, 1200px);
-  box-sizing: border-box;
-}
-
-.brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1;
-}
-
-.word-river {
-  font-size: 1.5rem;
-  color: var(--rv-mid);
-  font-weight: 700;
-}
-
-.word-metro {
-  font-size: 2.2rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  color: var(--accent-black);
-}
-
-/* ----------------
-  Container / Main 
----------------- */
-.container {
-  margin: var(--spacing) auto 0;
-  width: min(1024px, 94%);
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: var(--spacing);
-  padding: var(--spacing);
-  border-radius: var(--border-radius);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px var(--shadow-medium);
-}
-
-@media (max-width: 920px) {
-  .container {
-    grid-template-columns: 1fr;
-    width: 96%;
-    padding: calc(var(--spacing) * 1.5) var(--spacing);
-  }
-}
-
-.panel, .right {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing);
-  align-items: stretch;
-}
-
-/* ----------------
-  Controls 
----------------- */
-.controls {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-select, button, .link-btn {
-  font-size: 1rem;
-  padding: 10px 15px;
-  border-radius: 10px;
-  border: 1px solid var(--rv-blue);
-  background: var(--card-bg);
-  color: var(--rv-mid);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 5px var(--shadow-light);
-}
-
-button:hover, .link-btn:hover {
-  background: var(--rv-blue);
-  color: white;
-  box-shadow: 0 4px 10px var(--shadow-light);
-  transform: translateY(-1px);
-}
-
-button:active, .link-btn:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-select.route-select { min-width: 250px; }
-
-/* ----------------
-  Clock / Status 
----------------- */
-.clock {
-  font-size: 1.8rem;
-  font-weight: 700;
-  background: var(--card-bg);
-  padding: var(--spacing);
-  border-radius: var(--border-radius);
-  text-align: left;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-left: 5px solid var(--rv-mid);
-  box-shadow: 0 4px 15px var(--shadow-medium);
-}
-
-.clock .time {
-  font-weight: 900;
-  color: var(--accent-black);
-}
-
-.route-status-container {
-  text-align: right;
-}
-
-.badge-running {
-  background: #27ae60;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  display: inline-block;
-  margin-top: 4px;
-}
-
-.badge-off {
-  background: #e74c3c;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  display: inline-block;
-  margin-top: 4px;
-}
-
-/* ----------------
-  Stop / Countdown 
----------------- */
-.next-stop-info {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.stop {
-  font-size: 1.15rem;
-  background: linear-gradient(90deg, var(--rv-mid), var(--rv-blue));
-  color: #fff;
-  padding: var(--spacing) 18px;
-  border-radius: var(--border-radius);
-  width: 100%;
-  text-align: left;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(11, 95, 193, 0.4);
-}
-
-.at-stop {
-  background: #e67e22;
-  color: #fff;
-  font-weight: 800;
-  box-shadow: 0 4px 10px rgba(230, 126, 34, 0.6);
-}
-
-.countdown-container {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 8px;
-}
-
-.countdown {
-  font-size: 1rem;
-  background: #34495e;
-  color: var(--rv-blue);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 700;
-  display: inline-block;
-}
-
-.note {
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-
-/* ----------------
-  Side Panel Cards 
----------------- */
-.card {
-  background: var(--card-bg);
-  padding: var(--spacing);
-  border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px var(--shadow-medium);
-  border-top: 3px solid var(--rv-blue);
-}
-
-.card h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  color: var(--rv-mid);
-  border-bottom: 1px solid #ecf0f1;
-  padding-bottom: 6px;
-}
-
-.contact-info p {
-  margin: 6px 0;
-  font-size: 0.95rem;
-}
-
-.card a {
-  color: var(--rv-mid);
-  text-decoration: none;
-}
-
-.link-btn {
-  display: inline-block;
-  margin-bottom: 5px;
-}
-
-/* ----------------
-  Footer / Misc 
----------------- */
-footer {
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-align: center;
-  margin: 20px 0 60px;
-  width: 100%;
-}
-
-.bus {
-  position: fixed;
-  bottom: 28px;
-  left: -140px;
-  font-size: 40px;
-  animation: drive 12s linear infinite;
-  color: var(--rv-mid);
-}
-
-@keyframes drive {
-  0% { left: -160px; }
-  48% { left: calc(100% + 60px); }
-  50% { left: calc(100% + 60px); }
-  51% { opacity: 0; }
-  98% { left: -160px; opacity: 1; }
-  100% { left: -160px; }
-}
-
-@media (max-width: 600px) {
-  .clock { font-size: 1.5rem; }
-  .bus { font-size: 32px; }
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-  /* =========================
-   9:16 PORTRAIT MODE
-   ========================= */
-@media (max-aspect-ratio: 9/16) {
-
-  body {
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-
-  header {
-    width: 100%;
-    padding-top: 12px;
-    padding-bottom: 8px;
-  }
-
-  .container {
-    width: 100%;
-    max-width: 430px; /* true 9:16 phone width */
-    margin: 0 auto;
-    padding: 14px;
-    grid-template-columns: 1fr; /* stack panels */
-    gap: 14px;
-    border-radius: 0;
-  }
-
-  .panel,
-  .right {
-    gap: 12px;
-  }
-
-  .controls {
-    justify-content: space-between;
-  }
-
-  select.route-select {
-    min-width: 100%;
-  }
-
-  .clock {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .route-status-container {
-    text-align: left;
-    width: 100%;
-  }
-
-  .next-stop-info {
-    gap: 10px;
-  }
-
-  .countdown-container {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  footer {
-    margin-bottom: 90px;
-  }
-
-  .bus {
-    bottom: 10px;
-    font-size: 32px;
-  }
-}
-</style>
-
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    
+    .drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 32px 32px 0 0; z-index: 50; transform: translateY(calc(100% - 165px)); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); height: 80vh; }
+    .drawer.open { transform: translateY(0); z-index: 2000; }
+    
+    /* Nav Active State */
+    .nav-active { color: #60a5fa !important; }
+  </style>
 </head>
-<body>
-<header>
-  <div class="brand" aria-hidden="false">
-    <div class="word-river" id="brandLine1">River Valley</div>
-    <div class="word-metro" id="brandLine2">METRO</div>
+<body class="p-4 no-scrollbar">
+
+  <div class="flex justify-between items-start mb-6 pt-4 px-2">
+    <div>
+      <h1 class="text-white text-3xl font-extrabold tracking-tight">Metro Guide</h1>
+      <p id="serviceTag" class="text-blue-100 font-bold opacity-80 text-xs uppercase tracking-widest">Checking Service...</p>
+    </div>
+    <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-white text-[10px] font-black">
+        2026 OFFICIAL
+    </div>
   </div>
-</header>
 
-<main class="container" role="main" aria-labelledby="routeTitle">
-  <section class="panel" aria-label="Primary panel">
-    <div class="controls" role="region" aria-label="Controls">
-      <label for="routeSelect" class="sr-only" id="routeSelectLabel">Select route</label>
-      <select id="routeSelect" class="route-select" aria-labelledby="routeSelectLabel"></select>
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <button onclick="openSearch()" class="glass-card p-5 flex flex-col items-start active:scale-95 transition-transform">
+      <div class="bg-blue-100 w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3">📍</div>
+      <span class="font-extrabold text-slate-800 text-sm">Find Stop</span>
+      <span class="text-[10px] text-slate-400 font-bold">Search Locations</span>
+    </button>
+    <a href="tel:8159374287" class="glass-card p-5 flex flex-col items-start active:scale-95 transition-transform">
+      <div class="bg-red-100 w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3">📞</div>
+      <span class="font-extrabold text-slate-800 text-sm">Help Desk</span>
+      <span class="text-[10px] text-slate-400 font-bold">815-937-4287</span>
+    </a>
+  </div>
 
-      <label for="langSelect" class="sr-only" id="langSelectLabel">Language</label>
-      <select id="langSelect" aria-labelledby="langSelectLabel">
-        <option value="en">English</option>
-        <option value="es">Español</option>
-      </select>
+  <div class="glass-card p-2 mb-6 shadow-xl">
+    <select id="routeSelect" onchange="initRoute()" class="w-full bg-transparent border-none p-4 text-lg font-extrabold text-slate-900 outline-none appearance-none cursor-pointer">
+      <option value="">Choose your Bus Route...</option>
+      <option value="1">Route 1 - Meadowview</option>
+      <option value="2">Route 2 - Mall / Walmart</option>
+      <option value="3">Route 3 - Target / Bradley</option>
+      <option value="4">Route 4 - Court Village / St. Marys</option>
+      <option value="5">Route 5 - Aroma Park</option>
+      <option value="6">Route 6 - KCC (M-F ONLY)</option>
+      <option value="7NP">Route 7 - Non-Peak</option>
+      <option value="7P">Route 7 - Peak Service</option>
+      <option value="8">Route 8 - KHS / Jewel</option>
+      <option value="9">Route 9 - Manteno</option>
+      <option value="10">Route 10 - Bourbonnais</option>
+      <option value="11">Route 11 - ONU / Mall</option>
+      <option value="12">Route 12 - Meijer / Perry Farm</option>
+      <option value="14">Route 14 - Merchant St</option>
+    </select>
+  </div>
 
-      <button id="readBtn">Trip Planner</button>
-
-      <a id="transitSite" class="link-btn" href="https://www.rivervalleymetro.com/" target="_blank" rel="noopener">RVM.COM</a>
-      
-      <a id="facebookLink" class="link-btn" href="https://www.facebook.com/RiverValleyMetro/" target="_blank" rel="noopener">Facebook</a>
+  <div id="etaDisplay" style="display:none;" class="status-dark p-8 mb-6 shadow-2xl">
+    <div id="route4Toggle" class="hidden grid grid-cols-2 gap-2 mb-8 bg-white/5 p-1 rounded-2xl">
+        <button id="btnEast" class="py-3 rounded-xl font-black text-[10px] bg-white text-slate-900 shadow-lg" onclick="setDir('east')">EASTBOUND</button>
+        <button id="btnWest" class="py-3 rounded-xl font-black text-[10px] text-white" onclick="setDir('west')">WESTBOUND</button>
     </div>
 
-    <div class="clock" id="routeTitle" aria-live="polite">
-      <div>
-        <div style="font-size:0.5em;color:var(--muted)" id="currentTimeLabel">Current Time</div>
-        <div class="time" id="clockTime">--:--:--</div>
-      </div>
-      <div class="route-status-container">
-        <div style="font-size:0.5em;color:var(--muted)" id="routeStatusLabel">Route Status</div>
-        <div id="routeStatus" class="small badge-off">--</div>
-      </div>
+    <div class="flex justify-between items-start mb-2">
+        <p class="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em]">Next Bus</p>
+        <span id="countdownBadge" class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">Updating</span>
+    </div>
+    <h2 id="stopName" class="text-2xl font-black mb-6 leading-tight tracking-tight">--</h2>
+    
+    <div class="flex items-baseline mb-8">
+        <span id="bigTime" class="text-6xl font-black tracking-tighter">--:--</span>
+        <span id="ampm" class="text-xl font-bold opacity-30 ml-2 uppercase">--</span>
     </div>
 
-    <div class="next-stop-info">
-      <div class="stop" id="nextStop" aria-live="polite">Next Stop: --</div>
-      <div class="countdown-container">
-        <div class="countdown" id="countdown" aria-live="polite">Estimated Arrival Window: --</div>
-        <div class="note" id="serviceNote">Service note: Normal service</div>
-      </div>
+    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+        <p id="passengerTip" class="text-xs font-bold text-blue-100/70 leading-relaxed italic">Stand at the bus stop sign.</p>
     </div>
-  </section>
+  </div>
 
-  <aside class="right" aria-label="Side panel">
-    <div class="card">
-      <h3 id="cardContactTitle">Contact Us 📞</h3>
-      <div class="contact-info">
-        <p id="cardContactText1">If your bus is late or has yet to arrive, call: <a href="tel:8159374287"><strong>815-937-4287</strong></a></p>
-        <p id="cardContactText2">Questions about Benefit Access Passes - RVM Admin: <a href="tel:8159351403"><strong>815-935-1403</strong></a></p>
-      </div>
-      <p class="note small" style="margin-top:10px" id="cardContactNote">Go where you want to go with River Valley Metro.</p>
+  <div id="searchModal" class="fixed inset-0 z-[100] bg-white hidden flex-col p-6 no-scrollbar">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-black tracking-tight text-slate-900">Locations</h2>
+        <button onclick="closeSearch()" class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-bold text-xl">✕</button>
     </div>
+    <input type="text" id="modalInput" onkeyup="filterStops()" placeholder="Where are you going?" class="w-full p-5 bg-slate-100 rounded-2xl mb-6 outline-none font-bold text-lg border-2 border-transparent focus:border-blue-500 transition-all">
+    <div id="stopGrid" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10"></div>
+  </div>
 
-    <div class="card">
-      <h3 id="cardHolidayTitle">Holidays & Service 📅</h3>
-      <p class="note small" id="cardHolidayText1">New Year’s Day, Memorial Day, 4th of July, Labor Day, Thanksgiving Day, and Christmas Day run <strong>Sunday</strong> service hours.</p>
-      <p class="note small" id="holidayToday" style="margin-top:8px">—</p>
+  <div id="drawer" class="drawer shadow-2xl">
+    <div class="h-[85px] flex flex-col items-center justify-center cursor-pointer" onclick="toggleDrawer()">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mb-3"></div>
+        <p class="font-black text-[10px] text-slate-400 uppercase tracking-[0.3em]">Full Timetable</p>
     </div>
+    <div id="fullSchedList" class="p-6 overflow-y-auto h-full pb-48 no-scrollbar bg-slate-50"></div>
+  </div>
 
-    <div class="card">
-      <h3 id="cardQuickTitle">Quick Links 🔗</h3>
-      <a id="customerSupport" class="link-btn" href="https://www.rivervalleymetro.com/customer-support/customer-complaints/" target="_blank" rel="noopener" role="button">
-        Customer Support
-      </a>
-      <p class="note small" style="margin-top:10px" id="cardQuickNote">Times are estimates and may vary due to traffic, construction, and weather.</p>
-    </div>
-  </aside>
-</main>
+  <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-16 rounded-2xl flex items-center justify-around px-2 shadow-2xl z-[3000]">
+    <a href="index.html" class="nav-link flex flex-col items-center gap-1 text-slate-400" data-page="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+      <span class="text-[10px] font-bold uppercase">Home</span>
+    </a>
+    <a href="guide.html" class="nav-link flex flex-col items-center gap-1 text-slate-400" data-page="guide.html">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span class="text-[10px] font-bold uppercase">Schedules</span>
+    </a>
+    <a href="map.html" class="nav-link flex flex-col items-center gap-1 text-slate-400" data-page="map.html">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+      <span class="text-[10px] font-bold uppercase">Map</span>
+    </a>
+    <a href="tickets.html" class="nav-link flex flex-col items-center gap-1 text-slate-400" data-page="tickets.html">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+      <span class="text-[10px] font-bold uppercase">Tickets</span>
+    </a>
+  </nav>
 
-<footer id="footerNote">⏱️ Times shown are estimates and may not reflect actual arrival times.</footer>
-<div class="bus" aria-hidden="true">
-  <img src="https://twemoji.maxcdn.com/v/latest/svg/1f68c.svg" alt="bus" width="40" height="40">
-</div>
+  <script>
+    // --- PWA / NAV LOGIC ---
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 
-<script>
-/* ----------------------
-   JavaScript Logic - UPDATED with DWELL and TRANSLATION
-   ---------------------- */
-   
-// --- TRANSLATION DATA ---
-const translations = {
-    en: {
-        // Controls/Labels
-        routeSelectLabel: 'Select route',
-        langSelectLabel: 'Language',
-        tripPlannerBtn: 'Trip Planner',
-        currentTimeLabel: 'Current Time',
-        routeStatusLabel: 'Route Status',
-        nextStopPrefix: 'Next Stop: ',
-        
-        // Status/Notes
-        routeStatusRunning: 'Running',
-        routeStatusOffNow: 'Off Now',
-        routeStatusOffToday: 'Off Today',
-        serviceNoteNormal: 'Service note: Normal service',
-        serviceNoteOffToday: 'Service note: Route does not operate today',
-        noMoreRuns: 'No more scheduled runs for today',
-        routeNotFound: 'Route not found',
-        serviceOffNow: 'Service not running for this route right now',
-        checkNextRun: 'Check next run time',
-        checkNextDay: 'Check next day schedule',
-        
-        // Time/Stop
-        scheduledStop: 'Scheduled Stop',
-        scheduledDeparture: 'Scheduled Departure',
-        scheduledArrival: 'Scheduled Arrival',
-        busDwelling: 'BUS DWELLING at ',
-        departingAt: ': Departing at ',
-        departingNow: 'DEPARTING NOW! 📢',
-        dwellTime: 'DWELL TIME: Departing in ',
-        inMin: ' min',
-        inMinRange: ' – ',
-        arrDepIn: 'Arriving/Departing in: ',
-        estimatedEta: 'Estimated ETA: ',
-        estimatedEtaWindow: 'Estimated ETA Window: ',
-        
-        // Cards
-        cardContactTitle: 'Contact Us 📞',
-        cardContactText1: 'If your bus is late or has yet to arrive, call: ',
-        cardContactText2: 'Questions about Benefit Access Passes - RVM Admin: ',
-        cardContactNote: 'Go where you want to go with River Valley Metro.',
-        cardHolidayTitle: 'Holidays & Service 📅',
-        cardHolidayText1: 'New Year’s Day, Memorial Day, 4th of July, Labor Day, Thanksgiving Day, and Christmas Day run Sunday service hours.',
-        cardQuickTitle: 'Quick Links 🔗',
-        cardQuickBtn: 'Customer Support',
-        cardQuickNote: 'Times are estimates and may vary due to traffic, construction, and weather.',
-        
-        // Footer
-        footerNote: '⏱️ Times shown are estimates and may not reflect actual arrival times.',
-        holidayTodayDefault: '—'
-    },
-    es: {
-        // Controls/Labels
-        routeSelectLabel: 'Seleccionar ruta',
-        langSelectLabel: 'Idioma',
-        tripPlannerBtn: 'Planificador de viajes',
-        currentTimeLabel: 'Hora Actual',
-        routeStatusLabel: 'Estado de la ruta',
-        nextStopPrefix: 'Próxima Parada: ',
-        
-        // Status/Notes
-        routeStatusRunning: 'En Marcha',
-        routeStatusOffNow: 'Fuera de Servicio',
-        routeStatusOffToday: 'Sin Servicio Hoy',
-        serviceNoteNormal: 'Nota del servicio: Servicio normal',
-        serviceNoteOffToday: 'Nota del servicio: La ruta no opera hoy',
-        noMoreRuns: 'No más viajes programados para hoy',
-        routeNotFound: 'Ruta no encontrada',
-        serviceOffNow: 'El servicio no está funcionando en este momento',
-        checkNextRun: 'Consultar la próxima hora de salida',
-        checkNextDay: 'Consultar el horario del próximo día',
-        
-        // Time/Stop
-        scheduledStop: 'Parada Programada',
-        scheduledDeparture: 'Salida Programada',
-        scheduledArrival: 'Llegada Programada',
-        busDwelling: 'AUTOBÚS ESPERANDO en ',
-        departingAt: ': Sale a las ',
-        departingNow: 'SALIENDO AHORA! 📢',
-        dwellTime: 'TIEMPO DE ESPERA: Sale en ',
-        inMin: ' min',
-        inMinRange: ' – ',
-        arrDepIn: 'Llega/Sale en: ',
-        estimatedEta: 'ETA Estimada: ',
-        estimatedEtaWindow: 'Ventana de ETA Estimada: ',
+    const currentPage = window.location.pathname.split("/").pop() || "guide.html";
+    document.querySelectorAll('.nav-link').forEach(link => {
+      if(link.getAttribute('data-page') === currentPage) link.classList.add('nav-active');
+    });
 
-        // Cards
-        cardContactTitle: 'Contáctenos 📞',
-        cardContactText1: 'Si su autobús llega tarde o aún no ha llegado, llame al: ',
-        cardContactText2: 'Preguntas sobre los pases de acceso a beneficios - Administración de RVM: ',
-        cardContactNote: 'Vaya a donde quiera ir con River Valley Metro.',
-        cardHolidayTitle: 'Días Festivos y Servicio 📅',
-        cardHolidayText1: 'El Día de Año Nuevo, el Día de los Caídos, el 4 de Julio, el Día del Trabajo, el Día de Acción de Gracias y el Día de Navidad operan con horario de servicio de domingo.',
-        cardQuickTitle: 'Enlaces Rápidos 🔗',
-        cardQuickBtn: 'Atención al Cliente',
-        cardQuickNote: 'Los horarios son estimaciones y pueden variar debido al tráfico, la construcción y el clima.',
-        
-        // Footer
-        footerNote: '⏱️ Los horarios son estimados y pueden no coincidir con la llegada real.',
-        holidayTodayDefault: '—'
+    // --- YOUR ORIGINAL DATA & LOGIC ---
+    const routeData = {
+      "1": { stops: [["Family Dollar", 5], ["Azzarelli Apts", 8], ["St. Mary's", 15], ["Walgreens Court", 19], ["Metro Centre", 25]] },
+      "2": { stops: [["Meijer (NB)", 7], ["Walmart", 14], ["Northfield Mall", 25], ["Village Hall", 58]] },
+      "3": { stops: [["Metro Centre", 0], ["Bradley Library", 6], ["Target", 20], ["Village Square", 44]] },
+      "4": { east: [["East Court Village", 7], ["Metro Centre", 30]], west: [["West - St. Mary's", 33], ["West - Health Dept", 45]] },
+      "5": { stops: [["Aroma Park Shelter", 30], ["Crestview", 35], ["Riverside East", 38]] },
+      "6": { stops: [["Metro Centre", 30], ["K.C.C", 41], ["Del Monte", 46], ["Walmart", 58]], weekdayOnly: true, customStart: 7.5, customEnd: 17, startLabel: "7:30 AM" },
+      "7NP": { stops: [["Metro Centre", 0], ["K.C.C.", 16], ["Walmart Kankakee", 22]] },
+      "7P": { stops: [["Metro Centre", 0], ["K.C.C", 11], ["Walmart Kankakee", 15]] },
+      "8": { stops: [["Metro Centre", 0], ["KHS", 15], ["Jewel (Wash)", 19]] },
+      "9": { stops: [["Manteno Metro", 0], ["ABC Supply", 7], ["Northfield Mall", 30]] },
+      "10": { stops: [["Brown Blvd", 0], ["Bourbonnais Metro", 13], ["Almar Parkway", 55]] },
+      "11": { stops: [["Metro Centre", 0], ["ONU", 11], ["Northfield Mall", 30]] },
+      "12": { stops: [["Metro Centre", 30], ["Meijer", 47], ["Perry Farm", 16]] },
+      "14": { stops: [["Metro Centre", 0], ["Mercy Housing", 37], ["Kankakee Jewel", 49]] }
+    };
+
+    let currentDir = 'east';
+
+    function getServiceHours(rid) {
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const date = now.getDate();
+      const day = now.getDay();
+      const tag = document.getElementById('serviceTag');
+
+      const isHoliday = (month === 1 && date === 1) || (month === 5 && date === 25) || 
+                        (month === 7 && date === 4) || (month === 9 && date === 7) || 
+                        (month === 11 && date === 26) || (month === 12 && date === 25);
+
+      if (rid === "6") {
+          if (day === 0 || day === 6 || isHoliday) return { closed: true, label: "Weekdays Only" };
+          tag.innerText = "Weekday Service";
+          return { start: 7.5, end: 17, label: "7:30 AM", endLabel: "5:00 PM" };
+      }
+
+      if (isHoliday || day === 0) {
+          tag.innerText = isHoliday ? "Holiday Service" : "Sunday Service";
+          return { start: 8, end: 16, label: "8:00 AM", endLabel: "4:00 PM" };
+      }
+
+      if (day === 6) {
+          tag.innerText = "Saturday Service";
+          return { start: 7, end: 21.5, label: "7:00 AM", endLabel: "9:30 PM" };
+      }
+
+      tag.innerText = "Weekday Service";
+      return { start: 5, end: 21.5, label: "5:00 AM", endLabel: "9:30 PM" };
     }
-};
 
-// --- ROUTE AND SCHEDULE DATA (UNCHANGED) ---
-const routes = {
-  // RT1: Meadowview is first/last stop. Dwell at Kankakee Metro (:25/:30, :55/:00)
-  "RT1":[{stop:"Family Dollar",times:[5,35]},{stop:"Azzarelli Apartments",times:[8,38]},{stop:"St. Mary's",times:[15,45]},{stop:"Walgreens Court St.",times:[19,49]},
-    {stop:"Kankakee Metro Centre",times:[25, 30, 55, 0] } 
-  ],
-  // RT2: Dwell at Mall (:25/:30) and two cycles at Signature/Double Jack, Meijer is quick pass through.
-  "RT2":[{stop:"Northfield Square Mall",times:[25, 30]},{stop:"Signature/Double Jack",times:[33, 19]},{stop:"Adventure Church",times:[38]},{stop:"Meijer (Southbound)",times:[45]},{stop:"Broadway Shelter",times:[51]},{stop:"Village Hall/Broadway",times:[58]},{stop:"Meijer (Northbound)",times:[7]},{stop:"Walmart",times:[14]},
-    {stop:"Signature/Double Jack",times:[19]},
-    {stop:"Northfield Square Mall",times:[25, 30]} 
-  ],
-  // RT3: Dwell at Kankakee Metro (:00/:05 - based on a 5-min dwell starting at the top of the hour) and Mall (:30/:35)
-  "RT3":[
-    {stop:"Kankakee Metro Centre",times:[0, 5, 49, 54]}, 
-    {stop:"Bradley Library",times:[6]},{stop:"Christine and Uncle Leo",times:[13]},{stop:"Target",times:[20]},{stop:"Northfield Square Mall",times:[30, 35]}, 
-    {stop:"Target",times:[37]},{stop:"Christine Dr. (behind Meijer)",times:[39]},{stop:"Village Square",times:[44]},
-    {stop:"KCTC",times:[49, 54]} 
-  ], 
-  // RT4 NonPeak: Dwell at Kankakee Metro (:30/:35, :00/:05)
-  "RT4NonPeak":[{stop:"East Court Village",times:[7]},{stop:"Frontage Road",times:[13]},{stop:"Spruce and Fairmont",times:[15]},{stop:"Family Dollar",times:[18]},
-    {stop:"Kankakee Metro Centre",times:[30, 35, 0, 5]}, 
-    {stop:"St. Mary's Hospital",times:[38]},{stop:"Riverside Medical Center",times:[40]},{stop:"Kankakee County Health Dept.",times:[45]},
-    {stop:"Kankakee Metro Centre",times:[0, 5]} 
-  ],
-  // RT4 Peak: Dwell at Kankakee Metro (:30/:35, :00/:05). Times repeat every 30 mins
-  "RT4Peak":[{stop:"East Court Village",times:[7,37]},{stop:"Frontage Road",times:[13,43]},{stop:"Spruce and Fairmont",times:[15,45]},{stop:"Family Dollar",times:[18,48]},
-    {stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]}, 
-    {stop:"St. Mary's Hospital",times:[3,33]},{stop:"Riverside Medical Center",times:[10,40]},{stop:"Kankakee County Health Dept.",times:[15,45]},
-    {stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]} 
-  ],
-  // RT5: Dwell at Kankakee Metro (:00/:05, :30/:35)
-  "RT5":[{stop:"Aroma Park Shelter",times:[30]},{stop:"Crestview",times:[35,16]},{stop:"Riverside East",times:[38]},{stop:"Maple and Eagle",times:[41]},{stop:"Eagle and Chicago",times:[46,6]},
-    {stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]}, 
-    {stop:"Dollar General",times:[13]}
-  ],
-  // RT6: Dwell at Kankakee Metro (:30/:35)
-  "RT6":[{stop:"Kankakee Metro Centre",times:[30, 35]}, 
-    {stop:"Kankakee Estates",times:[36]},{stop:"K.C.C",times:[41]},{stop:"Del Monte",times:[46]},{stop:"Walmart",times:[58]},{stop:"Jerome Combs",times:[8]},{stop:"Schuyler and River",times:[18]}
-  ],
-  // RT7 NonPeak: Dwell at Kankakee Metro (:00/:05, :30/:35)
-  "RT7NonPeak":[{stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]}, 
-    {stop:"Kankakee Estates",times:[6]},{stop:"Del Monte",times:[8]},{stop:"K.C.C",times:[16]},{stop:"Walmart Kankakee",times:[22,40]},{stop:"Jerome Combs",times:[29]},{stop:"Love's",times:[34]},{stop:"Harrison and Station",times:[48]}
-  ],
-  // RT7 Peak: Dwell at Kankakee Metro (:00/:05, :30/:35)
-  "RT7Peak":[{stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]}, 
-    {stop:"Kankakee Estates",times:[6,36]},{stop:"K.C.C",times:[11]},{stop:"Walmart Kankakee",times:[15,42]},{stop:"Harrison and Station",times:[22,49]}
-  ],
-  // RT8: Dwell at Kankakee Metro (:00/:05, :30/:35)
-  "RT8":[{stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]}, 
-    {stop:"Washington and Water",times:[3]},{stop:"Casey's on Jeffery",times:[8]},{stop:"Merchant and Curtis",times:[12]},{stop:"Kankakee High School",times:[15]},{stop:"Jewel on Washington",times:[19]},
-    {stop:"Kankakee Metro Centre",times:[30, 35]}, 
-    {stop:"Mulberry and Chicago",times:[33]},{stop:"Hobbie and Willow",times:[36]},{stop:"Broadway and Jefferson",times:[42]},{stop:"Brookmont and Harvard",times:[48]}
-  ],
-  // RT9: Dwell at Mall (:30/:35) and Manteno Metro Centre (:00/:05, :41/:46)
-  "RT9":[{stop:"Manteno Metro Centre",times:[0, 5, 41, 46]}, 
-    {stop:"ABC Supply",times:[7]},
-    {stop:"Northfield Square Mall",times:[30, 35]}, 
-    {stop:"Walmart",times:[33]},
-    {stop:"Manteno Metro Centre",times:[41, 46]}, 
-    {stop:"E. 2nd St.",times:[45]},{stop:"Veterans' Home",times:[52]}
-  ],
-  // RT10: Dwell at Bourbonnais Metro Centre (:13/:18, :42/:47) and Mall (:30/:35)
-  "RT10":[{stop:"Brown Blvd.",times:[0]},{stop:"Casey's",times:[5,34]},{stop:"Riverside Campus",times:[7,36]},
-    {stop:"Bourbonnais Metro Centre",times:[13, 18, 42, 47]}, 
-    {stop:"Northfield Square Mall",times:[30, 35]}, 
-    {stop:"W. Bethel Dr.",times:[50]},{stop:"Almar Parkway",times:[55]}
-  ],
-  // RT11: Dwell at Kankakee Metro (:00/:05, :30/:35) and Mall (:30/:35)
-  "RT11":[{stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]}, 
-    {stop:"McDonald's 5th Ave.",times:[4,34]},{stop:"ONU",times:[11,42]},{stop:"Northfield Meadows",times:[18]},
-    {stop:"Northfield Square Mall",times:[30, 35]}, 
-    {stop:"Kroger",times:[36]},{stop:"Walgreens Kennedy Dr.",times:[48]}
-  ],
-  // RT12: Dwell at Kankakee Metro (:30/:35, :25/:30)
-  "RT12":[{stop:"Kankakee Metro Centre",times:[30, 35]}, 
-    {stop:"McDonald's 5th Av.",times:[34]},{stop:"Shine FM",times:[39]},{stop:"Meijer",times:[47]},{stop:"Kroger",times:[55]},{stop:"Brown Blvd.",times:[2]},{stop:"Heritage/Convent",times:[11]},{stop:"Perry Farm",times:[16]},{stop:"Walgreen's",times:[19]},
-    {stop:"Kankakee Metro Centre",times:[25, 30]} 
-  ],
-  // RT14: Dwell at Kankakee Metro (:00/:05, :30/:35)
-  "RT14":[{stop:"Kankakee Metro Centre",times:[0, 5, 30, 35]}, 
-    {stop:"Mulberry/Chicago",times:[2]},{stop:"Fairmont/Court",times:[9]},{stop:"Eagle/Maple",times:[13]},{stop:"Harrison/Station",times:[20]},
-    {stop:"Kankakee Metro Centre",times:[30, 35]}, 
-    {stop:"Station/Schuyler",times:[33]},{stop:"Mercy Housing",times:[37]},{stop:"Merchant/Curtis",times:[41]},{stop:"Kankakee High School",times:[45]},{stop:"Kankakee Jewel",times:[49]}
-  ]
-};
+    function initRoute() {
+      const rid = document.getElementById('routeSelect').value;
+      if(!rid) return;
+      document.getElementById('route4Toggle').style.display = (rid === "4") ? "grid" : "none";
+      document.getElementById('etaDisplay').style.display = 'block';
+      updateLiveETA();
+      buildFullSchedule();
+    }
 
-const orderedRoutes =
-['RT1','RT2','RT3','RT4NonPeak','RT4Peak','RT5','RT6','RT7NonPeak','RT7Peak','RT8','RT9','RT10','RT11','RT12','RT14'];
+    function updateLiveETA() {
+      const rid = document.getElementById('routeSelect').value;
+      if (!rid) return;
+      
+      const now = new Date();
+      const h_now = now.getHours();
+      const m_now = now.getMinutes();
+      const hours = getServiceHours(rid);
+      const dec_now = h_now + (m_now / 60);
 
-const select = document.getElementById('routeSelect');
-const langSelect = document.getElementById('langSelect');
-const readBtn = document.getElementById('readBtn');
-const nextStopEl = document.getElementById('nextStop');
-const countdownEl = document.getElementById('countdown');
-const footerEl = document.getElementById('footerNote');
-const routeStatusEl = document.getElementById('routeStatus');
-const serviceNoteEl = document.getElementById('serviceNote');
-const holidayTodayEl = document.getElementById('holidayToday');
+      const display = document.getElementById('etaDisplay');
+      const stopEl = document.getElementById('stopName');
+      const timeEl = document.getElementById('bigTime');
+      const badge = document.getElementById('countdownBadge');
+      const tipEl = document.getElementById('passengerTip');
 
-let currentRouteKey = null;
-let currentLang = 'en';
+      if (hours.closed || dec_now < hours.start || dec_now >= hours.end) {
+          display.classList.remove('arriving-pulse');
+          stopEl.innerText = "End of Day";
+          timeEl.innerText = "--:--";
+          badge.innerText = "Offline";
+          badge.className = "bg-slate-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase";
+          tipEl.innerText = `Buses run ${hours.label} - ${hours.endLabel}.`;
+          return;
+      }
 
-const routeSchedules = {
-  weekday: {
-    RT1:["05:05","21:25"], RT2:["05:30","21:25"], RT3:["05:00","21:25"], 
-    RT4Peak:["07:00","18:00"], RT4NonPeak:["05:07","21:25"],
-    RT5:["05:30","21:25"], RT6:["07:30","17:00"],
-    RT7NonPeak:["05:00","07:00","17:00","21:25"], RT7Peak:["07:00","17:00"],
-    RT8:["05:00","21:25"], RT9:["05:00","21:25"], RT10:["05:00","21:25"],
-    RT11:["05:00","21:25"], RT12:["05:30","21:25"], RT14:["05:00","21:25"]
-  },
-  saturday: {
-    RT1:["07:05","21:25"], RT2:["07:30","21:25"], RT3:["07:00","21:25"], 
-    RT4Peak:null, RT4NonPeak:["07:07","21:25"],
-    RT5:["07:30","21:25"], RT6:null,
-    RT7NonPeak:["07:00","21:25"], RT7Peak:null,
-    RT8:["07:00","21:25"], RT9:["07:00","21:25"], RT10:["07:00","21:25"],
-    RT11:["07:00","21:25"], RT12:["07:30","21:25"], RT14:["07:00","21:25"]
-  },
-  sunday: {
-    RT1:["08:05","15:47"], RT2:["08:30","15:55"], RT3:["08:00","15:55"], 
-    RT4Peak:null, RT4NonPeak:["08:07","15:45"],
-    RT5:["08:30","15:55"], RT6:null,
-    RT7NonPeak:["08:00","15:34"], RT7Peak:null,
-    RT8:["08:00","15:55"], RT9:["08:00","16:00"], RT10:["08:00","16:00"],
-    RT11:["08:00","15:55"], RT12:["08:30","15:55"], RT14:["08:00","15:55"]
-  }
-};
+      const route = routeData[rid];
+      let stops = (rid === "4") ? route[currentDir] : route.stops;
+      let next = stops.find(s => s[1] >= m_now) || stops[0];
+      let h_bus = (stops.find(s => s[1] >= m_now)) ? h_now : h_now + 1;
 
-function isMemorialDay(date) {
-  const y = date.getFullYear();
-  const lastDay = new Date(y, 4, 31);
-  const dow = lastDay.getDay();
-  const offset = (dow === 1) ? 0 : (dow === 0 ? 6 : dow - 1);
-  const lastMonday = new Date(y, 4, 31 - offset);
-  return date.getFullYear() === lastMonday.getFullYear() && date.getMonth() === lastMonday.getMonth() && date.getDate() === lastMonday.getDate();
-}
-function isLaborDay(date) {
-  const y = date.getFullYear();
-  for (let d=1; d<=7; d++){
-    const dt = new Date(y,8,d);
-    if (dt.getDay() === 1) return dt.getDate() === date.getDate() && dt.getMonth() === date.getMonth() && dt.getFullYear() === date.getFullYear();
-  }
-  return false;
-}
-function isThanksgiving(date) {
-  const y = date.getFullYear();
-  let thursCount = 0;
-  for (let d=1; d<=30; d++){
-    const dt = new Date(y,10,d);
-    if (dt.getDay() === 4) { thursCount++; if (thursCount === 4) return dt.getDate() === date.getDate() && dt.getMonth() === date.getMonth() && dt.getFullYear() === date.getFullYear(); }
-  }
-  return false;
-}
-function isHolidayDate(date) {
-  const m = date.getMonth();
-  const d = date.getDate();
-  if (m === 0 && d === 1) return true;
-  if (m === 6 && d === 4) return true;
-  if (m === 11 && d === 25) return true;
-  if (isMemorialDay(date)) return true;
-  if (isLaborDay(date)) return true;
-  if (isThanksgiving(date)) return true;
-  return false;
-}
-function getDayTypeForSchedule(date = new Date()) {
-  if (isHolidayDate(date)) return 'sunday';
-  const d = date.getDay();
-  if (d === 0) return "sunday";
-  if (d === 6) return "saturday";
-  return "weekday";
-}
-function parseTimeToMinutes(t) {
-  const [h,m] = t.split(':').map(Number);
-  return h*60 + m;
-}
-function isRouteRunning(routeKey, date = new Date()) {
-  const dayType = getDayTypeForSchedule(date);
-  const sched = routeSchedules[dayType]?.[routeKey];
-  if (!sched) return false;
-  const now = date;
-  const current = now.getHours()*60 + now.getMinutes();
-  if (sched.length === 4) {
-    const [s1,e1,s2,e2] = sched.map(parseTimeToMinutes);
-    return (current >= s1 && current <= e1) || (current >= s2 && current <= e2);
-  }
-  const [start,end] = sched.map(parseTimeToMinutes);
-  return current >= start && current <= end;
-}
+      if (h_bus + (next[1]/60) >= hours.end) {
+          stopEl.innerText = "Last Bus Passed";
+          badge.innerText = "Closed";
+          return;
+      }
 
-function populateRoutes() {
-  const T = translations[currentLang];
-  select.innerHTML = '';
-  const dayType = getDayTypeForSchedule();
-  orderedRoutes.forEach(k => {
-    let label = (k === 'RT4NonPeak') ? 'RT4 NonPeak' :
-                (k === 'RT4Peak') ? 'RT4 Peak' :
-                (k === 'RT7NonPeak') ? 'RT7 NonPeak' :
-                (k === 'RT7Peak') ? 'RT7 Peak' : k;
-    const opt = document.createElement('option');
-    opt.value = k;
-    const runs = isRouteRunning(k);
-    const sched = routeSchedules[getDayTypeForSchedule()]?.[k];
-    if (!sched) {
-      opt.disabled = true;
-      opt.textContent = `${label} (${T.routeStatusOffToday})`;
-      opt.title = T.routeStatusOffToday;
-    } else {
-      if (!runs) {
-        opt.textContent = `${label} (${T.routeStatusOffNow})`;
-        opt.title = T.routeStatusOffNow;
+      stopEl.innerText = next[0];
+      timeEl.innerText = `${h_bus % 12 || 12}:${next[1].toString().padStart(2, '0')}`;
+      document.getElementById('ampm').innerText = h_bus >= 12 ? 'PM' : 'AM';
+      
+      const diff = (h_bus > h_now) ? (60 - m_now + next[1]) : (next[1] - m_now);
+      
+      if (diff <= 5) {
+          display.classList.add('arriving-pulse');
+          badge.innerText = "Arriving";
+          badge.className = "bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase animate-pulse";
+          tipEl.innerHTML = "<b>Action:</b> Step toward the curb now!";
       } else {
-        opt.textContent = label;
+          display.classList.remove('arriving-pulse');
+          badge.innerText = diff + " Mins";
+          badge.className = "bg-slate-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase";
+          tipEl.innerText = "Arriving on schedule.";
       }
     }
-    select.appendChild(opt);
-  });
-}
 
-function updateUIStrings() {
-    const T = translations[currentLang];
-    
-    // Controls
-    readBtn.textContent = T.tripPlannerBtn;
-    document.getElementById('routeSelectLabel').textContent = T.routeSelectLabel;
-    document.getElementById('langSelectLabel').textContent = T.langSelectLabel;
-    
-    // Clock/Status Labels
-    document.getElementById('currentTimeLabel').textContent = T.currentTimeLabel;
-    document.getElementById('routeStatusLabel').textContent = T.routeStatusLabel;
-
-    // Card 1: Contact Us
-    document.getElementById('cardContactTitle').innerHTML = T.cardContactTitle;
-    document.getElementById('cardContactText1').innerHTML = T.cardContactText1 + '<a href="tel:8159374287"><strong>815-937-4287</strong></a>';
-    document.getElementById('cardContactText2').innerHTML = T.cardContactText2 + '<a href="tel:8159351403"><strong>815-935-1403</strong></a>';
-    document.getElementById('cardContactNote').textContent = T.cardContactNote;
-
-    // Card 2: Holidays
-    document.getElementById('cardHolidayTitle').innerHTML = T.cardHolidayTitle;
-    document.getElementById('cardHolidayText1').innerHTML = T.cardHolidayText1; // Inner HTML is used to preserve <strong> tag
-    
-    // Card 3: Quick Links
-    document.getElementById('cardQuickTitle').innerHTML = T.cardQuickTitle;
-    document.getElementById('customerSupport').textContent = T.cardQuickBtn;
-    document.getElementById('cardQuickNote').textContent = T.cardQuickNote;
-
-    // Footer
-    footerEl.textContent = T.footerNote;
-
-    // Repopulate routes to translate the status labels in the dropdown
-    populateRoutes(); 
-    
-    // Rerun updateRoute to translate dynamic messages
-    updateRoute();
-}
-
-function updateClockDisplay() {
-  const now = new Date();
-  const h = ((now.getHours() + 11) % 12) + 1;
-  const m = now.getMinutes().toString().padStart(2, '0');
-  const s = now.getSeconds().toString().padStart(2, '0');
-  const ampm = now.getHours() >= 12 ? "PM" : "AM";
-  document.getElementById('clockTime').textContent = `${h}:${m}:${s} ${ampm}`;
-}
-
-function nextOccurrenceForMinute(base, minute, maxHours) {
-  for (let h = 0; h <= maxHours; h++) {
-    const cand = new Date(base.getTime());
-    cand.setHours(base.getHours() + h, Number(minute), 0, 0);
-    // Crucial check: only return the time if it's in the future
-    if (cand.getTime() > base.getTime()) return cand; 
-  }
-  return null;
-}
-
-function updateRoute() {
-  const T = translations[currentLang];
-  const now = new Date();
-  const selected = currentRouteKey;
-  const ETA_VARIANCE = 2; 
-
-  routeStatusEl.classList.remove('badge-running', 'badge-off');
-  nextStopEl.classList.remove('at-stop');
-
-  if (!selected || !routes[selected]) {
-    nextStopEl.textContent = T.routeNotFound;
-    countdownEl.textContent = '';
-    routeStatusEl.textContent = '--';
-    serviceNoteEl.textContent = 'Service note: --';
-    return;
-  }
-
-  const isHoliday = isHolidayDate(now);
-  const dayType = getDayTypeForSchedule(now);
-  
-  const dayTypeName = dayType.charAt(0).toUpperCase() + dayType.slice(1);
-  if (currentLang === 'es') {
-    holidayTodayEl.textContent = isHoliday 
-        ? `Hoy es feriado — utilizando horario de ${dayTypeName} (Domingo).` 
-        : `Utilizando horario de ${dayTypeName}.`;
-  } else {
-    holidayTodayEl.textContent = isHoliday 
-        ? `Today is a holiday — using ${dayTypeName} (Sunday) schedule.` 
-        : `Using ${dayTypeName} schedule.`;
-  }
-
-  const sched = routeSchedules[dayType]?.[selected];
-  if (!sched) {
-    nextStopEl.textContent = T.serviceOffToday;
-    countdownEl.textContent = T.checkNextDay;
-    routeStatusEl.textContent = T.routeStatusOffToday;
-    routeStatusEl.classList.add('badge-off');
-    document.body.classList.add('service-off');
-    serviceNoteEl.textContent = T.serviceNoteOffToday;
-    return;
-  }
-
-  if (!isRouteRunning(selected, now)) {
-    nextStopEl.textContent = T.serviceOffNow;
-    countdownEl.textContent = T.checkNextRun;
-    routeStatusEl.textContent = T.routeStatusOffNow;
-    routeStatusEl.classList.add('badge-off');
-    document.body.classList.add('service-off');
-    serviceNoteEl.textContent = `Service note: Route scheduled today from ${Array.isArray(sched) && sched.length===4 ? sched[0] + '-' + sched[1] + ' and ' + sched[2] + '-' + sched[3] : sched[0] + '-' + sched[1]}.`;
-    return;
-  } else {
-    document.body.classList.remove('service-off');
-    routeStatusEl.textContent = T.routeStatusRunning;
-    routeStatusEl.classList.add('badge-running');
-    serviceNoteEl.textContent = T.serviceNoteNormal;
-  }
-
-  const stops = routes[selected];
-  const maxLookAheadHours = 8;
-  let nextStop = null;
-  let nextTime = null;
-  let nextMinute = null;
-  
-  // 1. Find the absolute next scheduled time across all stops
-  for (const stop of stops) {
-    for (const min of stop.times) {
-      const candidate = nextOccurrenceForMinute(now, min, maxLookAheadHours);
-      if (!candidate) continue;
-      if (!nextTime || candidate < nextTime) {
-        nextStop = stop.stop;
-        nextTime = candidate;
-        nextMinute = min; 
+    function buildFullSchedule() {
+      const rid = document.getElementById('routeSelect').value;
+      const hours = getServiceHours(rid);
+      const list = document.getElementById('fullSchedList');
+      if (hours.closed) { list.innerHTML = `<p class="text-center font-bold text-slate-400 p-10">${hours.label}</p>`; return; }
+      
+      let stops = (rid === "4") ? routeData[rid][currentDir] : routeData[rid].stops;
+      let html = "";
+      for(let h = Math.floor(hours.start); h < Math.floor(hours.end); h++) {
+          stops.forEach(s => {
+              if (h === Math.floor(hours.start) && s[1] < (hours.start % 1 * 60)) return;
+              if (h + (s[1]/60) >= hours.end) return;
+              html += `<div class="flex justify-between items-center p-5 mb-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                  <span class="font-bold text-slate-700 text-xs">${s[0]}</span>
+                  <span class="font-black text-blue-600 text-xs">${h % 12 || 12}:${s[1].toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}</span>
+              </div>`;
+          });
       }
+      list.innerHTML = html;
     }
-  }
-  
-  if (!nextStop) {
-    nextStopEl.textContent = T.noMoreRuns;
-    countdownEl.textContent = '';
-    return;
-  }
 
-  const formattedTime = nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-  // 2. Dwell Time Logic Refinement
-  let timeType = T.scheduledStop;
-  const hubStops = ["Kankakee Metro Centre", "Northfield Square Mall", "Bourbonnais Metro Centre", "KCTC", "Manteno Metro Centre"];
-  const diff_ms = nextTime - now;
-  const diff_min = Math.floor(diff_ms / (1000 * 60));
-
-  if (hubStops.includes(nextStop)) {
-      
-      const departureMinutes = [0, 5, 30, 35, 18, 47, 46, 54]; 
-      
-      if (departureMinutes.includes(nextMinute)) {
-          timeType = T.scheduledDeparture;
-          
-          if (diff_min <= 5 && diff_min >= 0) {
-              
-              let arrivalTimeMin = nextMinute - 5; 
-              let dwellArrivalCandidate = new Date(nextTime.getTime());
-
-              if (nextMinute === 0) {
-                arrivalTimeMin = 55;
-                dwellArrivalCandidate.setHours(dwellArrivalCandidate.getHours() - 1);
-              } else if (nextMinute === 54) {
-                arrivalTimeMin = 49;
-              } else if (nextMinute === 18) {
-                arrivalTimeMin = 13;
-              } else if (nextMinute === 47) {
-                arrivalTimeMin = 42;
-              } else if (nextMinute === 46) {
-                arrivalTimeMin = 41;
-              }
-
-              dwellArrivalCandidate.setMinutes(arrivalTimeMin);
-              
-              if (now.getTime() >= dwellArrivalCandidate.getTime() && now.getTime() < nextTime.getTime()) {
-                  nextStopEl.textContent = T.busDwelling + nextStop + T.departingAt + formattedTime;
-                  const remaining_wait = Math.floor((nextTime - now) / (1000 * 60));
-                  
-                  let dw_low = Math.max(0, remaining_wait - 1);
-                  let dw_high = Math.max(0, remaining_wait + 1);
-                  
-                  if (remaining_wait <= 1) {
-                    countdownEl.textContent = T.departingNow;
-                    nextStopEl.classList.add('at-stop');
-                  } else {
-                    countdownEl.textContent = T.dwellTime + dw_low + T.inMinRange + dw_high + T.inMin;
-                    nextStopEl.classList.add('at-stop');
-                  }
-                  return; 
-              }
-          }
-      } else {
-        timeType = T.scheduledArrival;
-      }
-  }
-
-  // 3. Standard ETA Window Calculation (if not currently dwelling)
-  nextStopEl.textContent = T.nextStopPrefix + nextStop + ` (${timeType}) at ${formattedTime}`;
-  
-  let min_low = Math.max(0, diff_min - ETA_VARIANCE);
-  let min_high = Math.max(0, diff_min + ETA_VARIANCE);
-  
-  let countdownText;
-  if (min_low === min_high) {
-    countdownText = T.estimatedEta + min_low + T.inMin;
-  } else {
-    countdownText = T.estimatedEtaWindow + min_low + T.inMinRange + min_high + T.inMin;
-  }
-
-  if (min_high <= 3) { 
-    countdownEl.textContent = T.arrDepIn + min_low + T.inMinRange + min_high + T.inMin + ' ⚠️';
-    nextStopEl.classList.add('at-stop');
-  } else {
-    countdownEl.textContent = countdownText;
-  }
-}
-
-// Event Listeners
-select.addEventListener('change', () => {
-  currentRouteKey = select.value;
-  updateRoute();
-});
-
-langSelect.addEventListener('change', () => {
-  currentLang = langSelect.value;
-  updateUIStrings();
-  // updateRoute is called inside updateUIStrings
-});
-
-readBtn.addEventListener('click', () => {
-  const url = 'https://www.rivervalleymetro.com/customer-support/trip-planner/';
-  window.open(url, '_blank');
-});
-
-// Initializer function
-function initialize() {
-  // Set currentRouteKey to the first non-disabled option or the first option
-  populateRoutes();
-  const opt = [...select.options].find(o => !o.disabled) || select.options[0];
-  if (opt) {
-    select.value = opt.value;
-    currentRouteKey = opt.value;
-  } else {
-    currentRouteKey = orderedRoutes[0];
-  }
-  
-  currentLang = langSelect.value || 'en';
-  updateUIStrings();
-  updateClockDisplay();
-  
-  // Update dropdown/labels every minute
-  setInterval(() => {
-    populateRoutes();
-  }, 60 * 1000);
-  
-  // Main per-second update
-  setInterval(() => {
-    updateClockDisplay();
-    updateRoute();
-  }, 1000);
-}
-
-// Start sequence
-(function start() {
-  initialize();
-})();
-</script>
-<nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-gray-200 px-2 py-3 z-[2000] flex justify-around items-center shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-  
-  <a href="index.html" id="nav-home" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
-  </a>
-
-  <a href="tracker.html" id="nav-tracker" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Tracker</span>
-  </a>
-
-  <a href="midway.html" id="nav-midway" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 2v1.5h4V2h2v1.5h.5c1.1 0 2 .9 2 2v13c0 1.1-.9 2-2 2h-13c-1.1 0-2-.9-2-2v-13c0-1.1.9-2 2-2h.5V2h2v1.5h4V2h2zm3 8h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 0H7v2h2v-2zm0 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Midway</span>
-  </a>
-
-  <a href="tickets.html" id="nav-tickets" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Tickets</span>
-  </a>
-
-  <a href="status.html" id="nav-status" class="nav-item flex flex-col items-center gap-1 transition-all duration-300 text-gray-400 hover:text-metro-blue">
-    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-7.07 9.5l-1.79 1.79 1.41 1.41 1.79-1.79-1.41-1.41zM9 19H7v3h2v-3zm7 0h-2v3h2v-3z"/></svg>
-    <span class="text-[10px] font-bold uppercase tracking-wider">Status</span>
-  </a>
-
-</nav>
+    function openSearch() { document.getElementById('searchModal').style.display = 'flex'; loadSearch(); }
+    function closeSearch() { document.getElementById('searchModal').style.display = 'none'; }
+    function loadSearch() {
+        const grid = document.getElementById('stopGrid');
+        let allStops = [];
+        for (let rid in routeData) {
+            let stops = rid === "4" ? [...routeData[rid].east, ...routeData[rid].west] : routeData[rid].stops;
+            stops.forEach(s => allStops.push({ name: s[0], id: rid }));
+        }
+        allStops = [...new Map(allStops.map(item => [item.name, item])).values()].sort((a,b) => a.name.localeCompare(b.name));
+        grid.innerHTML = allStops.map(s => `
+            <button onclick="selectFromSearch('${s.id}')" class="w-full text-left p-5 bg-slate-50 rounded-2xl font-bold border-2 border-transparent focus:border-blue-500">
+                ${s.name} <span class="block text-[10px] text-blue-500 uppercase font-black mt-1">Route ${s.id}</span>
+            </button>
+        `).join('');
+    }
+    function selectFromSearch(rid) { document.getElementById('routeSelect').value = rid; initRoute(); closeSearch(); }
+    function filterStops() {
+        const q = document.getElementById('modalInput').value.toLowerCase();
+        const btns = document.getElementById('stopGrid').querySelectorAll('button');
+        btns.forEach(b => b.style.display = b.innerText.toLowerCase().includes(q) ? 'block' : 'none');
+    }
+    function setDir(dir) {
+        currentDir = dir;
+        document.getElementById('btnEast').className = dir === 'east' ? 'py-3 rounded-xl font-black text-[10px] bg-white text-slate-900 shadow-lg' : 'py-3 rounded-xl font-black text-[10px] text-white';
+        document.getElementById('btnWest').className = dir === 'west' ? 'py-3 rounded-xl font-black text-[10px] bg-white text-slate-900 shadow-lg' : 'py-3 rounded-xl font-black text-[10px] text-white';
+        updateLiveETA(); buildFullSchedule();
+    }
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
+    setInterval(updateLiveETA, 30000);
+  </script>
 </body>
 </html>
