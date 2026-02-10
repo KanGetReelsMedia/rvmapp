@@ -2,263 +2,230 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Find My Bus | River Valley Metro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>RVM Digital Schedule</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #4779c4; color: #1e293b; margin: 0; overflow-x: hidden; }
-    .app-container { width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 140px; }
-    .glass-card { background: rgba(255, 255, 255, 0.98); border-radius: 28px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-    .status-dark { background: #0f172a; color: white; border-radius: 32px; transition: all 0.4s ease; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; margin: 0; padding: 0; overflow: hidden; height: 100vh; }
+    .app-container { width: 100vw; height: 100vh; max-width: 430px; background: #f8fafc; margin: 0 auto; position: relative; overflow: hidden; display: flex; flex-direction: column; }
     
-    /* Drawer adjustments to not overlap nav */
-    .drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 32px 32px 0 0; z-index: 50; transform: translateY(calc(100% - 110px)); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); height: 70vh; padding-bottom: 100px; }
-    .drawer.open { transform: translateY(-100px); }
+    /* Adjusted bottom padding to account for Nav Bar */
+    .main-content { flex: 1; overflow-y: auto; padding: 1.5rem; padding-bottom: 120px; }
     
-    .nav-active { color: #60a5fa !important; }
-    .nav-active svg { stroke: #60a5fa !important; }
+    .drawer { position: absolute; bottom: 100px; left: 0; right: 0; background: white; border-radius: 30px 30px 0 0; z-index: 999; transform: translateY(calc(100% - 70px)); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
+    .drawer.open { transform: translateY(0) !important; }
+    .drawer-handle { height: 70px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; border-radius: 30px 30px 0 0; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+    .scroll-hide::-webkit-scrollbar { display: none; }
+    
+    .dir-toggle { display: none; background: #e2e8f0; border-radius: 12px; padding: 4px; margin-bottom: 24px; }
+    .dir-toggle button { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 800; transition: 0.3s; }
+    .dir-toggle button.active { background: #239ed9; color: white; box-shadow: 0 4px 12px rgba(35, 158, 217, 0.3); }
+    .support-card { background: white; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; }
+
+    /* Nav bar specific styles */
+    .nav-link.active { color: #38bdf8; }
   </style>
 </head>
-<body class="no-scrollbar">
+<body>
 
-<div class="app-container p-4">
-  <div class="flex justify-between items-start mb-6 pt-4 px-2">
-    <div>
-      <h1 class="text-white text-3xl font-extrabold tracking-tight">Find My Bus</h1>
-      <p id="serviceTag" class="text-blue-100 font-bold opacity-80 text-xs uppercase tracking-widest">Checking Service...</p>
+  <div class="app-container">
+    <div class="main-content scroll-hide">
+      <div class="pt-4 mb-6">
+        <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">River Valley Metro</h1>
+        <p class="text-sky-500 font-bold text-xs uppercase tracking-widest">Digital Schedule</p>
+      </div>
+
+      <input type="text" id="destSearch" onkeyup="searchDest()" placeholder="Search stops..." class="w-full bg-white border border-slate-200 p-4 rounded-2xl mb-4 shadow-sm outline-none">
+
+      <select id="routeSelect" onchange="initRoute()" class="w-full bg-white border border-slate-200 p-4 rounded-2xl mb-6 font-bold text-slate-700 shadow-sm">
+        <option value="">-- Select Route --</option>
+        <option value="1">Route 1 - Meadowview</option>
+        <option value="2">Route 2 - Mall / Walmart</option>
+        <option value="3">Route 3 - Target / Bradley</option>
+        <option value="4">Route 4 - East Court Village</option>
+        <option value="5">Route 5 - Aroma Park</option>
+        <option value="6">Route 6 - KCC (M-F)</option>
+        <option value="7NP">Route 7 - Non-Peak</option>
+        <option value="7P">Route 7 - Peak Service</option>
+        <option value="8">Route 8 - KHS / Jewel</option>
+        <option value="9">Route 9 - Manteno</option>
+        <option value="10">Route 10 - Bourbonnais</option>
+        <option value="11">Route 11 - ONU / Mall</option>
+        <option value="12">Route 12 - Meijer / Perry Farm</option>
+        <option value="14">Route 14 - Merchant St</option>
+      </select>
+
+      <div class="grid grid-cols-1 gap-3 mb-6">
+        <div class="support-card p-4 rounded-2xl shadow-sm">
+          <p class="text-[10px] font-black text-red-500 uppercase tracking-tighter mb-1">Bus Running Late?</p>
+          <a href="tel:8159374287" class="text-slate-900 font-extrabold text-sm block">Call Dispatch: 815-937-4287</a>
+        </div>
+      </div>
+
+      <div id="route4Toggle" class="dir-toggle flex gap-2">
+        <button id="btnEast" class="active" onclick="setDir('east')">EASTBOUND</button>
+        <button id="btnWest" onclick="setDir('west')">WESTBOUND</button>
+      </div>
+
+      <div id="etaDisplay" style="display:none;" class="bg-slate-900 rounded-[32px] p-8 text-white shadow-2xl">
+        <p class="text-sky-400 font-extrabold text-xs uppercase mb-2" id="dirLabel">Scheduled Arrival</p>
+        <h2 id="stopName" class="text-2xl font-extrabold mb-6">--</h2>
+        <div class="flex items-baseline gap-2 mb-6">
+          <span id="bigTime" class="text-6xl font-black tracking-tighter">--:--</span>
+          <span id="ampm" class="text-xl font-bold opacity-40">--</span>
+        </div>
+        <div id="badge" class="inline-flex items-center gap-2 bg-sky-500/20 text-sky-400 px-4 py-2 rounded-full border border-sky-500/30">
+          <span id="minsAway" class="text-sm font-extrabold uppercase">Calculating...</span>
+        </div>
+      </div>
     </div>
-    <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-white text-[10px] font-black">2026 OFFICIAL</div>
+
+    <div id="drawer" class="drawer">
+      <div class="drawer-handle" onclick="toggleDrawer()">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mb-2"></div>
+        <span class="text-slate-900 font-bold text-xs uppercase tracking-widest">Tap for Full List</span>
+      </div>
+      <div id="fullSchedList" class="flex-1 overflow-y-auto px-6 pb-12 space-y-3 scroll-hide bg-slate-50"></div>
+    </div>
+
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl z-[9999]">
+      <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
+      </a>
+      <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
+      </a>
+      <a href="#" class="nav-link active flex flex-col items-center gap-1.5 flex-1 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+        <span class="text-[8px] font-black uppercase tracking-tighter">Schedule</span>
+      </a>
+      <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+        <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
+      </a>
+      <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
+        <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
+      </a>
+    </nav>
   </div>
 
-  <div class="grid grid-cols-2 gap-4 mb-6">
-    <button onclick="openSearch()" class="glass-card p-5 flex flex-col items-start active:scale-95 transition-transform">
-      <div class="bg-blue-100 w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3">📍</div>
-      <span class="font-extrabold text-slate-800 text-sm">Find Stop</span>
-      <span class="text-[10px] text-slate-400 font-bold uppercase">Search</span>
-    </button>
-    <a href="tel:8159374287" class="glass-card p-5 flex flex-col items-start active:scale-95 transition-transform">
-      <div class="bg-red-100 w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3">📞</div>
-      <span class="font-extrabold text-slate-800 text-sm">Help Desk</span>
-      <span class="text-[10px] text-slate-400 font-bold uppercase text-left">815-937-4287</span>
-    </a>
-  </div>
+  <script>
+    // [Data and existing logic remains the same]
+    let currentDir = 'east';
+    const routeData = {
+      "1": { startH: 5, endH: 21, wk: true, stops: [["Family Dollar", 5], ["Azzarelli Apts", 8], ["St. Mary's", 15], ["Walgreens Court", 19], ["Metro Centre", 25], ["Family Dollar", 35], ["Azzarelli Apts", 38], ["St. Mary's", 45], ["Walgreens Court", 49], ["Metro Centre", 55]] },
+      "2": { startH: 5, endH: 21, wk: true, stops: [["Meijer (NB)", 7], ["Walmart", 14], ["Signature/Jack", 19], ["Northfield Mall", 25], ["Mall (Dep)", 30], ["Signature/Jack", 33], ["Adventure Church", 38], ["Meijer (SB)", 45], ["Broadway Shelter", 51], ["Village Hall", 58]] },
+      "3": { startH: 5, endH: 21, wk: true, stops: [["Metro Centre", 0], ["Bradley Library", 6], ["Christine/Leo", 13], ["Target", 20], ["Northfield Mall", 30], ["Target (Ret)", 32], ["Christine (Meijer)", 39], ["Village Square", 44], ["KCTC", 49]] },
+      "4": {
+        startH: 5, endH: 21, wk: false, 
+        east: [["East Court Village", 7], ["Frontage Road", 13], ["Spruce/Fairmont", 15], ["Family Dollar", 18], ["Metro Centre", 30], ["East Court Village", 37], ["Frontage Road", 43], ["Spruce/Fairmont", 45], ["Family Dollar", 48], ["Metro Centre", 0]],
+        west: [["West - St. Mary's", 33], ["West - Riverside Med", 40], ["West - Health Dept", 45], ["Metro Centre", 0], ["West - St. Mary's", 3], ["West - Riverside Med", 10], ["West - Health Dept", 15], ["Metro Centre", 30]]
+      },
+      "5": { startH: 5, endH: 21, wk: true, stops: [["Aroma Park Shelter", 30], ["Crestview", 35], ["Riverside East", 38], ["Maple/Eagle", 41], ["Eagle/Chicago", 46], ["Metro Centre", 0], ["Eagle/Chicago", 6], ["Dollar General", 13], ["Crestview", 16]] },
+      "6": { startH: 7, startM: 30, endH: 17, wk: false, stops: [["Metro Centre", 30], ["Kankakee Estates", 36], ["K.C.C", 41], ["Del Monte", 46], ["Walmart", 58], ["Jerome Combs", 8], ["Schuyler/River", 18]] },
+      "7NP": { startH: 5, endH: 21, wk: true, stops: [["Metro Centre", 0], ["Kankakee Estates", 6], ["Del Monte", 8], ["K.C.C.", 16], ["Walmart Kankakee", 22], ["Jerome Combs", 29], ["Love's", 34], ["Walmart Kankakee", 40], ["Harrison/Station", 48]] },
+      "7P": { startH: 5, endH: 21, wk: true, stops: [["Metro Centre", 0], ["Kankakee Estates", 6], ["K.C.C", 11], ["Walmart Kankakee", 15], ["Harrison/Station", 22], ["Metro Centre", 30], ["Kankakee Estates", 36], ["Walmart Kankakee", 42], ["Harrison/Station", 49]] },
+      "8": { startH: 5, endH: 21, wk: true, stops: [["Metro Centre", 0], ["Washington/Water", 3], ["Casey's (Jeffery)", 8], ["Merchant/Curtis", 12], ["KHS", 15], ["Jewel (Wash)", 19], ["Metro Centre", 30], ["Mulberry/Chicago", 33], ["Hobbie/Willow", 36], ["Broadway/Jeff", 42], ["Brookmont/Harvard", 48]] },
+      "9": { startH: 5, endH: 21, wk: true, stops: [["Manteno Metro", 0], ["ABC Supply", 7], ["Northfield Mall", 30], ["Walmart", 33], ["Manteno Metro", 41], ["E. 2nd St", 45], ["Veterans' Home", 52]] },
+      "10": { startH: 5, endH: 21, wk: true, stops: [["Brown Blvd", 0], ["Casey's", 5], ["Riverside Campus", 7], ["Bourbonnais Metro", 13], ["Northfield Mall", 30], ["Casey's", 34], ["Riverside Campus", 36], ["Bourbonnais Metro", 42], ["W. Bethel Dr", 50], ["Almar Parkway", 55]] },
+      "11": { startH: 5, endH: 21, wk: true, stops: [["Metro Centre", 0], ["McDonald's (5th)", 4], ["ONU", 11], ["Northfield Meadows", 18], ["Northfield Mall", 30], ["Kroger", 36], ["ONU", 42], ["Walgreens Kennedy", 48]] },
+      "12": { startH: 5, endH: 21, wk: true, stops: [["Metro Centre", 30], ["McDonald's (5th)", 34], ["Shine FM", 39], ["Meijer", 47], ["Kroger", 55], ["Brown Blvd", 2], ["Heritage/Convent", 11], ["Perry Farm", 16], ["Walgreen's", 19], ["Metro Centre", 25]] },
+      "14": { startH: 5, endH: 21, wk: true, stops: [["Metro Centre", 0], ["Mulberry/Chicago", 2], ["Fairmont/Court", 9], ["Eagle/Maple", 13], ["Harrison/Station", 20], ["Metro Centre", 30], ["Station/Schuyler", 33], ["Mercy Housing", 37], ["Merchant/Curtis", 41], ["KHS", 45], ["Kankakee Jewel", 49]] }
+    };
 
-  <div class="glass-card p-2 mb-6 shadow-xl">
-    <select id="routeSelect" onchange="initRoute()" class="w-full bg-transparent border-none p-4 text-lg font-extrabold text-slate-900 outline-none appearance-none cursor-pointer">
-      <option value="">Choose a Route...</option>
-      <option value="1">Route 1 - Meadowview</option>
-      <option value="2">Route 2 - Mall / Walmart</option>
-      <option value="3">Route 3 - Target / Bradley</option>
-      <option value="4">Route 4 - Court Village / St. Marys</option>
-      <option value="5">Route 5 - Aroma Park</option>
-      <option value="6">Route 6 - KCC (M-F ONLY)</option>
-      <option value="7NP">Route 7 - Non-Peak</option>
-      <option value="7P">Route 7 - Peak Service</option>
-      <option value="8">Route 8 - KHS / Jewel</option>
-      <option value="9">Route 9 - Manteno</option>
-      <option value="10">Route 10 - Bourbonnais</option>
-      <option value="11">Route 11 - ONU / Mall</option>
-      <option value="12">Route 12 - Meijer / Perry Farm</option>
-      <option value="14">Route 14 - Merchant St</option>
-    </select>
-  </div>
-
-  <div id="etaDisplay" style="display:none;" class="status-dark p-8 mb-6 shadow-2xl">
-    <div id="route4Toggle" class="hidden grid grid-cols-2 gap-2 mb-8 bg-white/5 p-1 rounded-2xl">
-        <button id="btnEast" class="py-3 rounded-xl font-black text-[10px] bg-white text-slate-900 shadow-lg uppercase" onclick="setDir('east')">Eastbound</button>
-        <button id="btnWest" class="py-3 rounded-xl font-black text-[10px] text-white uppercase" onclick="setDir('west')">Westbound</button>
-    </div>
-    <div class="flex justify-between items-start mb-2">
-        <p class="text-blue-400 font-black text-[10px] uppercase tracking-[0.2em]">Next Arrival</p>
-        <span id="countdownBadge" class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">Updating</span>
-    </div>
-    <h2 id="stopName" class="text-2xl font-black mb-6 leading-tight tracking-tight">--</h2>
-    <div class="flex items-baseline mb-8">
-        <span id="bigTime" class="text-6xl font-black tracking-tighter">--:--</span>
-        <span id="ampm" class="text-xl font-bold opacity-30 ml-2 uppercase">--</span>
-    </div>
-    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
-        <p id="passengerTip" class="text-[10px] font-bold text-blue-100/70 leading-relaxed italic uppercase">Please arrive 5 minutes early.</p>
-    </div>
-  </div>
-</div>
-
-<div id="searchModal" class="fixed inset-0 z-[10000] bg-white hidden flex-col p-6 no-scrollbar">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-black tracking-tight text-slate-900">Locations</h2>
-        <button onclick="closeSearch()" class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-bold text-xl">✕</button>
-    </div>
-    <input type="text" id="modalInput" onkeyup="filterStops()" placeholder="Where are you going?" class="w-full p-5 bg-slate-100 rounded-2xl mb-6 outline-none font-bold text-lg border-2 border-transparent focus:border-blue-500 transition-all">
-    <div id="stopGrid" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10"></div>
-</div>
-
-<div id="drawer" class="drawer shadow-2xl border-t border-slate-200">
-    <div class="h-[110px] flex flex-col items-center justify-start pt-4 cursor-pointer" onclick="toggleDrawer()">
-        <div class="w-12 h-1.5 bg-slate-200 rounded-full mb-3"></div>
-        <p class="font-black text-[10px] text-slate-400 uppercase tracking-[0.3em]">Full Timetable</p>
-    </div>
-    <div id="fullSchedList" class="p-6 overflow-y-auto h-full no-scrollbar bg-slate-50"></div>
-</div>
-
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl z-[9999]">
-  <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-    <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
-  </a>
-  <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-    <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
-  </a>
-  <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-    <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
-  </a>
-  <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
-    <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
-  </a>
-  <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-    <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
-  </a>
-</nav>
-
-<script>
-  // Navigation Highlighting
-  document.addEventListener('DOMContentLoaded', () => {
-    const path = window.location.pathname.split("/").pop() || "map.html";
-    document.querySelectorAll('.nav-link').forEach(link => {
-      if(link.getAttribute('data-page') === path) link.classList.add('nav-active');
-    });
-  });
-
-  // DATA & SCHEDULING LOGIC
-  const routeData = {
-    "1": { stops: [["Family Dollar", 5], ["Azzarelli Apts", 8], ["St. Mary's", 15], ["Walgreens Court", 19], ["Metro Centre", 25]] },
-    "2": { stops: [["Meijer (NB)", 7], ["Walmart", 14], ["Northfield Mall", 25], ["Village Hall", 58]] },
-    "3": { stops: [["Metro Centre", 0], ["Bradley Library", 6], ["Target", 20], ["Village Square", 44]] },
-    "4": { east: [["East Court Village", 7], ["Metro Centre", 30]], west: [["West - St. Mary's", 33], ["West - Health Dept", 45]] },
-    "5": { stops: [["Aroma Park Shelter", 30], ["Crestview", 35], ["Riverside East", 38]] },
-    "6": { stops: [["Metro Centre", 30], ["K.C.C", 41], ["Del Monte", 46], ["Walmart", 58]], weekdayOnly: true },
-    "7NP": { stops: [["Metro Centre", 0], ["K.C.C.", 16], ["Walmart Kankakee", 22]] },
-    "7P": { stops: [["Metro Centre", 0], ["K.C.C", 11], ["Walmart Kankakee", 15]] },
-    "8": { stops: [["Metro Centre", 0], ["KHS", 15], ["Jewel (Wash)", 19]] },
-    "9": { stops: [["Manteno Metro", 0], ["ABC Supply", 7], ["Northfield Mall", 30]] },
-    "10": { stops: [["Brown Blvd", 0], ["Bourbonnais Metro", 13], ["Almar Parkway", 55]] },
-    "11": { stops: [["Metro Centre", 0], ["ONU", 11], ["Northfield Mall", 30]] },
-    "12": { stops: [["Metro Centre", 30], ["Meijer", 47], ["Perry Farm", 16]] },
-    "14": { stops: [["Metro Centre", 0], ["Mercy Housing", 37], ["Kankakee Jewel", 49]] }
-  };
-
-  let currentDir = 'east';
-
-  function getServiceHours(rid) {
-    const now = new Date();
-    const day = now.getDay();
-    const tag = document.getElementById('serviceTag');
-    if (rid === "6") {
-        if (day === 0 || day === 6) return { closed: true, label: "Weekdays Only" };
-        tag.innerText = "Weekday Service";
-        return { start: 7.5, end: 17 };
+    function initRoute() {
+      const rid = document.getElementById('routeSelect').value;
+      if(!rid) return;
+      document.getElementById('route4Toggle').style.display = (rid === "4") ? "flex" : "none";
+      document.getElementById('etaDisplay').style.display = 'block';
+      updateLiveETA();
+      buildFullSchedule();
     }
-    if (day === 0) { tag.innerText = "Sunday Service"; return { start: 8, end: 16 }; }
-    if (day === 6) { tag.innerText = "Saturday Service"; return { start: 7, end: 21.5 }; }
-    tag.innerText = "Weekday Service";
-    return { start: 5, end: 21.5 };
-  }
 
-  function initRoute() {
-    const rid = document.getElementById('routeSelect').value;
-    if(!rid) return;
-    document.getElementById('route4Toggle').style.display = (rid === "4") ? "grid" : "none";
-    document.getElementById('etaDisplay').style.display = 'block';
-    updateLiveETA(); buildFullSchedule();
-  }
+    function setDir(dir) {
+      currentDir = dir;
+      document.getElementById('btnEast').className = (dir === 'east') ? 'active' : '';
+      document.getElementById('btnWest').className = (dir === 'west') ? 'active' : '';
+      updateLiveETA();
+      buildFullSchedule();
+    }
 
-  function updateLiveETA() {
-    const rid = document.getElementById('routeSelect').value;
-    if (!rid) return;
-    const now = new Date();
-    const h_now = now.getHours();
-    const m_now = now.getMinutes();
-    const hours = getServiceHours(rid);
-    const dec_now = h_now + (m_now / 60);
+    function updateLiveETA() {
+      const rid = document.getElementById('routeSelect').value;
+      const now = new Date();
+      const curH = now.getHours();
+      const curM = now.getMinutes();
+      const route = routeData[rid];
 
-    const stopEl = document.getElementById('stopName');
-    const timeEl = document.getElementById('bigTime');
-    const badge = document.getElementById('countdownBadge');
+      const startH = route.startH || 5;
+      const startM = route.startM || 0;
+      const isBeforeStart = (curH < startH) || (curH === startH && curM < startM);
 
-    if (dec_now < hours.start || dec_now >= hours.end) {
-        stopEl.innerText = "Service Closed";
-        timeEl.innerText = "--:--";
-        badge.innerText = "Offline";
+      if (isBeforeStart || curH >= route.endH) {
+        document.getElementById('stopName').innerText = "Service Offline";
+        document.getElementById('bigTime').innerText = "--:--";
+        document.getElementById('ampm').innerText = "--";
+        document.getElementById('minsAway').innerText = "NOT RUNNING";
         return;
-    }
-
-    const route = routeData[rid];
-    let stops = (rid === "4") ? route[currentDir] : route.stops;
-    let next = stops.find(s => s[1] >= m_now) || stops[0];
-    let h_bus = (stops.find(s => s[1] >= m_now)) ? h_now : h_now + 1;
-
-    stopEl.innerText = next[0];
-    timeEl.innerText = `${h_bus % 12 || 12}:${next[1].toString().padStart(2, '0')}`;
-    document.getElementById('ampm').innerText = h_bus >= 12 ? 'PM' : 'AM';
-    
-    const diff = (h_bus > h_now) ? (60 - m_now + next[1]) : (next[1] - m_now);
-    badge.innerText = diff <= 5 ? "Arriving" : diff + " Mins";
-  }
-
-  function buildFullSchedule() {
-    const rid = document.getElementById('routeSelect').value;
-    const hours = getServiceHours(rid);
-    const list = document.getElementById('fullSchedList');
-    let stops = (rid === "4") ? routeData[rid][currentDir] : routeData[rid].stops;
-    let html = "";
-    for(let h = Math.floor(hours.start); h < Math.floor(hours.end); h++) {
-        stops.forEach(s => {
-            html += `<div class="flex justify-between items-center p-4 mb-2 bg-white rounded-xl border border-slate-100 shadow-sm">
-                <span class="font-bold text-slate-700 text-xs">${s[0]}</span>
-                <span class="font-black text-blue-600 text-xs uppercase">${h % 12 || 12}:${s[1].toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}</span>
-            </div>`;
-        });
-    }
-    list.innerHTML = html;
-  }
-
-  function openSearch() { document.getElementById('searchModal').style.display = 'flex'; loadSearch(); }
-  function closeSearch() { document.getElementById('searchModal').style.display = 'none'; }
-  function loadSearch() {
-      const grid = document.getElementById('stopGrid');
-      let allStops = [];
-      for (let rid in routeData) {
-          let stops = rid === "4" ? [...routeData[rid].east, ...routeData[rid].west] : routeData[rid].stops;
-          stops.forEach(s => allStops.push({ name: s[0], id: rid }));
       }
-      allStops = [...new Map(allStops.map(item => [item.name, item])).values()].sort((a,b) => a.name.localeCompare(b.name));
-      grid.innerHTML = allStops.map(s => `
-          <button onclick="selectFromSearch('${s.id}')" class="w-full text-left p-5 bg-slate-50 rounded-2xl font-bold mb-2">
-              ${s.name} <span class="block text-[10px] text-blue-500 font-black uppercase">Route ${s.id}</span>
-          </button>
-      `).join('');
-  }
-  function selectFromSearch(rid) { document.getElementById('routeSelect').value = rid; initRoute(); closeSearch(); }
-  function filterStops() {
-      const q = document.getElementById('modalInput').value.toLowerCase();
-      const btns = document.getElementById('stopGrid').querySelectorAll('button');
-      btns.forEach(b => b.style.display = b.innerText.toLowerCase().includes(q) ? 'block' : 'none');
-  }
-  function setDir(dir) { 
-      currentDir = dir; 
-      document.getElementById('btnEast').className = dir === 'east' ? 'py-3 rounded-xl font-black text-[10px] bg-white text-slate-900 shadow-lg uppercase' : 'py-3 rounded-xl font-black text-[10px] text-white uppercase';
-      document.getElementById('btnWest').className = dir === 'west' ? 'py-3 rounded-xl font-black text-[10px] bg-white text-slate-900 shadow-lg uppercase' : 'py-3 rounded-xl font-black text-[10px] text-white uppercase';
-      updateLiveETA(); buildFullSchedule(); 
-  }
-  function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
-  setInterval(updateLiveETA, 30000);
-</script>
+
+      let activeStops = (rid === "4") ? route[currentDir] : route.stops;
+      const sorted = [...activeStops].sort((a,b) => a[1] - b[1]);
+      let next = sorted.find(s => s[1] >= curM);
+      let h = curH;
+
+      if (!next) {
+        next = sorted[0];
+        h = curH + 1;
+      }
+
+      document.getElementById('dirLabel').innerText = (rid === "4") ? `${currentDir.toUpperCase()}BOUND ARRIVAL` : "SCHEDULED ARRIVAL";
+      document.getElementById('stopName').innerText = next[0];
+      document.getElementById('bigTime').innerText = `${h % 12 || 12}:${next[1].toString().padStart(2, '0')}`;
+      document.getElementById('ampm').innerText = h >= 12 ? 'PM' : 'AM';
+      const diff = (h > curH) ? (60 - curM + next[1]) : (next[1] - curM);
+      document.getElementById('minsAway').innerText = diff === 0 ? "AT STOP" : "IN " + diff + " MINS";
+    }
+
+    function buildFullSchedule() {
+      const rid = document.getElementById('routeSelect').value;
+      const route = routeData[rid];
+      let html = "";
+      let activeStops = (rid === "4") ? route[currentDir] : route.stops;
+      const startH = route.startH || 5;
+      const startM = route.startM || 0;
+
+      for(let h = startH; h < route.endH; h++) {
+        [...activeStops].sort((a,b) => a[1] - b[1]).forEach(s => {
+          if (h === startH && s[1] < startM) return;
+          html += `<div class="flex justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                    <span class="font-bold text-slate-800 text-sm">${s[0]}</span>
+                    <span class="font-extrabold text-sky-600 text-xs">${h % 12 || 12}:${s[1].toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}</span>
+                  </div>`;
+        });
+      }
+      document.getElementById('fullSchedList').innerHTML = html;
+    }
+
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
+    
+    function searchDest() {
+      const q = document.getElementById('destSearch').value.toLowerCase();
+      if(q.length < 3) return;
+      for (let id in routeData) {
+        const stops = id === "4" ? [...routeData[id].east, ...routeData[id].west] : routeData[id].stops;
+        if (stops.some(s => s[0].toLowerCase().includes(q))) {
+          document.getElementById('routeSelect').value = id;
+          initRoute();
+          break;
+        }
+      }
+    }
+    setInterval(() => { if(document.getElementById('routeSelect').value) updateLiveETA(); }, 60000);
+  </script>
 </body>
 </html>
