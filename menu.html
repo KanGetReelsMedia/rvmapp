@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <title>Metro | Navigation Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #000;
+      color: white;
+      overflow: hidden;
+      height: 100dvh;
+    }
+
+    /* Ambient Background Glows */
+    .glow-1 { position: fixed; top: -10%; left: -10%; width: 50%; height: 50%; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); z-index: 0; }
+    .glow-2 { position: fixed; bottom: -10%; right: -10%; width: 50%; height: 50%; background: radial-gradient(circle, rgba(30, 58, 138, 0.2) 0%, transparent 70%); z-index: 0; }
+
+    .menu-container {
+      position: relative;
+      z-index: 10;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .nav-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+    }
+
+    .nav-item:active {
+      transform: scale(0.95);
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .icon-box {
+      width: 48px;
+      height: 48px;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      color: #3b82f6;
+    }
+
+    .main-button {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 24px;
+      padding: 24px;
+      margin-top: auto;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+      text-decoration: none;
+    }
+
+    .main-button:active { transform: scale(0.98); opacity: 0.9; }
+
+    .pulse {
+      width: 12px; height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(255, 255, 255, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <div class="menu-container">
+    <header class="flex items-center justify-between mt-4">
+      <div>
+        <p class="text-blue-400 text-[10px] font-black uppercase tracking-[0.3em]">Welcome Back</p>
+        <h1 class="text-3xl font-black tracking-tighter">Transit Hub</h1>
+      </div>
+      <div class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center bg-white/5">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2"></path></svg>
+      </div>
+    </header>
+
+    <div class="nav-grid">
+      <a href="./map.html" class="nav-item">
+        <div class="icon-box">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-white/60">Live Map</span>
+      </a>
+
+      <a href="./status.html" class="nav-item">
+        <div class="icon-box">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"></path></svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-white/60">Alerts</span>
+      </a>
+
+      <a href="#" class="nav-item">
+        <div class="icon-box">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"></path></svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-white/60">Schedules</span>
+      </a>
+
+      <a href="#" class="nav-item">
+        <div class="icon-box">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-width="2"></path></svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-white/60">Settings</span>
+      </a>
+    </div>
+
+    <a href="index.html" class="main-button text-white">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path></svg>
+        </div>
+        <div>
+          <h3 class="font-black text-xl leading-none">View My Pass</h3>
+          <p class="text-white/70 text-[10px] uppercase font-bold tracking-tighter mt-1">Active Reward Ready</p>
+        </div>
+      </div>
+      <div class="pulse"></div>
+    </a>
+  </div>
+
+</body>
+</html>
