@@ -9,23 +9,39 @@
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; margin: 0; padding: 0; overflow: hidden; height: 100vh; }
     
-    /* Adjusted Container to account for bottom nav */
-    .app-container { width: 100vw; height: 100vh; max-width: 430px; background: #f8fafc; margin: 0 auto; position: relative; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 100px; }
+    .app-container { width: 100vw; height: 100vh; max-width: 430px; background: #f8fafc; margin: 0 auto; position: relative; overflow: hidden; display: flex; flex-direction: column; }
     
-    /* Drawer Styles - Adjusted Z-Index to stay under Nav but over content */
-    .drawer { position: absolute; bottom: 100px; left: 0; right: 0; background: white; border-radius: 30px 30px 0 0; z-index: 50; transform: translateY(calc(100% - 70px)); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+    /* Side Menu Styles */
+    #sideMenu {
+      position: absolute; top: 0; left: -100%; width: 80%; height: 100%;
+      background: #0f172a; z-index: 20000; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; flex-direction: column; padding: 60px 30px;
+    }
+    #sideMenu.open { transform: translateX(100%); }
+    .menu-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; visibility: hidden; z-index: 15000; transition: 0.3s; }
+    .menu-overlay.show { opacity: 1; visibility: visible; }
+    
+    .menu-link { 
+        display: flex; align-items: center; gap: 12px;
+        color: #94a3b8; font-size: 1.1rem; font-weight: 700; 
+        margin-bottom: 1.5rem; transition: 0.2s; 
+    }
+    .menu-link.active { color: white; }
+    .menu-link svg { width: 20px; height: 20px; opacity: 0.7; }
+    .menu-link.active svg { opacity: 1; color: #0ea5e9; }
+
+    /* Hamburger Icon */
+    .burger-line { width: 24px; height: 2px; background: #0f172a; margin: 5px 0; border-radius: 2px; transition: 0.3s; }
+
+    /* Drawer Styles */
+    .drawer { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-radius: 30px 30px 0 0; z-index: 50; transform: translateY(calc(100% - 70px)); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 75vh; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
     .drawer.open { transform: translateY(0) !important; }
     .drawer-handle { height: 70px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; border-radius: 30px 30px 0 0; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
     .scroll-hide::-webkit-scrollbar { display: none; }
     
-    /* Nav Styles */
-    nav { z-index: 9999 !important; }
-    .nav-active { color: #0ea5e9 !important; }
-
-    /* Support Card */
     .support-card { background: white; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; }
 
-    /* Silky Toggle Styles */
+    /* Toggle Styles */
     .dir-toggle-container { display: none; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 12px 20px; border-radius: 24px; margin-bottom: 24px; }
     #dir-checkbox { display: none; }
     .toggle-label-svg { cursor: pointer; background: white; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 2px solid #e2e8f0; display: block; }
@@ -38,10 +54,47 @@
 <body>
 
   <div class="app-container">
-    <div class="flex-1 overflow-y-auto p-6 pb-24 scroll-hide">
-      <div class="pt-4 mb-6">
-        <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">River Valley Metro</h1>
-        <p class="text-sky-500 font-bold text-xs uppercase tracking-widest">Digital Schedule</p>
+    <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
+    <div id="sideMenu">
+        <p class="text-sky-500 font-black text-[10px] uppercase tracking-[0.3em] mb-12">RVM Navigation</p>
+        
+        <a href="./index.html" class="menu-link active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            Schedule
+        </a>
+        <a href="./map.html" class="menu-link">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            Find My Bus
+        </a>
+        <a href="./status.html" class="menu-link">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            Service Alerts
+        </a>
+        <a href="./passes.html" class="menu-link">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
+            RVM Passes
+        </a>
+        <a href="./weather.html" class="menu-link">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
+            Weather
+        </a>
+
+        <div class="mt-auto border-t border-white/5 pt-6">
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">RVM Digital v2.1</p>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-6 pb-32 scroll-hide">
+      <div class="flex justify-between items-start pt-4 mb-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">River Valley Metro</h1>
+          <p class="text-sky-500 font-bold text-xs uppercase tracking-widest">Digital Schedule</p>
+        </div>
+        <button onclick="toggleMenu()" class="p-2 -mr-2 outline-none">
+          <div class="burger-line"></div>
+          <div class="burger-line" style="width: 16px;"></div>
+          <div class="burger-line"></div>
+        </button>
       </div>
 
       <input type="text" id="destSearch" onkeyup="searchDest()" placeholder="Search stops..." class="w-full bg-white border border-slate-200 p-4 rounded-2xl mb-4 shadow-sm outline-none text-slate-700">
@@ -87,7 +140,7 @@
         </div>
       </div>
 
-      <div class="support-card p-4 rounded-2xl shadow-sm">
+      <div class="support-card p-4 rounded-2xl shadow-sm mb-12">
         <p class="text-[10px] font-black text-red-500 uppercase tracking-tighter mb-1">Bus Running Late?</p>
         <a href="tel:8159374287" class="text-slate-900 font-extrabold text-sm block">Call Dispatch: 815-937-4287</a>
       </div>
@@ -100,35 +153,14 @@
       </div>
       <div id="fullSchedList" class="flex-1 overflow-y-auto px-6 pb-12 space-y-3 scroll-hide bg-slate-50"></div>
     </div>
-
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[400px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl">
-      <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
-      </a>
-      <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
-      </a>
-      <a href="./index.html" class="nav-link nav-active flex flex-col items-center gap-1.5 text-slate-400 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Schedule</span>
-      </a>
-      <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
-      </a>
-      <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 transition-all">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
-      </a>
-    </nav>
   </div>
 
   <script>
-    // [Keep all your existing logic for routeData, setDir, updateLiveETA, and buildFullSchedule here]
-    // The JavaScript logic provided in your prompt remains the same.
-    
+    function toggleMenu() {
+        document.getElementById('sideMenu').classList.toggle('open');
+        document.getElementById('menuOverlay').classList.toggle('show');
+    }
+
     let currentDir = 'east';
     const routeData = {
       "1": { startH: 5, endH: 21, wk: true, stops: [["Family Dollar", 5], ["Azzarelli Apts", 8], ["St. Mary's", 15], ["Walgreens Court", 19], ["Metro Centre", 25], ["Family Dollar", 35], ["Azzarelli Apts", 38], ["St. Mary's", 45], ["Walgreens Court", 49], ["Metro Centre", 55]] },
@@ -178,17 +210,14 @@
       const curH = now.getHours();
       const curM = now.getMinutes();
       const route = routeData[rid];
-
       if (curH < (route.startH || 5) || curH >= route.endH) {
         document.getElementById('stopName').innerText = "Service Offline";
         return;
       }
-
       let activeStops = (rid === "4") ? route[currentDir] : route.stops;
       const sorted = [...activeStops].sort((a,b) => a[1] - b[1]);
       let next = sorted.find(s => s[1] >= curM) || sorted[0];
       let h = (sorted.find(s => s[1] >= curM)) ? curH : curH + 1;
-
       document.getElementById('dirLabel').innerText = (rid === "4") ? `${currentDir.toUpperCase()}BOUND ARRIVAL` : "SCHEDULED ARRIVAL";
       document.getElementById('stopName').innerText = next[0];
       document.getElementById('bigTime').innerText = `${h % 12 || 12}:${next[1].toString().padStart(2, '0')}`;
@@ -224,7 +253,6 @@
         }
       }
     }
-
     setInterval(() => { if(document.getElementById('routeSelect').value) updateLiveETA(); }, 60000);
   </script>
 </body>
