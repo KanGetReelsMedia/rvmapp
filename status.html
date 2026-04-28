@@ -55,39 +55,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-
-    /* Android-Style Premium Nav */
-    .android-nav {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 380px;
-      height: 70px;
-      background: rgba(15, 15, 15, 0.8);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 9999;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-    }
-
-    .nav-link {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: rgba(255, 255, 255, 0.4);
-      transition: all 0.3s ease;
-    }
-
-    .nav-link.active { color: #3b82f6; }
-    .nav-link:active { transform: scale(0.9); }
   </style>
 </head>
 <body>
@@ -103,7 +70,7 @@
   </div>
 
   <div class="app-container">
-    <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-32">
+    <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-12">
       
       <header class="text-center mb-10">
         <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
@@ -157,29 +124,6 @@
     </div>
   </div>
 
-  <nav class="android-nav">
-    <a href="index.html" class="nav-link active">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-      <span class="text-[8px] font-black uppercase">Home</span>
-    </a>
-    <a href="status.html" class="nav-link">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-      <span class="text-[8px] font-black uppercase">Alerts</span>
-    </a>
-    <a href="schedule.html" class="nav-link">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      <span class="text-[8px] font-black uppercase">Times</span>
-    </a>
-    <a href="map.html" class="nav-link">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
-      <span class="text-[8px] font-black uppercase">Map</span>
-    </a>
-    <a href="passes.html" class="nav-link">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
-      <span class="text-[8px] font-black uppercase">Pass</span>
-    </a>
-  </nav>
-
   <script id="vertexShader" type="x-shader/x-vertex">
     attribute vec2 position;
     void main() { gl_Position = vec4(position, 0.0, 1.0); }
@@ -202,6 +146,7 @@
   </script>
 
   <script>
+    // 1. WebGL Animation Setup
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl');
     function resize() {
@@ -241,11 +186,13 @@
     }
     requestAnimationFrame(render);
 
+    // 2. App Lifecycle (Splash -> Fade in)
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         const splash = document.getElementById('splash');
         splash.style.opacity = '0';
         splash.style.transform = 'scale(1.1)';
+        
         setTimeout(() => {
           splash.style.display = 'none';
           document.getElementById('mainContent').classList.remove('opacity-0');
