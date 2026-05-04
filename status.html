@@ -50,6 +50,14 @@
       border-radius: 2.5rem;
     }
 
+    /* Graduation Alert Card */
+    .alert-card {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.1) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      backdrop-filter: blur(20px);
+      border-radius: 2.5rem;
+    }
+
     .glow-text {
       background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
       -webkit-background-clip: text;
@@ -79,6 +87,25 @@
       </header>
 
       <div class="space-y-6">
+        
+        <div class="alert-card p-6 border-l-4 border-l-blue-500">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="bg-blue-600 p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 class="font-black text-white tracking-tight uppercase text-sm">Graduation Detour</h2>
+          </div>
+          <div class="space-y-2">
+            <p class="text-blue-400 font-extrabold text-lg leading-tight">ONU STOP CLOSED</p>
+            <p class="text-white/80 text-xs font-semibold uppercase tracking-wider">May 8th & 9th</p>
+            <p class="text-white/60 text-[11px] leading-relaxed pt-2">
+              Route 11 will bypass the Olivet Nazarene University stop to accommodate graduation ceremonies. Please plan for alternative boarding locations.
+            </p>
+          </div>
+        </div>
+
         <div class="glass-card p-6">
           <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">
             Local & Metro Plus 
@@ -127,7 +154,7 @@
   <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl z-[9999]">
     <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-      <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
+      <span class="text-[8px] font-black uppercase tracking-tighter text-blue-400">Alerts</span>
     </a>
     <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
