@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rvm-v2'; // Changed version to force browser update
+const CACHE_NAME = 'rvm-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -6,10 +6,9 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Forces the new service worker to become active immediately
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('RVM Service Worker: Caching Files');
       return cache.addAll(ASSETS);
     })
   );
