@@ -1,8 +1,8 @@
 {
-  "id": "rvm-premium-app",
+  "id": "rvm-premium-app-v1",
   "name": "River Valley Metro Premium",
   "short_name": "RV Metro",
-  "description": "Official Transit Portal for River Valley Metro. Access bus schedules, maps, and real-time alerts.",
+  "description": "Official Transit Portal for River Valley Metro riders. View schedules, maps, and transit alerts.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -33,7 +33,7 @@
       "sizes": "840x840",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "River Valley Metro Home Screen"
+      "label": "River Valley Metro Desktop View"
     },
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
@@ -41,6 +41,13 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "River Valley Metro Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "View Map",
+      "url": "./map.html",
+      "icons": [{ "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png", "sizes": "840x840" }]
     }
   ]
 }
