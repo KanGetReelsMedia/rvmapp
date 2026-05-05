@@ -13,13 +13,13 @@
   "icons": [
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "512x512",
+      "sizes": "840x840",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "512x512",
+      "sizes": "840x840",
       "type": "image/png",
       "purpose": "maskable"
     }
@@ -27,10 +27,17 @@
   "screenshots": [
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "512x512",
+      "sizes": "840x840",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "River Valley Metro Home"
+      "label": "River Valley Metro Desktop View"
+    },
+    {
+      "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
+      "sizes": "840x840",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "River Valley Metro Mobile View"
     }
   ]
 }
