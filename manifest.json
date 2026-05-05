@@ -3,15 +3,16 @@
   "name": "River Valley Metro Premium",
   "short_name": "RV Metro",
   "description": "Official Transit Portal for River Valley Metro",
-  "start_url": "/rvmapp/index.html",
-  "scope": "/rvmapp/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#0f172a",
+  "categories": ["transportation", "navigation"],
   "icons": [
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "192x192",
+      "sizes": "840x840",
       "type": "image/png",
       "purpose": "any"
     },
@@ -20,6 +21,15 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
+      "sizes": "840x840",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "River Valley Metro Home"
     }
   ]
 }
