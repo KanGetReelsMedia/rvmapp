@@ -111,3 +111,13 @@ This version includes the **Shortcuts** and **Metadata** to clear the "Info" ite
     }
   ]
 }
+<!-- Keep the UI code I gave you previously, just ensure this script is at the bottom -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('PWA Active', reg.scope))
+            .catch(err => console.log('PWA Error', err));
+        });
+    }
+</script>
