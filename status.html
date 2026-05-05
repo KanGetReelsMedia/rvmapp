@@ -2,177 +2,266 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Metro Weather | River Valley Metro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- PWA Manifest Connection -->
+    <link rel="manifest" href="manifest.json">
+    <title>River Valley Metro | Premium</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; margin: 0; overflow: hidden; height: 100vh; }
-        .app-container { width: 100vw; height: 100vh; background: #f8fafc; position: relative; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .app-container::-webkit-scrollbar { display: none; }
-        
-        .forecast-card { transition: transform 0.2s ease; }
-        #animation-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
-        .particle { position: absolute; top: -50px; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(100vh); } }
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #000; overflow: hidden; height: 100dvh; color: white; display: flex; justify-content: center; align-items: center; }
 
-        .nav-active { color: #60a5fa !important; }
-        .nav-active svg { stroke: #60a5fa !important; }
+        /* WebGL Background Layer */
+        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+
+        /* App Container */
+        .app-container { 
+            position: relative; 
+            width: 100vw; 
+            height: 100dvh; 
+            max-width: 430px; 
+            z-index: 10; 
+            overflow-y: auto; 
+            scrollbar-width: none;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            scroll-behavior: smooth;
+        }
+        .app-container::-webkit-scrollbar { display: none; }
+
+        /* Splash Screen */
+        #splash { 
+            position: fixed; inset: 0; background: #000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            z-index: 10000; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .loader-progress { width: 40%; height: 100%; background: #3b82f6; animation: loading 1.5s infinite ease-in-out; }
+        @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+
+        /* Glass Components */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2.5rem;
+        }
+
+        .alert-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(20px);
+            border-radius: 2.5rem;
+        }
+
+        .glow-text {
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link.active { color: #3b82f6; }
     </style>
 </head>
-
 <body>
 
-<div class="app-container">
-    <div id="animation-layer"></div>
+    <canvas id="canvas"></canvas>
 
-    <header class="p-6 pt-10 text-center bg-white border-b border-slate-100 sticky top-0 z-20">
-        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Weather Outlook</h1>
-        <p class="text-blue-500 font-bold text-xs uppercase tracking-widest">3-Day Transit Forecast</p>
-    </header>
+    <!-- Splash Screen -->
+    <div id="splash">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjBRXORehZGVAUiu8vzUjk_Jli1YGIERGWwA&s" alt="Logo" class="w-24 h-24 rounded-full border-4 border-white/20 shadow-2xl">
+        <h1 class="text-white text-xl font-black mt-6 tracking-tighter uppercase">River Valley Metro</h1>
+        <div class="mt-8 w-24 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div class="loader-progress"></div>
+        </div>
+    </div>
 
-    <div class="p-5 space-y-4 relative z-10 pb-32">
-        <div class="bg-white rounded-[2.5rem] p-7 shadow-xl border border-slate-100 text-center">
-            <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1 block">Current Conditions</span>
-            <h2 id="weather-desc" class="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tight italic">Loading...</h2>
+    <!-- Main Content Container -->
+    <div class="app-container" id="scrollContainer">
+        <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-40">
             
-            <div class="flex justify-center items-baseline gap-2 mb-4">
-                <span id="temp-val" class="text-6xl font-black text-slate-800">--</span>
-                <span class="text-slate-400 font-bold text-2xl">°F</span>
-            </div>
+            <header class="text-center mb-10" id="top-anchor">
+                <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
+                <h1 class="text-3xl font-black glow-text tracking-tight">River Valley Metro</h1>
+                <p class="text-blue-500 font-bold text-[10px] uppercase tracking-[0.4em]">Official Transit Portal</p>
+            </header>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-50 p-4 rounded-3xl">
-                    <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Wind</span>
-                    <span id="wind-val" class="text-sm font-black text-slate-700">-- mph</span>
+            <div class="space-y-6">
+                <!-- Alert Card -->
+                <div id="alert-section" class="alert-card p-6 border-l-4 border-l-blue-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-blue-600 p-2 rounded-full">
+                            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h2 class="font-black text-white tracking-tight uppercase text-sm">Graduation Detour</h2>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-blue-400 font-extrabold text-lg leading-tight">ONU STOP CLOSED</p>
+                        <p class="text-white/80 text-xs font-semibold uppercase tracking-wider">May 16th & 17th</p>
+                        <p class="text-white/60 text-[11px] leading-relaxed pt-2">
+                            Route 11 will bypass the Olivet Nazarene University stop for graduation ceremonies. Alternative boarding at nearby traffic light intersections.
+                        </p>
+                    </div>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-3xl">
-                    <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Humidity</span>
-                    <span id="hum-val" class="text-sm font-black text-slate-700">--%</span>
+
+                <!-- Hours Cards -->
+                <div class="glass-card p-6">
+                    <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">
+                        Local & Metro Plus 
+                        <span class="text-[9px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black">HOURS</span>
+                    </h2>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between border-b border-white/5 pb-3">
+                            <span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">5:00A - 9:30P</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-3">
+                            <span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span>
+                        </div>
+                        <div class="flex justify-between text-blue-400 font-bold">
+                            <span>Sun / Holiday</span><span>8:00A - 4:00P</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">
+                        Midway Commuter
+                        <span class="text-[9px] bg-indigo-500/20 px-2 py-1 rounded text-indigo-400 font-black">HOURS</span>
+                    </h2>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between border-b border-white/5 pb-3">
+                            <span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">4:45A - 9:30P</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-3">
+                            <span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span>
+                        </div>
+                        <div class="flex justify-between text-indigo-400 font-bold">
+                            <span>Sun / Holiday</span><span>8:00A - 6:40P</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-white text-black w-full py-5 rounded-[2rem] font-black active:scale-95 transition-all shadow-xl">
+                        CALL SUPPORT
+                    </a>
                 </div>
             </div>
         </div>
-
-        <div class="space-y-3" id="forecast-list"></div>
-
-        <button onclick="fetchWeather()" class="w-full bg-slate-900 text-white py-5 rounded-[2rem] font-black shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-3 mt-4 uppercase text-xs tracking-widest">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Update Forecast
-        </button>
     </div>
-</div>
 
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl z-[9999]">
-    <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
-    </a>
-    <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
-    </a>
-    <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
-    </a>
-    <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
-    </a>
-    <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
-    </a>
-</nav>
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl z-[9999]">
+        
+        <!-- Home (Scrolls to top) -->
+        <button onclick="document.getElementById('scrollContainer').scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center gap-1.5 active transition-all outline-none">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Home</span>
+        </button>
 
-<script>
-    const weatherCodes = {
-        0: "Clear Sky", 1: "Mainly Clear", 2: "Partly Cloudy", 3: "Overcast",
-        45: "Foggy", 51: "Drizzle", 61: "Rain", 71: "Snow", 95: "Thunderstorm"
-    };
+        <!-- Alerts (Scrolls to Alert Card) -->
+        <button onclick="document.getElementById('alert-section').scrollIntoView({behavior: 'smooth'})" class="flex flex-col items-center gap-1.5 text-slate-400 transition-all outline-none">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
+        </button>
 
-    async function fetchWeather() {
-        try {
-            // Updated URL with current= params and specific Bourbonnais coords
-            const url = "https://api.open-meteo.com/v1/forecast?latitude=41.1201&longitude=-87.8612&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America/Chicago";
-            
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            const current = data.current;
-            document.getElementById("weather-desc").textContent = weatherCodes[current.weather_code] || "Fair";
-            document.getElementById("temp-val").textContent = Math.round(current.temperature_2m);
-            document.getElementById("wind-val").textContent = `${Math.round(current.wind_speed_10m)} mph`;
-            document.getElementById("hum-val").textContent = `${current.relative_humidity_2m}%`;
+        <!-- Map -->
+        <a href="map.html" class="flex flex-col items-center gap-1.5 text-slate-400 transition-all">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
+        </a>
 
-            renderForecast(data.daily);
-            renderVisuals(current.weather_code);
-        } catch (e) {
-            console.error("Weather fetch failed:", e);
-            document.getElementById("weather-desc").textContent = "Update Failed";
-        }
-    }
+        <!-- Passes -->
+        <a href="passes.html" class="flex flex-col items-center gap-1.5 text-slate-400 transition-all">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
+        </a>
+    </nav>
 
-    function renderForecast(daily) {
-        const list = document.getElementById("forecast-list");
-        list.innerHTML = ""; 
-
-        for(let i=0; i<3; i++) {
-            const date = new Date(daily.time[i] + "T00:00");
-            const dayName = i === 0 ? "Today" : date.toLocaleDateString('en-US', { weekday: 'long' });
-            const high = Math.round(daily.temperature_2m_max[i]);
-            const low = Math.round(daily.temperature_2m_min[i]);
-            const condition = weatherCodes[daily.weather_code[i]] || "Fair";
-
-            const card = document.createElement("div");
-            card.className = "forecast-card bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex justify-between items-center fade-in";
-            card.style.animationDelay = `${i * 0.1}s`;
-            card.innerHTML = `
-                <div>
-                    <span class="block text-[9px] font-black text-slate-400 uppercase tracking-widest">${dayName}</span>
-                    <span class="font-black text-slate-800 uppercase text-sm">${condition}</span>
-                </div>
-                <div class="text-right">
-                    <span class="text-xl font-black text-slate-800">${high}°</span>
-                    <span class="text-sm font-bold text-slate-300 ml-1">${low}°</span>
-                </div>
-            `;
-            list.appendChild(card);
-        }
-    }
-
-    function renderVisuals(code) {
-        const layer = document.getElementById("animation-layer");
-        layer.innerHTML = "";
-        if (code >= 61) { 
-            const char = code >= 71 ? "❄️" : "💧";
-            for(let i=0; i<30; i++) {
-                const p = document.createElement("div");
-                p.className = "particle";
-                p.textContent = char;
-                p.style.left = Math.random() * 100 + "vw";
-                p.style.animationDuration = (Math.random() * 2 + 2) + "s";
-                p.style.opacity = Math.random();
-                layer.appendChild(p);
+    <!-- WebGL Shaders -->
+    <script id="vertexShader" type="x-shader/x-vertex">
+        attribute vec2 position;
+        void main() { gl_Position = vec4(position, 0.0, 1.0); }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        precision highp float;
+        uniform float uTime;
+        uniform vec2 uResolution;
+        void main() {
+            vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y);
+            float t = uTime * 0.1;
+            vec3 col = vec3(0.0);
+            for(float i = 1.0; i < 4.0; i++) {
+                uv.x += 0.4 / i * sin(i * 3.0 * uv.y + t);
+                uv.y += 0.4 / i * cos(i * 3.0 * uv.x + t);
+                col += 0.006 / abs(sin(t + uv.y + uv.x));
             }
+            gl_FragColor = vec4(col * vec3(0.1, 0.3, 0.7), 1.0);
         }
-    }
+    </script>
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const path = window.location.pathname.split("/").pop() || "weather.html";
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if(link.getAttribute('data-page') === path) link.classList.add('nav-active');
+    <script>
+        // WebGL Engine
+        const canvas = document.getElementById('canvas');
+        const gl = canvas.getContext('webgl');
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const program = gl.createProgram();
+        const vs = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vs, document.getElementById('vertexShader').textContent);
+        gl.compileShader(vs);
+        const fs = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fs, document.getElementById('fragmentShader').textContent);
+        gl.compileShader(fs);
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+
+        const posLoc = gl.getAttribLocation(program, 'position');
+        const uTime = gl.getUniformLocation(program, 'uTime');
+        const uRes = gl.getUniformLocation(program, 'uResolution');
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+        function render(t) {
+            gl.useProgram(program);
+            gl.uniform1f(uTime, t * 0.001);
+            gl.uniform2f(uRes, canvas.width, canvas.height);
+            gl.enableVertexAttribArray(posLoc);
+            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+
+        // App Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash');
+                splash.style.opacity = '0';
+                splash.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    document.getElementById('mainContent').classList.remove('opacity-0');
+                }, 800);
+            }, 2000);
         });
-        fetchWeather();
-    });
-</script>
+    </script>
 </body>
 </html>
