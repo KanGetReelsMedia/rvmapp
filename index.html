@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    
+    <!-- PWA Primary Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#0f172a">
     
-    <!-- PWA Manifest Connection -->
+    <!-- Link to your fixed manifest -->
     <link rel="manifest" href="manifest.json">
+    
     <title>River Valley Metro | Premium</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -67,8 +70,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        .nav-link.active { color: #3b82f6; }
     </style>
 </head>
 <body>
@@ -77,7 +78,7 @@
 
     <!-- Splash Screen -->
     <div id="splash">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjBRXORehZGVAUiu8vzUjk_Jli1YGIERGWwA&s" alt="Logo" class="w-24 h-24 rounded-full border-4 border-white/20 shadow-2xl">
+        <img src="https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png" alt="Logo" class="w-24 h-24 rounded-full border-4 border-white/20 shadow-2xl">
         <h1 class="text-white text-xl font-black mt-6 tracking-tighter uppercase">River Valley Metro</h1>
         <div class="mt-8 w-24 h-1 bg-white/10 rounded-full overflow-hidden">
             <div class="loader-progress"></div>
@@ -109,7 +110,7 @@
                         <p class="text-blue-400 font-extrabold text-lg leading-tight">ONU STOP CLOSED</p>
                         <p class="text-white/80 text-xs font-semibold uppercase tracking-wider">May 16th & 17th</p>
                         <p class="text-white/60 text-[11px] leading-relaxed pt-2">
-                            Route 11 will bypass the Olivet Nazarene University stop for graduation ceremonies. Alternative boarding at nearby traffic light intersections.
+                            Route 11 will bypass the Olivet Nazarene University stop. Alternative boarding at nearby traffic light intersections.
                         </p>
                     </div>
                 </div>
@@ -133,24 +134,6 @@
                     </div>
                 </div>
 
-                <div class="glass-card p-6">
-                    <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">
-                        Midway Commuter
-                        <span class="text-[9px] bg-indigo-500/20 px-2 py-1 rounded text-indigo-400 font-black">HOURS</span>
-                    </h2>
-                    <div class="space-y-4 text-sm">
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">4:45A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between text-indigo-400 font-bold">
-                            <span>Sun / Holiday</span><span>8:00A - 6:40P</span>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="pt-4">
                     <a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-white text-black w-full py-5 rounded-[2rem] font-black active:scale-95 transition-all shadow-xl">
                         CALL SUPPORT
@@ -160,27 +143,15 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
+    <!-- Navigation -->
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl z-[9999]">
-        
-        <button onclick="document.getElementById('scrollContainer').scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center gap-1.5 active transition-all outline-none">
+        <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-1.5 text-blue-500">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             <span class="text-[8px] font-black uppercase tracking-tighter">Home</span>
         </button>
-
-        <button onclick="document.getElementById('alert-section').scrollIntoView({behavior: 'smooth'})" class="flex flex-col items-center gap-1.5 text-slate-400 transition-all outline-none">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
-        </button>
-
-        <a href="map.html" class="flex flex-col items-center gap-1.5 text-slate-400 transition-all">
+        <a href="map.html" class="flex flex-col items-center gap-1.5 text-slate-400">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
             <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
-        </a>
-
-        <a href="passes.html" class="flex flex-col items-center gap-1.5 text-slate-400 transition-all">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg>
-            <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
         </a>
     </nav>
 
@@ -207,7 +178,7 @@
     </script>
 
     <script>
-        // WebGL Engine
+        // WebGL Engine Logic
         const canvas = document.getElementById('canvas');
         const gl = canvas.getContext('webgl');
         function resize() {
@@ -247,7 +218,7 @@
         }
         requestAnimationFrame(render);
 
-        // App Initialization & Splash handling
+        // App Initialization
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash');
@@ -260,12 +231,13 @@
             }, 2000);
         });
 
-        // 🚀 CRITICAL: Service Worker Registration
+        // 🚀 OFFICIAL SERVICE WORKER REGISTRATION
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
+                // Registering the sw.js file located in your root folder
                 navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker Live!', reg))
-                .catch(err => console.log('Service Worker Failed', err));
+                .then(reg => console.log('PWA Service Worker Active', reg.scope))
+                .catch(err => console.log('Service Worker Error', err));
             });
         }
     </script>
