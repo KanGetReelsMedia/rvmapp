@@ -3,80 +3,29 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-    
-    <!-- PWA Primary Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
-    
-    <!-- Link to your fixed manifest -->
     <link rel="manifest" href="manifest.json">
-    
     <title>River Valley Metro | Premium</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #000; overflow: hidden; height: 100dvh; color: white; display: flex; justify-content: center; align-items: center; }
-
-        /* WebGL Background Layer */
         #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-
-        /* App Container */
-        .app-container { 
-            position: relative; 
-            width: 100vw; 
-            height: 100dvh; 
-            max-width: 430px; 
-            z-index: 10; 
-            overflow-y: auto; 
-            scrollbar-width: none;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            scroll-behavior: smooth;
-        }
+        .app-container { position: relative; width: 100vw; height: 100dvh; max-width: 430px; z-index: 10; overflow-y: auto; scrollbar-width: none; background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); scroll-behavior: smooth; }
         .app-container::-webkit-scrollbar { display: none; }
-
-        /* Splash Screen */
-        #splash { 
-            position: fixed; inset: 0; background: #000; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            z-index: 10000; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
+        #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
         .loader-progress { width: 40%; height: 100%; background: #3b82f6; animation: loading 1.5s infinite ease-in-out; }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
-
-        /* Glass Components */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2.5rem;
-        }
-
-        .alert-card {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.1) 100%);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            backdrop-filter: blur(20px);
-            border-radius: 2.5rem;
-        }
-
-        .glow-text {
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2.5rem; }
+        .alert-card { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0.1) 100%); border: 1px solid rgba(59, 130, 246, 0.3); backdrop-filter: blur(20px); border-radius: 2.5rem; }
+        .glow-text { background: linear-gradient(135deg, #fff 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
 <body>
-
     <canvas id="canvas"></canvas>
-
-    <!-- Splash Screen -->
     <div id="splash">
         <img src="https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png" alt="Logo" class="w-24 h-24 rounded-full border-4 border-white/20 shadow-2xl">
         <h1 class="text-white text-xl font-black mt-6 tracking-tighter uppercase">River Valley Metro</h1>
@@ -85,65 +34,41 @@
         </div>
     </div>
 
-    <!-- Main Content Container -->
     <div class="app-container" id="scrollContainer">
         <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-40">
-            
-            <header class="text-center mb-10" id="top-anchor">
+            <header class="text-center mb-10">
                 <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
                 <h1 class="text-3xl font-black glow-text tracking-tight">River Valley Metro</h1>
                 <p class="text-blue-500 font-bold text-[10px] uppercase tracking-[0.4em]">Official Transit Portal</p>
             </header>
 
             <div class="space-y-6">
-                <!-- Alert Card -->
                 <div id="alert-section" class="alert-card p-6 border-l-4 border-l-blue-500">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="bg-blue-600 p-2 rounded-full">
-                            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
+                            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                         </div>
                         <h2 class="font-black text-white tracking-tight uppercase text-sm">Graduation Detour</h2>
                     </div>
-                    <div class="space-y-2">
-                        <p class="text-blue-400 font-extrabold text-lg leading-tight">ONU STOP CLOSED</p>
-                        <p class="text-white/80 text-xs font-semibold uppercase tracking-wider">May 16th & 17th</p>
-                        <p class="text-white/60 text-[11px] leading-relaxed pt-2">
-                            Route 11 will bypass the Olivet Nazarene University stop. Alternative boarding at nearby traffic light intersections.
-                        </p>
-                    </div>
+                    <p class="text-blue-400 font-extrabold text-lg leading-tight">ONU STOP CLOSED</p>
+                    <p class="text-white/60 text-[11px] leading-relaxed pt-2">Route 11 will bypass the Olivet stop. Board at nearby traffic light intersections.</p>
                 </div>
 
-                <!-- Hours Cards -->
                 <div class="glass-card p-6">
-                    <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">
-                        Local & Metro Plus 
-                        <span class="text-[9px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black">HOURS</span>
-                    </h2>
+                    <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">Hours <span class="text-[9px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black">LOCAL</span></h2>
                     <div class="space-y-4 text-sm">
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">5:00A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between text-blue-400 font-bold">
-                            <span>Sun / Holiday</span><span>8:00A - 4:00P</span>
-                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">5:00A - 9:30P</span></div>
+                        <div class="flex justify-between text-blue-400 font-bold"><span>Sun / Holiday</span><span>8:00A - 4:00P</span></div>
                     </div>
                 </div>
 
                 <div class="pt-4">
-                    <a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-white text-black w-full py-5 rounded-[2rem] font-black active:scale-95 transition-all shadow-xl">
-                        CALL SUPPORT
-                    </a>
+                    <a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-white text-black w-full py-5 rounded-[2rem] font-black shadow-xl">CALL SUPPORT</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Navigation -->
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl z-[9999]">
         <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-1.5 text-blue-500">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -155,89 +80,44 @@
         </a>
     </nav>
 
-    <!-- WebGL Shaders -->
-    <script id="vertexShader" type="x-shader/x-vertex">
-        attribute vec2 position;
-        void main() { gl_Position = vec4(position, 0.0, 1.0); }
-    </script>
+    <script id="vertexShader" type="x-shader/x-vertex">attribute vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }</script>
     <script id="fragmentShader" type="x-shader/x-fragment">
-        precision highp float;
-        uniform float uTime;
-        uniform vec2 uResolution;
+        precision highp float; uniform float uTime; uniform vec2 uResolution;
         void main() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y);
-            float t = uTime * 0.1;
-            vec3 col = vec3(0.0);
+            float t = uTime * 0.1; vec3 col = vec3(0.0);
             for(float i = 1.0; i < 4.0; i++) {
-                uv.x += 0.4 / i * sin(i * 3.0 * uv.y + t);
-                uv.y += 0.4 / i * cos(i * 3.0 * uv.x + t);
+                uv.x += 0.4 / i * sin(i * 3.0 * uv.y + t); uv.y += 0.4 / i * cos(i * 3.0 * uv.x + t);
                 col += 0.006 / abs(sin(t + uv.y + uv.x));
             }
             gl_FragColor = vec4(col * vec3(0.1, 0.3, 0.7), 1.0);
         }
     </script>
-
     <script>
-        // WebGL Engine Logic
         const canvas = document.getElementById('canvas');
         const gl = canvas.getContext('webgl');
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; gl.viewport(0, 0, canvas.width, canvas.height); }
+        window.addEventListener('resize', resize); resize();
         const program = gl.createProgram();
-        const vs = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(vs, document.getElementById('vertexShader').textContent);
-        gl.compileShader(vs);
-        const fs = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fs, document.getElementById('fragmentShader').textContent);
-        gl.compileShader(fs);
-        gl.attachShader(program, vs);
-        gl.attachShader(program, fs);
-        gl.linkProgram(program);
-
+        const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs, document.getElementById('vertexShader').textContent); gl.compileShader(vs);
+        const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs, document.getElementById('fragmentShader').textContent); gl.compileShader(fs);
+        gl.attachShader(program, vs); gl.attachShader(program, fs); gl.linkProgram(program);
         const posLoc = gl.getAttribLocation(program, 'position');
         const uTime = gl.getUniformLocation(program, 'uTime');
         const uRes = gl.getUniformLocation(program, 'uResolution');
-        const buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-
-        function render(t) {
-            gl.useProgram(program);
-            gl.uniform1f(uTime, t * 0.001);
-            gl.uniform2f(uRes, canvas.width, canvas.height);
-            gl.enableVertexAttribArray(posLoc);
-            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(render);
-        }
+        const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+        function render(t) { gl.useProgram(program); gl.uniform1f(uTime, t * 0.001); gl.uniform2f(uRes, canvas.width, canvas.height); gl.enableVertexAttribArray(posLoc); gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); requestAnimationFrame(render); }
         requestAnimationFrame(render);
-
-        // App Initialization
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash');
-                splash.style.opacity = '0';
-                splash.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    document.getElementById('mainContent').classList.remove('opacity-0');
-                }, 800);
+                splash.style.opacity = '0'; splash.style.transform = 'scale(1.1)';
+                setTimeout(() => { splash.style.display = 'none'; document.getElementById('mainContent').classList.remove('opacity-0'); }, 800);
             }, 2000);
         });
-
-        // 🚀 OFFICIAL SERVICE WORKER REGISTRATION
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Registering the sw.js file located in your root folder
-                navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('PWA Service Worker Active', reg.scope))
-                .catch(err => console.log('Service Worker Error', err));
+                navigator.serviceWorker.register('./sw.js').then(reg => console.log('Active', reg.scope)).catch(err => console.log('Error', err));
             });
         }
     </script>
