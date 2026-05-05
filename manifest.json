@@ -12,13 +12,13 @@
   "icons": [
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "840x840",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "840x840",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
@@ -26,7 +26,7 @@
   "screenshots": [
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "840x840",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
       "label": "River Valley Metro Home"
