@@ -1,17 +1,18 @@
-const CACHE_NAME = 'rvm-v3';
+const CACHE_NAME = 'rvm-premium-v4';
+const OFFLINE_URL = './index.html'; // Using index as fallback
+
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -25,9 +26,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.open(CACHE_NAME).then((cache) => cache.match(OFFLINE_URL));
+      })
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then((response) => response || fetch(event.request))
+    );
+  }
 });
