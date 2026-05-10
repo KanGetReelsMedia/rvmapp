@@ -127,27 +127,72 @@
     <script>
         /* ==========================================================
            DISPATCHER CONTROL PANEL (The "Backend")
-           ========================================================== */
-        const alertsData = [
-            {
-                id: 1,
-                active: true, 
-                severity: "high", 
-                route: "all routes",
-                title: "fixed routes",
-                message: "fixe routes stop at 4pm, happy mother'sday",
-                timestamp: "Updated 9:44 am"
-            },
-            {
-                id: 2,
-                active: false,
-                severity: "medium",
-                route: "RT 1 / RT 4",
-                title: "Detour: Court St.",
-                message: "Road construction on Court St. Buses using 5th Ave detour.",
-                timestamp: "Updated 1 hour ago"
-            }
-        ];
+   ========================================================== */
+const alertsData = [
+    {
+        id: 1,
+        active: false, 
+        severity: "high", 
+        route: "SYSTEM WIDE",
+        title: "Severe Weather Alert",
+        message: "Due to heat, all routes are free. please feel free to use our buses as a cooling center",
+        timestamp: "Updated"
+    },
+    {
+        id: 2,
+        active: false,
+        severity: "medium",
+        route: "RT  / RT ",
+        title: "Construction Detour",
+        message: "Road construction on ",
+        timestamp: "Updated "
+    },
+    {
+        id: 3,
+        active: false,
+        severity: "high",
+        route: "RT ",
+        title: "Emergency Closure",
+        message: "Route  is currently down due to an accident on Main St. Please use RT 12 as an alternative.",
+        timestamp: "Updated Just Now"
+    },
+    {
+        id: 4,
+        active: True,
+        severity: "info",
+        route: "SYSTEM WIDE",
+        title: "Holiday Hours",
+        message: "Reminder: Memorial Day Day we will operate from 8:00 am to 4:00pm.",
+        timestamp: "Updated 5/10"
+    },
+    {
+        id: 5,
+        active: false,
+        severity: "High",
+        route: "RT ",
+        title: "Mechanical Delay",
+        message: "A replacement bus is en route for RT . Expect a 10-15 minute gap in service.",
+        timestamp: "Updated 10 mins ago"
+    },
+    {
+        id: 6,
+        active: false,
+        severity: "info",
+        route: "Fixed Route information",
+        title: "Maintenance",
+        message: "Bus: is currently down",
+        timestamp: "Updated 8:00 am"
+    },
+    {
+        id: 7,
+        active: false,
+        severity: "medium",
+        route: "RT 5",
+        title: "Event Detour",
+        message: "Downtown Farmers Market detour in effect. RT 5 will bypass the Square until 12:00 PM.",
+        timestamp: "Updated Saturday"
+    }
+];
 
         function renderAlerts() {
             const container = document.getElementById('alerts-list');
