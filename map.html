@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Smart Route Tap</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         :root { 
             --rvm-blue: #38bdf8; 
@@ -24,7 +25,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 24px 24px 100px;
+            padding: 24px 24px 120px; /* Adjusted padding to cleanly clear the navigation bubble */
             margin: 0;
             color: var(--text-light);
             box-sizing: border-box;
@@ -120,7 +121,7 @@
             background: radial-gradient(circle, rgba(239, 68, 68, 0.05) 0%, rgba(0,0,0,0) 70%);
             border: 4px solid rgba(239, 68, 68, 0.4);
             box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.1);
-            animation: pulse-glow-urgent 1.0s infinite ease-in-out; /* Accelerated to 1s */
+            animation: pulse-glow-urgent 1.0s infinite ease-in-out;
         }
 
         .eta-circle.urgent .eta-val {
@@ -178,7 +179,7 @@
             font-size: 0.95rem;
             letter-spacing: 0.5px;
             cursor: pointer;
-            box-shadow: 0 10px 25 rgba(16, 185, 129, 0.25);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
             transition: transform 0.2s, background 0.2s;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -188,52 +189,10 @@
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
         }
 
-        .android-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 72px;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 12px;
-            z-index: 1000;
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
-        }
-
+        /* Native class fallbacks for navigation custom style compatibility */
         .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             text-decoration: none;
-            color: var(--text-muted);
-            width: 20%;
-            height: 100%;
             transition: color 0.2s ease, transform 0.1s;
-        }
-
-        .nav-link svg {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 4px;
-            transition: stroke 0.2s ease;
-        }
-
-        .nav-link span {
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-link.active {
-            color: var(--rvm-blue);
         }
 
         .nav-link:active {
@@ -249,30 +208,43 @@
 
     <button onclick="window.location.href='tel:8159374444'" class="call-btn">Call Dispatch: (815) 937-4287</button>
 
-    <nav class="android-nav">
-        <a href="index.html" class="nav-link active">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-            <span>Home</span>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
+        <a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
         </a>
-        <a href="status.html" class="nav-link">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            <span>Alerts</span>
+        <a href="map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
         </a>
-        <a href="schedule.html" class="nav-link">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>Times</span>
+        <a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
         </a>
-        <a href="map.html" class="nav-link">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
-            <span>Map</span>
+        <a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="notices.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Notices</span>
         </a>
-        <a href="smarttap.html" class="nav-link active">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-            <span>Tap</span>
+        <a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
         </a>
-        <a href="passes.html" class="nav-link">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg>
-            <span>Pass</span>
+        <a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
         </a>
     </nav>
 
