@@ -8,7 +8,7 @@
     <!-- Modern Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,24 +39,21 @@
             transition: all 0.3s ease;
         }
         
-        /* Fixed severity casing to match JS exactly */
         .severity-high { border-left: 4px solid #ef4444; box-shadow: -10px 0 20px -10px rgba(239, 68, 68, 0.3); }
         .severity-medium { border-left: 4px solid #f59e0b; box-shadow: -10px 0 20px -10px rgba(245, 158, 11, 0.3); }
         .severity-info { border-left: 4px solid #3b82f6; box-shadow: -10px 0 20px -10px rgba(59, 130, 246, 0.3); }
-
-        .nav-link.active { color: #3b82f6; }
     </style>
 </head>
-<body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center">
+<body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
 
-    <div class="fixed inset-0 bg-slate-950 z-0">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"></div>
-    </div>
+    <!-- Background WebGL Layer (Consistent across pages) -->
+    <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
 
-    <main class="app-container relative z-10 w-full max-w-[420px] h-[100dvh] overflow-y-auto px-5 pt-8 pb-32 scrollbar-hide">
+    <!-- Main Content Container -->
+    <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-32 scrollbar-hide">
         
-        <header class="glass-panel rounded-[2rem] p-6 text-center mb-6">
+        <header class="glass-panel rounded-[2.5rem] p-6 text-center mb-6">
+            <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-4"></div>
             <h1 class="text-2xl font-black tracking-tighter italic uppercase">SYSTEM <span class="text-blue-500">ALERTS</span></h1>
             <p class="text-[9px] mt-1 text-slate-400 font-bold tracking-[0.3em] uppercase">Live Dispatcher Broadcast</p>
         </header>
@@ -65,62 +62,103 @@
 
     </main>
 
-<!-- Navigation Bar -->
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-    
-    <!-- Alerts/Status -->
-    <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
-    </a>
+    <!-- Fixed Bottom Navigation Bar -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
+        <a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
+        </a>
+        <a href="map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
+        </a>
+        <a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
+        </a>
+        <a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="notices.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Notices</span>
+        </a>
+        <a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
+        </a>
+        <a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
+        </a>
+    </nav>
 
-    <!-- Map -->
-    <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
-    </a>
-
-    <!-- Midway -->
-    <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
-    </a>
-
-    <!-- Notices (NOW WITH BUS ICON) -->
-    <a href="./notices.html" class="nav-link active flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="notices.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter text-blue-500">Notices</span>
-    </a>
-
-    <!-- Passes -->
-    <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
-    </a>
-
-    <!-- Weather -->
-    <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
-    </a>
-</nav>
+    <!-- Shader Logic for background compatibility -->
+    <script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
+    <script id="fs" type="x-shader/x-fragment">
+        precision highp float; uniform float uTime; uniform vec2 uRes;
+        void main(){
+            vec2 uv = (gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);
+            float t=uTime*0.1; vec3 c=vec3(0.);
+            for(float i=1.;i<4.;i++){ 
+                uv.x+=.4/i*sin(i*3.*uv.y+t); 
+                uv.y+=.4/i*cos(i*3.*uv.x+t); 
+                c+=.004/abs(sin(t+uv.y+uv.x)); 
+            }
+            gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);
+        }
+    </script>
 
     <script>
+        // WebGL Canvas Engine
+        const canvas = document.getElementById('canvas'), gl = canvas.getContext('webgl');
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const program = gl.createProgram();
+        const addShader = (type, src) => {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            gl.attachShader(program, s);
+        };
+        addShader(gl.VERTEX_SHADER, document.getElementById('vs').textContent);
+        addShader(gl.FRAGMENT_SHADER, document.getElementById('fs').textContent);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+        const pos = gl.getAttribLocation(program, 'position');
+        gl.enableVertexAttribArray(pos);
+        gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+        function renderCanvas(t) {
+            gl.uniform1f(gl.getUniformLocation(program, 'uTime'), t * 0.001);
+            gl.uniform2f(gl.getUniformLocation(program, 'uRes'), canvas.width, canvas.height);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(renderCanvas);
+        }
+        renderCanvas(0);
+
+        // System Alerts Data Object
         const alertsData = [
-            /* --- BREAKDOWNS / MECHANICAL --- */
             {
                 id: 1,
                 active: false, 
@@ -130,7 +168,6 @@
                 message: "Route 6 is currently not running due to a mechanical issue. We are working to get a bus back on the route as soon as possible.",
                 timestamp: "Updated Just Now"
             },
-            /* --- CONSTRUCTION / DETOURS --- */
             {
                 id: 2,
                 active: false,
@@ -140,7 +177,6 @@
                 message: "A detour is in effect for Route [X] due to road work. Please expect minor delays.",
                 timestamp: "Updated Today"
             },
-            /* --- HOLIDAYS (Flip to true on the day) --- */
             {
                 id: 3,
                 active: false,
@@ -159,7 +195,6 @@
                 message: "RVM will be closed for the Independence Day holiday. No bus service will be provided.",
                 timestamp: "Seasonal"
             },
-            /* --- FESTIVALS / EVENTS --- */
             {
                 id: 5,
                 active: false,
@@ -169,7 +204,6 @@
                 message: "Due to a local festival, several downtown stops are relocated. Follow signs to the temporary boarding area.",
                 timestamp: "Update Pending"
             },
-            /* --- WEATHER --- */
             {
                 id: 6,
                 active: false, 
@@ -188,12 +222,12 @@
             if (activeAlerts.length === 0) {
                 container.innerHTML = `
                     <div class="glass-panel rounded-3xl p-8 text-center border-emerald-500/20">
-                        <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-black uppercase tracking-tight">System Normal</h3>
+                        <h3 class="text-lg font-black uppercase tracking-tight text-slate-100">System Normal</h3>
                         <p class="text-xs text-slate-400 mt-1 font-medium">All routes are operating on schedule.</p>
                     </div>
                 `;
@@ -203,7 +237,7 @@
             container.innerHTML = activeAlerts.map(alert => `
                 <div class="alert-card glass-panel rounded-3xl p-5 severity-${alert.severity.toLowerCase()}">
                     <div class="flex justify-between items-start mb-3">
-                        <span class="bg-white/10 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase text-blue-400">
+                        <span class="bg-white/5 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase text-blue-400 border border-white/5">
                             ${alert.route}
                         </span>
                         <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">
@@ -220,7 +254,17 @@
             `).join('');
         }
 
-        renderAlerts();
+        // Handle Active Navigation State & Boot Scripts
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split("/").pop() || "status.html";
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if(link.getAttribute('data-page') === currentPath) {
+                    link.classList.remove('text-slate-400');
+                    link.classList.add('text-blue-500');
+                }
+            });
+            renderAlerts();
+        });
     </script>
 </body>
 </html>
