@@ -1,199 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-black">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Midway Commuter | River Valley Metro</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-  
-  <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; margin: 0; overflow: hidden; height: 100vh; }
-    .app-container { width: 100vw; height: 100vh; background: #f8fafc; position: relative; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    .app-container::-webkit-scrollbar { display: none; }
-    .btn-pulse { animation: pulse-subtle 2s infinite; }
-    @keyframes pulse-subtle {
-      0% { box-shadow: 0 0 0 0 rgba(63, 169, 245, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(63, 169, 245, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(63, 169, 245, 0); }
-    }
-    .nav-active { color: #60a5fa !important; }
-    .nav-active svg { stroke: #60a5fa !important; }
-  </style>
-</head>
-<body>
-
-  <div class="app-container">
-    <header class="p-6 pt-10 text-center bg-white border-b border-slate-100">
-        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Midway Commuter</h1>
-        <p class="text-blue-500 font-bold text-xs uppercase tracking-widest">Bourbonnais ↔ Chicago</p>
-    </header>
-
-    <div class="p-5 space-y-6 pb-32"> 
-      <div class="bg-white rounded-[2.5rem] p-7 shadow-xl border border-slate-100">
-        <div class="flex flex-col items-center mb-6">
-            <span id="dayTitle" class="bg-blue-50 text-blue-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-2">Checking Schedule...</span>
-            <h2 class="text-xl font-black text-slate-900 tracking-tight">Current Service</h2>
-        </div>
-        <div id="busButtons" class="space-y-4"></div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <a href="tel:8159374287" class="bg-white p-5 rounded-[2rem] border border-slate-100 flex flex-col items-center shadow-sm active:scale-95 transition-all">
-            <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" ></path></svg>
-            </div>
-            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Support</span>
-            <span class="text-xs font-black text-slate-800">Dispatch</span>
-        </a>
-        <div class="bg-white p-5 rounded-[2rem] border border-slate-100 flex flex-col items-center shadow-sm">
-            <div id="statusIcon" class="w-10 h-10 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-2 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" ></path></svg>
-            </div>
-            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Status</span>
-            <span id="statusText" class="text-xs font-black text-green-600 uppercase">Active</span>
-        </div>
-      </div>
-
-      <div class="bg-slate-900 rounded-[2.5rem] p-5 shadow-2xl">
-        <h3 class="text-white text-[10px] font-black text-center mb-4 uppercase tracking-[0.2em]">Midway Boarding Area</h3>
-        <div class="rounded-2xl overflow-hidden shadow-inner bg-black">
-            <video class="w-full h-44 object-cover" controls playsinline>
-                <source src="https://www.rivervalleymetro.com/wp-content/uploads/2024/02/20240212_185242.mp4" type="video/mp4">
-            </video>
-        </div>
-      </div>
-    </div>
-  </div>
- <!-- Navigation Bar -->
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Midway Commuter | River Valley Metro</title>
     
-    <!-- Alerts/Status -->
-    <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
-    </a>
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
+                }
+            }
+        }
+    </script>
 
-    <!-- Map -->
-    <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
-    </a>
+    <style type="text/css">
+        body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        
+        /* Custom Scrollbar for the container */
+        .app-container::-webkit-scrollbar { display: none; }
+        
+        /* Premium Glass Effect */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
 
-    <!-- Midway -->
-    <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
-    </a>
+        .btn-pulse { animation: pulse-subtle 2s infinite; }
+        @keyframes pulse-subtle {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+    </style>
+</head>
+<body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
 
-    <!-- Notices (NOW WITH BUS ICON) -->
-    <a href="./notices.html" class="nav-link active flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="notices.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter text-blue-500">Notices</span>
-    </a>
+    <!-- Background WebGL Layer (Keep consistent across pages) -->
+    <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
 
-    <!-- Passes -->
-    <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
-    </a>
+    <!-- Main Content Container -->
+    <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-32 scrollbar-hide">
+        
+        <!-- Header Section -->
+        <header class="glass-panel rounded-[2.5rem] p-6 text-center mb-4">
+            <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-4"></div>
+            <h1 class="text-2xl font-black tracking-tight leading-none italic uppercase">MIDWAY <span class="text-blue-500">COMMUTER</span></h1>
+            <p class="text-[10px] mt-2 text-blue-400 font-bold tracking-[0.3em] uppercase opacity-80">Bourbonnais ↔ Chicago</p>
+        </header>
 
-    <!-- Weather -->
-    <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
-    </a>
-</nav>
+        <!-- Current Schedule Module -->
+        <section class="p-5 space-y-4 pb-4"> 
+            <div class="glass-panel rounded-[2.5rem] p-6 text-center">
+                <div class="flex flex-col items-center mb-5">
+                    <span id="dayTitle" class="bg-blue-500/10 text-blue-400 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-2 border border-blue-500/20">Checking Schedule...</span>
+                    <h2 class="text-xl font-black text-slate-100 uppercase tracking-tight">Current Service</h2>
+                </div>
+                <div id="busButtons" class="space-y-4"></div>
+            </div>
 
-  <script>
-    // Midway Schedule Data
-    const weekdaySchedule = [{ b: "4:45 AM", m: "6:00 AM" }, { b: "6:00 AM", m: "7:15 AM" }, { b: "7:25 AM", m: "8:45 AM" }, { b: "8:45 AM", m: "10:05 AM" }, { b: "10:15 AM", m: "11:35 AM" }, { b: "11:35 AM", m: "12:55 PM" }, { b: "1:25 PM", m: "2:45 PM" }, { b: "3:05 PM", m: "4:25 PM" }, { b: "4:15 PM", m: "5:35 PM" }, { b: "5:50 PM", m: "7:05 PM" }, { b: "7:05 PM", m: "8:20 PM" }];
-    const saturdaySchedule = [{ b: "7:00 AM", m: "8:15 AM" }, { b: "9:40 AM", m: "11:00 AM" }, { b: "12:30 PM", m: "1:50 PM" }, { b: "4:20 PM", m: "5:40 PM" }, { b: "7:05 PM", m: "8:20 PM" }];
-    const sundaySchedule = [{ b: "8:00 AM", m: "9:15 AM" }, { b: "10:35 AM", m: "11:55 AM" }, { b: "1:20 PM", m: "2:40 PM" }, { b: "4:05 PM", m: "5:25 PM" }];
+            <!-- Support & Status Widgets -->
+            <div class="grid grid-cols-2 gap-3">
+                <a href="tel:8159374287" class="glass-panel p-5 rounded-2xl flex flex-col items-center hover:bg-white/5 active:scale-95 transition-all">
+                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mb-2 border border-blue-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" ></path></svg>
+                    </div>
+                    <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Support</span>
+                    <span class="text-xs font-black text-slate-200 uppercase tracking-tight">Dispatch</span>
+                </a>
+                <div class="glass-panel p-5 rounded-2xl flex flex-col items-center">
+                    <div id="statusIcon" class="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" ></path></svg>
+                    </div>
+                    <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</span>
+                    <span id="statusText" class="text-xs font-black text-emerald-400 uppercase tracking-tight">Active</span>
+                </div>
+            </div>
 
-    function parseTime(t) {
-      if (!t) return 0;
-      let [time, mod] = t.split(" ");
-      let [h, m] = time.split(":").map(Number);
-      if (mod === "PM" && h !== 12) h += 12;
-      if (mod === "AM" && h === 12) h = 0;
-      return h * 60 + m;
-    }
+            <!-- Stream Video Feed -->
+            <div class="glass-panel rounded-[2.5rem] p-5 shadow-2xl">
+                <h3 class="text-slate-400 text-[9px] font-black text-center mb-4 uppercase tracking-[0.2em]">Midway Boarding Area</h3>
+                <div class="rounded-2xl overflow-hidden bg-black/40 border border-white/5">
+                    <video class="w-full h-40 object-cover" controls playsinline>
+                        <source src="https://www.rivervalleymetro.com/wp-content/uploads/2024/02/20240212_185242.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </section>
 
-    function getDirectionDisplay(schedule, key, currentTime) {
-      const activeBus = schedule.find(bus => {
-        const startTime = parseTime(bus[key]);
-        return currentTime >= startTime && currentTime < (startTime + 75);
-      });
-      if (activeBus) return `<span class="text-green-300 animate-pulse uppercase">● Route Active</span><br>${activeBus[key]}`;
-      const nextBus = schedule.find(bus => parseTime(bus[key]) > currentTime);
-      return nextBus ? `Next Departure: ${nextBus[key]}` : `<span class="text-slate-400 uppercase">Not In Service</span>`;
-    }
+        <footer class="text-center opacity-30 text-[9px] font-bold tracking-widest uppercase pt-6 pb-10">
+            &copy; 2026 River Valley Metro Transit
+        </footer>
+    </main>
 
-    function render() {
-      const now = new Date();
-      const cur = now.getHours() * 60 + now.getMinutes();
-      const d = now.getDay();
-      let schedule = weekdaySchedule;
-      let title = "Weekday Schedule";
-      if (d === 0) { schedule = sundaySchedule; title = "Sunday Schedule"; }
-      else if (d === 6) { schedule = saturdaySchedule; title = "Saturday Schedule"; }
+    <!-- Fixed Bottom Navigation Bar -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
+        <a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
+        </a>
+        <a href="map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
+        </a>
+        <a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
+        </a>
+        <a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="notices.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Notices</span>
+        </a>
+        <a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
+        </a>
+        <a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
+        </a>
+    </nav>
 
-      document.getElementById('dayTitle').textContent = title;
-      const northText = getDirectionDisplay(schedule, 'b', cur);
-      const southText = getDirectionDisplay(schedule, 'm', cur);
-      const lastDeparture = parseTime(schedule[schedule.length - 1].m) + 75;
-      const systemActive = cur < lastDeparture;
+    <!-- Shader Logic for background compatibility -->
+    <script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
+    <script id="fs" type="x-shader/x-fragment">
+        precision highp float; uniform float uTime; uniform vec2 uRes;
+        void main(){
+            vec2 uv = (gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);
+            float t=uTime*0.1; vec3 c=vec3(0.);
+            for(float i=1.;i<4.;i++){ 
+                uv.x+=.4/i*sin(i*3.*uv.y+t); 
+                uv.y+=.4/i*cos(i*3.*uv.x+t); 
+                c+=.004/abs(sin(t+uv.y+uv.x)); 
+            }
+            gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);
+        }
+    </script>
 
-      const statusIcon = document.getElementById('statusIcon');
-      const statusText = document.getElementById('statusText');
-      if (!systemActive) {
-          statusIcon.className = "w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-2";
-          statusText.className = "text-xs font-black text-red-600 uppercase";
-          statusText.textContent = "No Service";
-      } else {
-          statusIcon.className = "w-10 h-10 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-2";
-          statusText.className = "text-xs font-black text-green-600 uppercase";
-          statusText.textContent = "Active";
-      }
+    <script>
+        // WebGL Canvas Engine
+        const canvas = document.getElementById('canvas'), gl = canvas.getContext('webgl');
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
-      document.getElementById('busButtons').innerHTML = `
-        <div class="bg-[#3FA9F5] p-6 rounded-3xl text-white shadow-lg btn-pulse">
-            <p class="text-[9px] font-bold uppercase opacity-80 mb-1 tracking-widest text-center">Northbound</p>
-            <p class="text-sm font-black text-center leading-tight uppercase">Bourbonnais → Midway<br>${northText}</p>
-        </div>
-        <div class="bg-slate-900 p-6 rounded-3xl text-white shadow-lg">
-            <p class="text-[9px] font-bold uppercase opacity-80 mb-1 tracking-widest text-center">Southbound</p>
-            <p class="text-sm font-black text-center leading-tight uppercase">Midway → Bourbonnais<br>${southText}</p>
-        </div>
-      `;
-    }
+        const program = gl.createProgram();
+        const addShader = (type, src) => {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            gl.attachShader(program, s);
+        };
+        addShader(gl.VERTEX_SHADER, document.getElementById('vs').textContent);
+        addShader(gl.FRAGMENT_SHADER, document.getElementById('fs').textContent);
+        gl.linkProgram(program);
+        gl.useProgram(program);
 
-    // Navigation Highlighting
-    document.addEventListener('DOMContentLoaded', () => {
-      const path = window.location.pathname.split("/").pop() || "midway.html";
-      document.querySelectorAll('.nav-link').forEach(link => {
-        if(link.getAttribute('data-page') === path) link.classList.add('nav-active');
-      });
-      render();
-      setInterval(render, 30000);
-    });
-  </script>
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+        const pos = gl.getAttribLocation(program, 'position');
+        gl.enableVertexAttribArray(pos);
+        gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+        function renderCanvas(t) {
+            gl.uniform1f(gl.getUniformLocation(program, 'uTime'), t * 0.001);
+            gl.uniform2f(gl.getUniformLocation(program, 'uRes'), canvas.width, canvas.height);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(renderCanvas);
+        }
+        renderCanvas(0);
+
+        // Midway Schedule Data Configuration
+        const weekdaySchedule = [{ b: "4:45 AM", m: "6:00 AM" }, { b: "6:00 AM", m: "7:15 AM" }, { b: "7:25 AM", m: "8:45 AM" }, { b: "8:45 AM", m: "10:05 AM" }, { b: "10:15 AM", m: "11:35 AM" }, { b: "11:35 AM", m: "12:55 PM" }, { b: "1:25 PM", m: "2:45 PM" }, { b: "3:05 PM", m: "4:25 PM" }, { b: "4:15 PM", m: "5:35 PM" }, { b: "5:50 PM", m: "7:05 PM" }, { b: "7:05 PM", m: "8:20 PM" }];
+        const saturdaySchedule = [{ b: "7:00 AM", m: "8:15 AM" }, { b: "9:40 AM", m: "11:00 AM" }, { b: "12:30 PM", m: "1:50 PM" }, { b: "4:20 PM", m: "5:40 PM" }, { b: "7:05 PM", m: "8:20 PM" }];
+        const sundaySchedule = [{ b: "8:00 AM", m: "9:15 AM" }, { b: "10:35 AM", m: "11:55 AM" }, { b: "1:20 PM", m: "2:40 PM" }, { b: "4:05 PM", m: "5:25 PM" }];
+
+        function parseTime(t) {
+            if (!t) return 0;
+            let [time, mod] = t.split(" ");
+            let [h, m] = time.split(":").map(Number);
+            if (mod === "PM" && h !== 12) h += 12;
+            if (mod === "AM" && h === 12) h = 0;
+            return h * 60 + m;
+        }
+
+        function getDirectionDisplay(schedule, key, currentTime) {
+            const activeBus = schedule.find(bus => {
+                const startTime = parseTime(bus[key]);
+                return currentTime >= startTime && currentTime < (startTime + 75);
+            });
+            if (activeBus) return `<span class="text-emerald-400 animate-pulse uppercase font-bold text-[10px] tracking-wider block mt-1">● Route Active</span>${activeBus[key]}`;
+            const nextBus = schedule.find(bus => parseTime(bus[key]) > currentTime);
+            return nextBus ? `<span class="text-slate-400 font-medium text-[10px] block mt-1">Next Departure</span>${nextBus[key]}` : `<span class="text-slate-500 uppercase text-[10px] font-bold block mt-1">Not In Service</span>`;
+        }
+
+        function renderSchedule() {
+            const now = new Date();
+            const cur = now.getHours() * 60 + now.getMinutes();
+            const d = now.getDay();
+            let schedule = weekdaySchedule;
+            let title = "Weekday Schedule";
+            if (d === 0) { schedule = sundaySchedule; title = "Sunday Schedule"; }
+            else if (d === 6) { schedule = saturdaySchedule; title = "Saturday Schedule"; }
+
+            document.getElementById('dayTitle').textContent = title;
+            const northText = getDirectionDisplay(schedule, 'b', cur);
+            const southText = getDirectionDisplay(schedule, 'm', cur);
+            const lastDeparture = parseTime(schedule[schedule.length - 1].m) + 75;
+            const systemActive = cur < lastDeparture;
+
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            if (!systemActive) {
+                statusIcon.className = "w-10 h-10 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mb-2 border border-red-500/20";
+                statusText.className = "text-xs font-black text-red-400 uppercase tracking-tight";
+                statusText.textContent = "No Service";
+            } else {
+                statusIcon.className = "w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20";
+                statusText.className = "text-xs font-black text-emerald-400 uppercase tracking-tight";
+                statusText.textContent = "Active";
+            }
+
+            document.getElementById('busButtons').innerHTML = `
+                <div class="bg-blue-600/90 border border-blue-400/20 p-5 rounded-2xl text-white shadow-lg btn-pulse">
+                    <p class="text-[9px] font-black uppercase opacity-70 mb-1 tracking-widest">Northbound</p>
+                    <p class="text-sm font-black leading-tight uppercase tracking-wide">Bourbonnais → Midway</p>
+                    <p class="text-lg font-black mt-1 leading-none">${northText}</p>
+                </div>
+                <div class="bg-slate-900/80 border border-white/5 p-5 rounded-2xl text-white shadow-lg">
+                    <p class="text-[9px] font-black uppercase opacity-60 mb-1 tracking-widest">Southbound</p>
+                    <p class="text-sm font-black leading-tight uppercase tracking-wide">Midway → Bourbonnais</p>
+                    <p class="text-lg font-black mt-1 leading-none">${southText}</p>
+                </div>
+            `;
+        }
+
+        // Active State Navigation Highlighter
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split("/").pop() || "midway.html";
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if(link.getAttribute('data-page') === currentPath) {
+                    link.classList.remove('text-slate-400');
+                    link.classList.add('text-blue-500');
+                }
+            });
+            renderSchedule();
+            setInterval(renderSchedule, 30000);
+        });
+    </script>
 </body>
 </html>
