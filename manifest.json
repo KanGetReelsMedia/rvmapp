@@ -3,8 +3,8 @@
   "name": "River Valley Metro Premium",
   "short_name": "RV Metro",
   "description": "Official Transit Portal for River Valley Metro riders. Real-time alerts, maps, and schedules.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#000000",
@@ -16,15 +16,9 @@
   "icons": [
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "840x840",
+      "sizes": "192x192 512x512 840x840",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
-      "sizes": "840x840",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [
@@ -33,21 +27,27 @@
       "sizes": "840x840",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Desktop View"
+      "label": "Desktop View of River Valley Metro"
     },
     {
       "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
       "sizes": "840x840",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Mobile View"
+      "label": "Mobile View of River Valley Metro"
     }
   ],
   "shortcuts": [
     {
       "name": "Find My Bus",
-      "url": "./map.html",
-      "icons": [{ "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png", "sizes": "840x840" }]
+      "url": "/map.html",
+      "icons": [
+        {
+          "src": "https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png",
+          "sizes": "192x192 840x840",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
