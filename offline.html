@@ -1,18 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline | RV Metro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background: #0f172a; color: white; font-family: sans-serif; }</style>
-</head>
-<body class="flex items-center justify-center h-screen text-center p-6">
-    <div class="bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 w-full max-w-sm">
-        <div class="text-blue-500 text-5xl mb-4">📡</div>
-        <h1 class="text-2xl font-black mb-2">You're Offline</h1>
-        <p class="text-white/60 text-sm mb-6">Check your connection to view live bus tracking.</p>
-        <button onclick="window.location.reload()" class="bg-white text-black font-bold py-3 px-8 rounded-full w-full">Try Again</button>
-    </div>
-</body>
-</html>
+// sw.js — Premium Offline Handler for RVM
+const CACHE = 'rvm-premium-v2';
+const OFFLINE_URL = '/offline.html';
+const PRECACHE = [OFFLINE_URL, '/map.html', '/app.css'];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(PRECACHE))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+  // Only handle navigations for offline fallback
+  if (event.request.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const res = await fetch(event.request);
+        // update cache in background
+        const cache = await caches.open(CACHE);
+        cache.put(event.request, res.clone());
+        return res;
+      } catch (err) {
+        const cache = await caches.open(CACHE);
+        const cached = await cache.match(event.request);
+        // 1) try cached navigation
+        // 2) fallback to premium offline page
+        return cached || (await cache.match(OFFLINE_URL));
+      }
+    })());
+    return;
+  }
+  // For assets: cache-first
+  event.respondWith(
+    caches.match(event.request).then(r => r || fetch(event.request))
+  );
+});
