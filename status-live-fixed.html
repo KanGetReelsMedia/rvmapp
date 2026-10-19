@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <title>RVM Premium | Service Alerts - LIVE RTDB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},animation:{'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite'}}}}</script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .app-container::-webkit-scrollbar { display: none; }
+        .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); }
+        .alert-card { background: linear-gradient(145deg, rgba(30, 58, 138, 0.2), rgba(15, 23, 42, 0.4)); transition: all 0.3s ease; animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+        .severity-high { border-left: 4px solid #ef4444; box-shadow: -10px 0 20px -10px rgba(239,68,68,0.3); }
+        .severity-medium { border-left: 4px solid #f59e0b; box-shadow: -10px 0 20px -10px rgba(245,158,11,0.3); }
+        .severity-info { border-left: 4px solid #3b82f6; box-shadow: -10px 0 20px -10px rgba(59,130,246,0.3); }
+        .live-dot { animation: blink 1s infinite; }
+        @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+    </style>
+</head>
+<body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
+    <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+    <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-32 scrollbar-hide">
+        <header class="glass-panel rounded-[2.5rem] p-6 text-center mb-4">
+            <div class="flex justify-center items-center gap-2 mb-3">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full live-dot shadow-[0_0_8px_#22c55e]"></span>
+                <span class="text-[10px] font-black tracking-[0.3em] text-emerald-400 uppercase">LIVE • Connected to Dispatch</span>
+            </div>
+            <h1 class="text-2xl font-black tracking-tighter italic uppercase">SYSTEM <span class="text-blue-500">ALERTS</span></h1>
+            <p class="text-[9px] mt-1 text-slate-400 font-bold tracking-[0.3em] uppercase">Real-time Dispatcher Broadcast</p>
+            <div id="connStatus" class="mt-3 text-[10px] font-bold px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 inline-block">Connecting to RTDB...</div>
+        </header>
+        <div id="alerts-list" class="space-y-4">
+            <div class="glass-panel rounded-3xl p-8 text-center"><div class="animate-pulse text-blue-400 text-xs font-black">LOADING LIVE ALERTS...</div></div>
+        </div>
+    </main>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
+        <a href="index.html" class="flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span class="text-[8px] font-black uppercase">Home</span></a>
+        <a href="status.html" class="flex flex-col items-center gap-1.5 text-blue-500 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[8px] font-black uppercase">Alerts</span></a>
+        <a href="find-bus-premium.html" class="flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-[8px] font-black uppercase">Find Bus</span></a>
+        <a href="midway.html" class="flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg><span class="text-[8px] font-black uppercase">Midway</span></a>
+    </nav>
+    <script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
+    <script id="fs" type="x-shader/x-fragment">precision highp float; uniform float uTime; uniform vec2 uRes; void main(){vec2 uv=(gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);float t=uTime*0.1;vec3 c=vec3(0.);for(float i=1.;i<4.;i++){uv.x+=.4/i*sin(i*3.*uv.y+t);uv.y+=.4/i*cos(i*3.*uv.x+t);c+=.004/abs(sin(t+uv.y+uv.x));}gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);}</script>
+    <script>
+        const canvas=document.getElementById('canvas'),gl=canvas.getContext('webgl');
+        function resize(){canvas.width=innerWidth;canvas.height=innerHeight;gl.viewport(0,0,canvas.width,canvas.height);}
+        addEventListener('resize',resize);resize();
+        const program=gl.createProgram();const addS=(t,s)=>{const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);gl.attachShader(program,sh);};
+        addS(gl.VERTEX_SHADER,document.getElementById('vs').textContent);addS(gl.FRAGMENT_SHADER,document.getElementById('fs').textContent);gl.linkProgram(program);gl.useProgram(program);
+        const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+        const pos=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+        (function render(t){gl.uniform1f(gl.getUniformLocation(program,'uTime'),t*0.001);gl.uniform2f(gl.getUniformLocation(program,'uRes'),canvas.width,canvas.height);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);})(0);
+    </script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        const firebaseConfig = {
+          apiKey: "AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g",
+          authDomain: "rvm-software-manifest.firebaseapp.com",
+          databaseURL: "https://rvm-software-manifest-default-rtdb.firebaseio.com",
+          projectId: "rvm-software-manifest",
+          storageBucket: "rvm-software-manifest.appspot.com",
+          messagingSenderId: "1096220577213",
+          appId: "1:1096220577213:web:8c9a0f8f1a2b3c4d5e6f7a"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        function renderAlerts(val){
+            const container = document.getElementById('alerts-list');
+            const conn = document.getElementById('connStatus');
+            if(!val){
+                conn.textContent = "● Connected - No active alerts";
+                conn.className = "mt-3 text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 inline-block";
+                container.innerHTML = `<div class="glass-panel rounded-3xl p-8 text-center border-emerald-500/20"><div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/30"><svg class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><h3 class="text-lg font-black uppercase">System Normal</h3><p class="text-xs text-slate-400 mt-1">All routes operating on schedule.</p><p class="text-[9px] text-slate-500 mt-3">Listening for dispatch...</p></div>`;
+                return;
+            }
+            const entries = Object.entries(val).map(([id, data]) => ({id, ...data})).filter(a => a.active !== false).sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+            if(entries.length===0){
+                conn.textContent = "● Connected - All hidden";
+                container.innerHTML = `<div class="glass-panel rounded-3xl p-8 text-center border-emerald-500/20"><div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-emerald-400 text-xl">✅</span></div><h3 class="text-lg font-black uppercase">System Normal</h3><p class="text-xs text-slate-400 mt-1">No LIVE alerts</p></div>`;
+                return;
+            }
+            conn.textContent = `● LIVE - ${entries.length} active broadcast${entries.length>1?'s':''}`;
+            conn.className = "mt-3 text-[10px] font-bold px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 inline-block animate-pulse";
+            container.innerHTML = entries.map(alert => `
+                <div class="alert-card glass-panel rounded-3xl p-5 severity-${(alert.severity||'info').toLowerCase()}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex gap-2">
+                            <span class="bg-white/5 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase text-blue-400 border border-white/5">${alert.route||'SYSTEM'}</span>
+                            <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase ${alert.severity==='high'?'bg-red-500/15 text-red-400 border border-red-500/20':alert.severity==='medium'?'bg-amber-500/15 text-amber-400 border border-amber-500/20':'bg-blue-500/15 text-blue-400 border border-blue-500/20'}">${alert.severity||'info'}</span>
+                        </div>
+                        <span class="text-[9px] font-bold text-slate-500 uppercase">${alert.timestamp||''}</span>
+                    </div>
+                    <h3 class="text-[15px] font-black uppercase tracking-tight mb-1 text-slate-100 leading-tight">${alert.title}</h3>
+                    <p class="text-[13px] leading-relaxed text-slate-300 font-medium">${alert.message}</p>
+                    <div class="mt-3 flex items-center gap-2"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span><span class="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Live from Dispatch • ${alert.by||'dispatch'}</span></div>
+                </div>
+            `).join('');
+        }
+        const alertsRef = ref(db, 'alerts');
+        onValue(alertsRef, (snap) => { renderAlerts(snap.val()); }, (error) => {
+            document.getElementById('connStatus').textContent = "Error: " + error.message;
+            document.getElementById('connStatus').className = "mt-3 text-[10px] font-bold px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 inline-block";
+        });
+    </script>
+</body>
+</html>
+
+  
+        
