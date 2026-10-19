@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>River Valley Metro | Premium Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},animation:{'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite'}}}}</script>
+<style>
+body{-webkit-tap-highlight-color:transparent;scroll-behavior:smooth}
+.app-container::-webkit-scrollbar{display:none}
+.glass-panel{background:rgba(15,23,42,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 32px 0 rgba(0,0,0,0.8)}
+.timeline-collapsed{max-height:0;opacity:0;overflow:hidden;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
+.timeline-expanded{max-height:2000px;opacity:1;margin-top:16px;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(56,189,248,0.35), inset 0 0 20px rgba(56,189,248,0.15)}50%{box-shadow:0 0 35px rgba(56,189,248,0.6), inset 0 0 30px rgba(56,189,248,0.25)}}
+@keyframes pulse-urgent{0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.45), inset 0 0 20px rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.7) !important}50%{box-shadow:0 0 40px rgba(239,68,68,0.75), inset 0 0 30px rgba(239,68,68,0.3)}}
+</style>
+</head>
+<body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
+<canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+<main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-36 scrollbar-hide">
+<!-- HOME SECTION -->
+<section id="page-index" class="page-section">
+<header class="glass-panel rounded-[2.5rem] p-8 text-center mb-4">
+<div class="relative inline-block mb-6"><div class="absolute inset-0 bg-blue-500 blur-2xl opacity-20 animate-pulse-slow"></div><img src="https://storage.googleapis.com/token-transit.appspot.com/m-D9SrnA2icgetpHoaoGGkYOoocD6_1Tb5mhqFDprLU--logo.rivervalleymetro.png" alt="RVM Logo" class="relative w-24 h-24 mx-auto rounded-full border-2 border-white/10 shadow-2xl"></div>
+<h1 class="text-3xl font-black tracking-tight leading-none italic uppercase">RVM <span class="text-blue-500">PREMIUM</span></h1>
+<p class="text-[10px] mt-2 text-blue-400 font-bold tracking-[0.4em] uppercase opacity-80">System Operator Portal</p>
+<nav class="mt-8 space-y-4">
+<button onclick="showPage('map')" class="group flex w-full items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black transition-all active:scale-95 shadow-xl shadow-blue-900/40"><span class="text-lg">LIVE BUS MAP</span><svg class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></button>
+<a href="tel:8159374287" class="block w-full bg-white/5 hover:bg-white/10 py-4 rounded-2xl font-bold text-sm tracking-wide border border-white/10 text-slate-300">DIRECT SUPPORT LINE</a>
+</nav>
+</header>
+<section class="grid grid-cols-2 gap-3 mb-4">
+<button onclick="showPage('status')" class="glass-panel hover:bg-white/5 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center"><div class="p-3 bg-amber-500/10 rounded-xl text-amber-400"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div><span class="text-xs font-black uppercase">Alerts & Status</span></button>
+<button onclick="showPage('passes')" class="glass-panel hover:bg-white/5 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center"><div class="p-3 bg-blue-500/10 rounded-xl text-blue-400"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg></div><span class="text-xs font-black uppercase">Transit Passes</span></button>
+<button onclick="showPage('midway')" class="glass-panel hover:bg-white/5 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center"><div class="p-3 bg-purple-500/10 rounded-xl text-purple-400"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></div><span class="text-xs font-black uppercase">Midway Route</span></button>
+<button onclick="showPage('notices')" class="glass-panel hover:bg-white/5 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 text-center"><div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg></div><span class="text-xs font-black uppercase">System Notices</span></button>
+</section>
+<section class="glass-panel rounded-3xl p-6 mb-12"><h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-5 text-center">System Operating Hours</h4><div class="space-y-4 text-sm"><div class="flex justify-between items-center border-b border-white/5 pb-3"><span class="font-bold text-slate-400 uppercase">Mon – Fri</span><span class="font-black text-blue-100">05:00 - 21:30</span></div><div class="flex justify-between items-center border-b border-white/5 pb-3"><span class="font-bold text-slate-400 uppercase">Saturday</span><span class="font-black text-blue-100">07:00 - 21:30</span></div><div class="flex justify-between items-center"><span class="font-bold text-slate-400 uppercase">Sunday</span><span class="font-black text-blue-400">08:00 - 16:00</span></div></div></section>
+</section>
+<!-- MAP SECTION - FIND BUS -->
+<section id="page-map" class="page-section hidden">
+<header class="glass-panel rounded-[2.5rem] p-6 mb-4"><div class="flex items-center gap-4 mb-4"><button onclick="showPage('index')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</button><div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-widest uppercase">Live Time Points</p></div></div>
+<div class="relative z-[10000]" id="routeDropdownRoot">
+<button id="routeBtn" onclick="toggleRouteMenu(event)" class="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-4 py-4 font-bold"><span id="routeBtnText" class="flex items-center gap-2"></span><span id="routeArrow">▼</span></button>
+<div id="routeMenu" class="hidden absolute top-[108%] left-0 right-0 z-[9999] bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl max-h-[320px] overflow-y-auto p-1.5 shadow-2xl"></div>
+</div>
+</header>
+<div id="status-msg" class="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow"></span><span id="statusText">Loading...</span></div>
+<div id="mainCard" onclick="toggleTimeline()" class="glass-panel rounded-[32px] p-6 cursor-pointer">
+<div class="flex justify-between items-center mb-3"><span id="routeTag" class="bg-blue-500/15 border border-blue-500/30 text-blue-400 rounded-full px-3 py-1 text-[12px] font-black"></span><span class="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400"><span class="w-2 h-2 bg-emerald-400 rounded-full"></span> ON TIME</span></div>
+<div id="closestInfo" class="font-black text-[18px]"></div>
+<div id="closestSub" class="text-slate-400 text-[12px] mt-1"></div>
+<div class="flex items-center gap-5 mt-6"><div id="etaCircle" class="w-[120px] h-[120px] rounded-full flex items-center justify-center flex-col border-4"><div class="flex flex-col items-center"><span id="etaVal" class="text-[36px] font-black leading-none"></span><span id="etaLabel" class="text-[10px] tracking-widest font-bold opacity-60 mt-1">MIN</span></div></div><div class="flex-1"><div id="nextStopName" class="font-bold text-[15px]"></div><div id="nextStopTime" class="text-[13px] text-slate-300 mt-1"></div><div id="phoneTime" class="font-mono text-[11px] text-slate-500 mt-2"></div></div></div>
+</div>
+<div id="tapHint" class="mt-4 text-center text-blue-400 text-[11px] font-black tracking-widest">TAP TO SEE FULL SCHEDULE ▼</div>
+<div id="timelineBox" class="timeline-collapsed"><div class="rounded-[18px] px-3 py-3 mb-3 text-[11px] bg-blue-500/5 border border-blue-500/10 text-slate-400"><b class="text-blue-400">How to read:</b> :05 = 5 min past every hour. Tap a stop to see travel to next.</div><div id="fullTimeline" class="relative pl-1"><div class="absolute left-[19px] top-2 bottom-2 w-[2px] bg-gradient-to-b from-blue-500/50 to-white/5"></div><div id="timelineList" class="flex flex-col gap-[14px]"></div></div></div>
+<button onclick="window.open('tel:8159374287')" class="w-full mt-4 py-4 rounded-[22px] font-black text-[13px] tracking-wide bg-gradient-to-br from-emerald-500 to-emerald-600 border border-white/10">📞 CALL DISPATCH • (815) 937-4287</button>
+</section>
+<!-- OTHER PAGES -->
+<section id="page-status" class="page-section hidden"><header class="glass-panel rounded-[2.5rem] p-6 mb-4 flex items-center gap-4"><button onclick="showPage('index')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</button><h1 class="text-xl font-black uppercase italic">Alerts & Status</h1></header><div class="glass-panel rounded-3xl p-5 border-l-4 border-amber-400 mb-3"><h3 class="font-black text-sm uppercase">No Active Alerts</h3><p class="text-xs text-slate-400 mt-1">All routes operating on schedule</p></div><div class="glass-panel rounded-3xl p-5"><h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">System Status</h4><div class="flex justify-between text-sm py-2 border-b border-white/5"><span class="text-slate-400">Routes Active</span><span class="font-black">12 / 13</span></div><div class="flex justify-between text-sm py-2"><span class="text-slate-400">On-Time Rate</span><span class="font-black text-emerald-400">94%</span></div></div></section>
+<section id="page-midway" class="page-section hidden"><header class="glass-panel rounded-[2.5rem] p-6 mb-4 flex items-center gap-4"><button onclick="showPage('index')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</button><div><h1 class="text-xl font-black uppercase italic">Midway Commuter</h1><p class="text-[9px] text-blue-400 font-bold tracking-widest uppercase">Bourbonnais ↔ Chicago</p></div></header><div id="midwayContent" class="space-y-3"></div></section>
+<section id="page-passes" class="page-section hidden"><header class="glass-panel rounded-[2.5rem] p-6 mb-4 flex items-center gap-4"><button onclick="showPage('index')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</button><h1 class="text-xl font-black uppercase italic">Bus Passes</h1></header><div class="glass-panel rounded-[2.5rem] p-8 text-center"><div class="text-5xl mb-4">🎫</div><h2 class="font-black text-lg uppercase">Ready to Ride?</h2><p class="text-xs text-slate-400 mt-2 mb-6">Purchase via Token Transit gateway</p><a href="https://apps.apple.com/us/app/token-transit/id1163625818" target="_blank" class="flex items-center justify-center gap-2 w-full py-4 bg-amber-500 text-slate-950 font-black rounded-2xl">Buy Mobile Pass</a></div></section>
+<section id="page-notices" class="page-section hidden"><header class="glass-panel rounded-[2.5rem] p-6 mb-4 flex items-center gap-4"><button onclick="showPage('index')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</button><h1 class="text-xl font-black uppercase italic">System Notices</h1></header><div class="glass-panel rounded-3xl p-5 mb-3"><div class="text-[10px] font-black text-slate-500 uppercase">Holiday</div><h3 class="font-black mt-1">Sunday Service on Memorial Day</h3><p class="text-xs text-slate-400 mt-1">Buses will operate Sunday hours 8am-4pm May 27</p></div></section>
+<section id="page-weather" class="page-section hidden"><header class="glass-panel rounded-[2.5rem] p-6 mb-4 flex items-center gap-4"><button onclick="showPage('index')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</button><h1 class="text-xl font-black uppercase italic">Weather</h1></header><div class="glass-panel rounded-3xl p-6 text-center"><div id="temp-val" class="text-5xl font-black">--°</div><div id="weather-desc" class="text-xs uppercase tracking-widest text-slate-400 mt-1">Loading...</div><div class="grid grid-cols-2 gap-3 mt-6"><div class="bg-white/5 rounded-2xl p-3"><div class="text-[10px] text-slate-500 uppercase font-black">Wind</div><div id="wind-val" class="font-black text-sm">--</div></div><div class="bg-white/5 rounded-2xl p-3"><div class="text-[10px] text-slate-500 uppercase font-black">Humidity</div><div id="hum-val" class="font-black text-sm">--</div></div></div></div><div id="forecast-list" class="mt-4 space-y-3"></div></section>
+<footer class="text-center opacity-30 text-[9px] font-bold tracking-widest uppercase pb-10 mt-8">&copy; 2026 River Valley Metro Transit</footer>
+</main>
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
+<button onclick="showPage('status')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="status"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[8px] font-black uppercase">Alerts</span></button>
+<button onclick="showPage('map')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="map"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-[8px] font-black uppercase">Find Bus</span></button>
+<button onclick="showPage('midway')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="midway"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg><span class="text-[8px] font-black uppercase">Midway</span></button>
+<button onclick="showPage('notices')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="notices"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg><span class="text-[8px] font-black uppercase">Notices</span></button>
+<button onclick="showPage('passes')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="passes"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span class="text-[8px] font-black uppercase">Passes</span></button>
+<button onclick="showPage('weather')" class="nav-btn flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="weather"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg><span class="text-[8px] font-black uppercase">Weather</span></button>
+</nav>
+<script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
+<script id="fs" type="x-shader/x-fragment">precision highp float; uniform float uTime; uniform vec2 uRes; void main(){vec2 uv=(gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);float t=uTime*0.1;vec3 c=vec3(0.);for(float i=1.;i<4.;i++){uv.x+=.4/i*sin(i*3.*uv.y+t);uv.y+=.4/i*cos(i*3.*uv.x+t);c+=.004/abs(sin(t+uv.y+uv.x));}gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);}</script>
+<script>
+// WebGL bg
+const canvas=document.getElementById('canvas'),gl=canvas.getContext('webgl');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;gl.viewport(0,0,canvas.width,canvas.height);}
+addEventListener('resize',resize);resize();
+const program=gl.createProgram();const addShader=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);gl.attachShader(program,s);};
+addShader(gl.VERTEX_SHADER,document.getElementById('vs').textContent);addShader(gl.FRAGMENT_SHADER,document.getElementById('fs').textContent);gl.linkProgram(program);gl.useProgram(program);
+const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+const pos=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+function render(t){gl.uniform1f(gl.getUniformLocation(program,'uTime'),t*0.001);gl.uniform2f(gl.getUniformLocation(program,'uRes'),canvas.width,canvas.height);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);}render(0);
+if('serviceWorker' in navigator){addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
+// PAGE NAVIGATION - SINGLE FILE
+let currentPage='index';
+function showPage(name){
+currentPage=name;
+document.querySelectorAll('.page-section').forEach(p=>p.classList.add('hidden'));
+const target=document.getElementById('page-'+name);
+if(target)target.classList.remove('hidden');
+document.querySelectorAll('.nav-btn').forEach(b=>{
+if(b.dataset.page===name){b.classList.remove('text-slate-400');b.classList.add('text-blue-500');}
+else{b.classList.add('text-slate-400');b.classList.remove('text-blue-500');}
+});
+window.scrollTo(0,0);
+document.querySelector('.app-container').scrollTop=0;
+if(name==='weather')fetchWeather();
+if(name==='midway')renderMidway();
+location.hash=name;
+}
+window.addEventListener('hashchange',()=>{const h=location.hash.replace('#','');if(h)showPage(h);});
+if(location.hash){showPage(location.hash.replace('#',''));}
+// ROUTES DATA
+const routes=[{id:1,name:"Route 1",freq:"Every 30 min",run:"Mon-Fri 5:05am-9:17pm",stops:[{name:"Family Dollar",mins:[5,35]},{name:"Azzarelli Apartments",mins:[8,38]},{name:"St Mary's",mins:[15,45]},{name:"Walgreens Court St",mins:[19,49]},{name:"Kankakee Metro Centre",mins:[25,55]}]},{id:2,name:"Route 2",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm",stops:[{name:"Northfield Square Mall",mins:[30]},{name:"Signature/Double Jack",mins:[33,19]},{name:"Adventure Church",mins:[38]},{name:"Meijer Southbound",mins:[45]},{name:"Broadway Shelter",mins:[51]},{name:"Village Hall/Broadway",mins:[58]},{name:"Meijer Northbound",mins:[7]},{name:"Walmart",mins:[14]},{name:"Northfield Square Mall",mins:[2]}]},{id:3,name:"Route 3",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Bradley Library",mins:[6]},{name:"Christine and Uncle Leo",mins:[13]},{name:"Target",mins:[20,32]},{name:"Northfield Square Mall",mins:[30]},{name:"Christine Dr behind Meijer",mins:[39]},{name:"Village Square",mins:[44]},{name:"KCTC",mins:[49]}]},{id:4,name:"Route 4",freq:"Peak Every 30 min",run:"Mon-Fri 5:07am-9:07pm",stops:[{name:"East Court Village",mins:[7,37]},{name:"Frontage Road",mins:[13,43]},{name:"Spruce and Fairmont",mins:[15,45]},{name:"Family Dollar",mins:[18,48]},{name:"Kankakee Metro Centre",mins:[0,30]},{name:"St Mary's Hospital",mins:[3,33]},{name:"Riverside Medical Center",mins:[10,40]},{name:"Kankakee County Health Dept",mins:[15,45]}]},{id:5,name:"Route 5",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm",stops:[{name:"Aroma Park Shelter",mins:[30]},{name:"Crestview",mins:[35]},{name:"Riverside East",mins:[38]},{name:"Maple and Eagle",mins:[41]},{name:"Eagle and Chicago",mins:[46,6]},{name:"Kankakee Metro Centre",mins:[0]},{name:"Dollar General",mins:[13]},{name:"Crestview",mins:[16]}]},{id:6,name:"Route 6",freq:"Hourly M-F 7:30am-5pm",run:"Mon-Fri 7:30am-5pm",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"Kankakee Estates",mins:[36]},{name:"K.C.C.",mins:[41]},{name:"Del Monte",mins:[46]},{name:"Walmart Kankakee",mins:[58]},{name:"Jerome Combs",mins:[8]},{name:"Schuyler and River",mins:[18]}]},{id:7,name:"Route 7",freq:"Peak 7am-5pm every 30min",run:"Peak M-F 7am-5pm",stops:[{name:"Kankakee Metro Centre",mins:[0,30]},{name:"Kankakee Estates",mins:[6,36]},{name:"K.C.C.",mins:[11]},{name:"Del Monte",mins:[8]},{name:"K.C.C.",mins:[16]},{name:"Walmart Kankakee",mins:[15,22,40,42]},{name:"Harrison and Station",mins:[22,48,49]},{name:"Jerome Combs",mins:[29]},{name:"Love's",mins:[34]}]},{id:8,name:"Route 8",freq:"Every 60 min",run:"Mon-Fri 5am-9:12pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Washington and Water",mins:[3]},{name:"Casey's on Jeffery",mins:[8]},{name:"Merchant and Curtis",mins:[12]},{name:"Kankakee High School",mins:[15]},{name:"Jewel on Washington",mins:[19]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Mulberry and Chicago",mins:[33]},{name:"Hobbie and Willow",mins:[36]},{name:"Broadway and Jefferson",mins:[42]},{name:"Brookmont and Harvard",mins:[48]}]},{id:9,name:"Route 9",freq:"Every 60 min",run:"Mon-Fri 5am-9:26pm",stops:[{name:"Manteno Metro Centre",mins:[0]},{name:"ABC Supply",mins:[7]},{name:"Northfield Square Mall",mins:[30]},{name:"Walmart",mins:[33]},{name:"Manteno Metro Centre",mins:[41]},{name:"E 2nd St",mins:[45]},{name:"Veterans Home",mins:[52]}]},{id:10,name:"Route 10",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm",stops:[{name:"Brown Blvd",mins:[0]},{name:"Casey's",mins:[5,34]},{name:"Riverside Campus",mins:[7,36]},{name:"Bourbonnais Metro Centre",mins:[13,42]},{name:"Northfield Square Mall",mins:[30]},{name:"W Bethel Dr",mins:[50]},{name:"Almar Parkway",mins:[55]}]},{id:11,name:"Route 11",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"McDonald's 5th Ave",mins:[4]},{name:"ONU",mins:[11,42]},{name:"Northfield Meadows",mins:[18]},{name:"Northfield Square Mall",mins:[30]},{name:"Kroger",mins:[36]},{name:"Walgreens Kennedy Dr",mins:[48]}]},{id:12,name:"Route 12",freq:"Every 60 min",run:"Mon-Fri 5:30am-9:25pm",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"McDonald's 5th Av",mins:[34]},{name:"Shine FM",mins:[39]},{name:"Meijer",mins:[47]},{name:"Kroger",mins:[55]},{name:"Brown Blvd",mins:[2]},{name:"Heritage/Convent",mins:[11]},{name:"Perry Farm",mins:[16]},{name:"Walgreen's",mins:[19]},{name:"Kankakee Metro Centre",mins:[25]}]},{id:14,name:"Route 14",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Mulberry/Chicago",mins:[2]},{name:"Fairmont/Court",mins:[9]},{name:"Eagle/Maple",mins:[13]},{name:"Harrison/Station",mins:[20]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Station/Schuyler",mins:[33]},{name:"Mercy Housing",mins:[37]},{name:"Merchant/Curtis",mins:[41]},{name:"Kankakee High School",mins:[45]},{name:"Kankakee Jewel",mins:[49]}]}];
+let selectedRouteId=1,expanded=false,routeMenuOpen=false;
+function getClosest(route,now){let t=now.getMinutes(),r=now.getHours(),best=null,min=Infinity;for(let s of route.stops)for(let m of s.mins){let diff=m-t;if(diff<0)diff+=60;if(diff<min){min=diff;best={name:s.name,min:m,wait:diff,hour:diff+t>=60?(r+1)%24:r};}}return best;}
+function formatTime(h,m){let ap=h>=12,hh=h%12||12;return `${hh}:${String(m).padStart(2,'0')} ${ap?'PM':'AM'} `;}
+function toggleRouteMenu(e){e.stopPropagation();routeMenuOpen=!routeMenuOpen;document.getElementById('routeMenu').classList.toggle('hidden',!routeMenuOpen);document.getElementById('routeArrow').textContent=routeMenuOpen?'▲':'▼';}
+function toggleTimeline(){expanded=!expanded;document.getElementById('timelineBox').className=expanded?'timeline-expanded':'timeline-collapsed';document.getElementById('tapHint').textContent=expanded?'TAP TO COLLAPSE ▲':'TAP TO SEE FULL SCHEDULE ▼';}
+function selectRoute(id){selectedRouteId=id;routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';updateMap();}
+function updateMap(){
+const now=new Date();
+const route=routes.find(r=>r.id===selectedRouteId)||routes[0];
+const closest=getClosest(route,now);
+document.getElementById('routeBtnText').innerHTML=`<span class="bg-blue-500 text-slate-900 rounded-full px-2.5 py-0.5 text-[12px] font-black">${route.name}</span><span class="text-[12px] opacity-70">${route.freq}</span>`;
+document.getElementById('routeTag').textContent=`${route.name} • ${route.id}`;
+document.getElementById('closestInfo').textContent=`Closest bus: ${closest?closest.name:'—'}`;
+document.getElementById('closestSub').textContent=`${route.freq} • ${route.run}`;
+document.getElementById('statusText').innerHTML=closest?`Next bus in <b>${closest.wait} min</b> at <b>${route.name}</b> • ${formatTime(closest.hour,closest.min)} • ${route.freq}`:`Select a route`;
+const etaEl=document.getElementById('etaCircle');const wait=closest?closest.wait:0;
+document.getElementById('etaVal').textContent=wait===0?'NOW':wait;
+document.getElementById('etaLabel').textContent=wait===0?'DEPARTING':'MIN';
+if(wait<=5){etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(239,68,68,0.25), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(239,68,68,0.6)';etaEl.style.animation='pulse-urgent 1.2s infinite';}
+else{etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(56,189,248,0.28), rgba(15,23,42,0.9))';etaEl.style.borderColor='rgba(56,189,248,0.4)';etaEl.style.animation='pulse-glow 2.2s infinite';}
+document.getElementById('nextStopName').textContent=closest?closest.name:'Select stop';
+document.getElementById('nextStopTime').textContent=closest?`At ${formatTime(closest.hour,closest.min)} (:${String(closest.min).padStart(2,'0')}) • in ${closest.wait} min`:'—';
+document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • Example: if 3:06 now, 3:15 bus = 9 min wait`;
+// timeline
+const list=document.getElementById('timelineList');list.innerHTML='';
+route.stops.forEach((s,i)=>{
+const isNext=closest&&s.name===closest.name&&s.mins.includes(closest.min);
+const next=route.stops[i+1];let travel=null;if(next){let d=next.mins[0]-s.mins[0];if(d<0)d+=60;travel=d;}
+const div=document.createElement('div');div.className='relative flex items-start gap-3';
+div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:${isNext?'rgba(56,189,248,0.22)':'rgba(255,255,255,0.06)'};border:2px solid ${isNext?'rgba(56,189,248,0.7)':'rgba(255,255,255,0.12)'};color:${isNext?'#38bdf8':'rgba(248,250,252,0.6)'}">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><span style="font-size:14px;font-weight:${isNext?800:600};color:${isNext?'#f8fafc':'rgba(248,250,252,0.85)'}">${s.name}</span>${isNext?`<span class="text-[10px] font-bold tracking-widest px-2 py-[2px] rounded-full" style="background:#38bdf8;color:#0f172a">NEXT • ${closest.wait} MIN</span>`:''}</div><div class="flex gap-2 mt-1 flex-wrap">${s.mins.map(m=>`<span class="text-[11px] font-mono px-2 py-[2px] rounded-full" style="background:${m===closest?.min&&isNext?'rgba(56,189,248,0.25)':'rgba(255,255,255,0.07)'};border:1px solid ${m===closest?.min&&isNext?'rgba(56,189,248,0.4)':'rgba(255,255,255,0.08)'}">:${String(m).padStart(2,'0')}</span>`).join('')}${travel!==null?`<span class="text-[10px] px-2 py-[2px] rounded-full bg-white/5 text-white/40">+${travel}m to next</span>`:''}</div></div>`;
+list.appendChild(div);
+});
+// menu
+const menu=document.getElementById('routeMenu');menu.innerHTML='';
+routes.forEach(r=>{
+const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl flex flex-col gap-1';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.style.border=r.id===selectedRouteId?'1px solid rgba(56,189,248,0.25)':'1px solid transparent';
+b.innerHTML=`<span class="font-bold text-[14px]">${r.name} <span class="opacity-60 font-normal text-[12px]">• ${r.freq}</span></span><span class="text-[11px] opacity-50">${r.run}</span>`;
+b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);
+});
+}
+// midway
+const weekdaySchedule=[{b:"4:45 AM",m:"6:00 AM"},{b:"6:00 AM",m:"7:15 AM"},{b:"7:25 AM",m:"8:45 AM"},{b:"8:45 AM",m:"10:05 AM"},{b:"10:15 AM",m:"11:35 AM"},{b:"11:35 AM",m:"12:55 PM"},{b:"1:25 PM",m:"2:45 PM"},{b:"3:05 PM",m:"4:25 PM"},{b:"4:15 PM",m:"5:35 PM"},{b:"5:50 PM",m:"7:05 PM"},{b:"7:05 PM",m:"8:20 PM"}];
+const saturdaySchedule=[{b:"7:00 AM",m:"8:15 AM"},{b:"9:40 AM",m:"11:00 AM"},{b:"12:30 PM",m:"1:50 PM"},{b:"4:20 PM",m:"5:40 PM"},{b:"7:05 PM",m:"8:20 PM"}];
+const sundaySchedule=[{b:"8:00 AM",m:"9:15 AM"},{b:"10:35 AM",m:"11:55 AM"},{b:"1:20 PM",m:"2:40 PM"},{b:"4:05 PM",m:"5:25 PM"}];
+function parseTime(t){if(!t)return 0;let[time,mod]=t.split(" ");let[h,m]=time.split(":").map(Number);if(mod==="PM"&&h!==12)h+=12;if(mod==="AM"&&h===12)h=0;return h*60+m;}
+function renderMidway(){const now=new Date();const cur=now.getHours()*60+now.getMinutes();const d=now.getDay();let schedule=weekdaySchedule;let title="Weekday Schedule";if(d===0){schedule=sundaySchedule;title="Sunday Schedule";}else if(d===6){schedule=saturdaySchedule;title="Saturday Schedule";}
+const getDisp=(key)=>{const active=schedule.find(b=>{const s=parseTime(b[key]);return cur>=s&&cur<s+75;});if(active)return `<span class="text-emerald-400 animate-pulse uppercase font-bold text-[10px]">● Route Active</span> ${active[key]}`;const next=schedule.find(b=>parseTime(b[key])>cur);return next?`Next: ${next[key]}`:'Not In Service';};
+document.getElementById('midwayContent').innerHTML=`<div class="glass-panel rounded-[2.5rem] p-6 text-center"><span class="bg-blue-500/10 text-blue-400 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-blue-500/20">${title}</span><h2 class="text-xl font-black uppercase mt-3">Current Service</h2><div class="mt-4 space-y-3"><div class="bg-blue-600/90 border border-blue-400/20 p-5 rounded-2xl text-white"><p class="text-[9px] font-black uppercase opacity-70">Northbound</p><p class="text-sm font-black uppercase">Bourbonnais → Midway</p><p class="text-lg font-black mt-1">${getDisp('b')}</p></div><div class="bg-slate-900/80 border border-white/5 p-5 rounded-2xl text-white"><p class="text-[9px] font-black uppercase opacity-60">Southbound</p><p class="text-sm font-black uppercase">Midway → Bourbonnais</p><p class="text-lg font-black mt-1">${getDisp('m')}</p></div></div></div>`;
+}
+// weather
+async function fetchWeather(){
+try{
+const url="https://api.open-meteo.com/v1/forecast?latitude=41.12&longitude=-87.86&current_weather=true&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America/Chicago";
+const res=await fetch(url);const data=await res.json();const cur=data.current_weather;
+const codes={0:"Clear Sky",1:"Mainly Clear",2:"Partly Cloudy",3:"Overcast",45:"Foggy",51:"Drizzle",61:"Rain",71:"Snow",95:"Thunderstorm"};
+document.getElementById("weather-desc").textContent=codes[cur.weather_code]||"Fair";
+document.getElementById("temp-val").textContent=Math.round(cur.temperature)+"°";
+document.getElementById("wind-val").textContent=Math.round(cur.windspeed)+" mph";
+document.getElementById("hum-val").textContent="Steady";
+const list=document.getElementById("forecast-list");list.innerHTML="";
+for(let i=0;i<3;i++){const date=new Date(data.daily.time[i]+"T00:00");const day=i===0?"Today":date.toLocaleDateString('en-US',{weekday:'long'});const high=Math.round(data.daily.temperature_2m_max[i]);const low=Math.round(data.daily.temperature_2m_min[i]);const cond=codes[data.daily.weather_code[i]]||"Fair";const card=document.createElement("div");card.className="glass-panel p-5 rounded-2xl flex justify-between items-center";card.innerHTML=`<div><span class="block text-[9px] font-black text-slate-400 uppercase">${day}</span><span class="font-black uppercase text-sm">${cond}</span></div><div class="text-right"><span class="text-xl font-black">${high}°</span><span class="text-sm font-bold text-slate-500 ml-1">${low}°</span></div>`;list.appendChild(card);}
+}catch(e){document.getElementById("weather-desc").textContent="Offline";}}
+window.addEventListener('click',(e)=>{if(!e.target.closest('#routeDropdownRoot')){routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';}});
+updateMap();setInterval(updateMap,30000);
+</script>
+</body>
+</html>
