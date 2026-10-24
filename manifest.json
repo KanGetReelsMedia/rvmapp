@@ -1,86 +1,24 @@
 {
-  "name": "River Valley Metro Premium",
+  "name": "River Valley Metro",
   "short_name": "RVM",
-  "id": "/",
-  "description": "Live bus times, alerts, Midway commuter - River Valley Metro. Ditch the paper.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "description": "River Valley Metro - Live bus times, alerts, Midway commuter. Ditch the paper.",
+  "start_url": "/rvmapp/index.html",
+  "scope": "/rvmapp/",
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "standalone",
-    "browser"
-  ],
-  "orientation": "any",
   "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "categories": [
-    "travel",
-    "navigation",
-    "public-transport"
-  ],
+  "theme_color": "#2563eb",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "/rvmapp/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "./icon-512.png",
+      "src": "/rvmapp/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Find Bus",
-      "short_name": "Find Bus",
-      "description": "Live time points",
-      "url": "./index.html",
-      "icons": [
-        {
-          "src": "./icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "System Alerts",
-      "short_name": "Alerts",
-      "description": "Live dispatch alerts",
-      "url": "./status.html",
-      "icons": [
-        {
-          "src": "./icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Midway Commuter",
-      "short_name": "Midway",
-      "description": "Bourbonnais \u2194 Chicago",
-      "url": "./midway.html",
-      "icons": [
-        {
-          "src": "./icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "purpose": "any maskable"
     }
   ]
 }
