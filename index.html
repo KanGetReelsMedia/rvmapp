@@ -4,6 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Find Bus - RVM PREMIUM</title>
+
+<!-- PWA Manifest Link Added -->
+<link rel="manifest" href="/rvmapp/manifest.json">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},animation:{'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite'}}}}</script>
@@ -176,6 +180,15 @@ b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);
 }
 window.addEventListener('click',(e)=>{if(!e.target.closest('#routeDropdownRoot')){routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';}});
 update();setInterval(update,30000);
+
+// Service Worker Registration Added
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/rvmapp/sw.js')
+      .then(reg => console.log('SW registered:', reg))
+      .catch(err => console.error('SW registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>
