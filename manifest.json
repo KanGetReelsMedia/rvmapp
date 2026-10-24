@@ -1,25 +1,86 @@
 {
   "name": "River Valley Metro Premium",
   "short_name": "RVM",
-  "description": "Live bus times - River Valley Metro",
+  "id": "/",
+  "description": "Live bus times, alerts, Midway commuter - River Valley Metro. Ditch the paper.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "browser"
+  ],
+  "orientation": "any",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "scope": "./",
-  "orientation": "any",
+  "categories": [
+    "travel",
+    "navigation",
+    "public-transport"
+  ],
   "icons": [
     {
       "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find Bus",
+      "short_name": "Find Bus",
+      "description": "Live time points",
+      "url": "./index.html",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "System Alerts",
+      "short_name": "Alerts",
+      "description": "Live dispatch alerts",
+      "url": "./status.html",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Midway Commuter",
+      "short_name": "Midway",
+      "description": "Bourbonnais \u2194 Chicago",
+      "url": "./midway.html",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
