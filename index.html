@@ -1,3 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>Find Bus - RVM PREMIUM - LIVE FROM DISPATCH</title>
+<link rel="manifest" href="/rvmapp/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},animation:{'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite'}}}}</script>
+<style>
+body{-webkit-tap-highlight-color:transparent}
+.glass-panel{background:rgba(15,23,42,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 32px 0 rgba(0,0,0,0.8)}
+.timeline-collapsed{max-height:0;opacity:0;overflow:hidden;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
+.timeline-expanded{max-height:2000px;opacity:1;margin-top:16px;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(56,189,248,0.35), inset 0 0 20px rgba(56,189,248,0.15)}50%{box-shadow:0 0 35px rgba(56,189,248,0.6), inset 0 0 30px rgba(56,189,248,0.25)}}
+@keyframes pulse-urgent{0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.45), inset 0 0 20px rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.7) !important}50%{box-shadow:0 0 40px rgba(239,68,68,0.75), inset 0 0 30px rgba(239,68,68,0.3)}}
+.app-container::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
+<canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+<main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-36">
+<header class="glass-panel rounded-[2.5rem] p-6 mb-4 relative z-[500] overflow-visible">
+<div class="flex items-center gap-4 mb-5">
+<a href="index.html" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</a>
+<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">TIME POINTS • LIVE FROM DISPATCH</p></div>
+</div>
+<div class="relative" id="routeDropdownRoot" style="z-index:999; isolation:isolate">
+<button id="routeBtn" class="w-full flex items-center justify-between bg-white/5 hover:bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 font-bold transition relative" style="z-index:1000">
+<span id="routeBtnText" class="flex items-center gap-2"></span>
+<span id="routeArrow" class="text-xs opacity-60">▼</span>
+</button>
+<div id="routeMenu" class="hidden absolute top-[108%] left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl max-h-[320px] overflow-y-auto p-1.5 shadow-[0_25px_80px_rgba(0,0,0,0.9)]" style="z-index:99999"></div>
+</div>
+</header>
+<div id="status-msg" class="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative" style="z-index:1">
+<span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]"></span>
+<span id="statusText">Loading...</span>
+</div>
+<div id="mainCard" class="glass-panel rounded-[32px] p-6 cursor-pointer relative" style="z-index:1">
+<div class="flex justify-between items-center mb-3">
+<span id="routeTag" class="bg-blue-500/15 border border-blue-500/30 text-blue-400 rounded-full px-3 py-1 text-[12px] font-black"></span>
+<span id="liveStatusBadge" class="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400"><span id="liveStatusDot" class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]"></span><span id="liveStatusText">ON TIME</span></span>
+</div>
+<div id="closestInfo" class="font-black text-[18px] leading-tight"></div>
+<div class="flex items-center gap-5 mt-6">
+<div id="etaCircle" class="w-[120px] h-[120px] rounded-full flex items-center justify-center flex-col border-4 flex-shrink-0">
+<div class="flex flex-col items-center">
+<span id="etaVal" class="text-[36px] font-black leading-none tabular-nums"></span>
+<span id="etaLabel" class="text-[10px] tracking-[0.18em] font-bold opacity-60 mt-1">MIN</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div id="nextStopName" class="font-bold text-[15px] leading-tight"></div>
+<div id="nextStopTime" class="text-[13px] text-slate-300 mt-1 leading-snug"></div>
+<div id="phoneTime" class="font-mono text-[11px] text-slate-500 mt-2"></div>
+<div id="liveAlertMessage" class="hidden mt-3 rounded-xl px-3 py-2 text-[11px] leading-snug bg-amber-500/10 border border-amber-500/20 text-amber-200"></div>
+</div>
+</div>
+</div>
+<div id="tapHint" class="mt-4 text-center text-blue-400 text-[11px] font-black tracking-[0.14em]">TAP TO SEE FULL SCHEDULE ▼</div>
+<div id="timelineBox" class="timeline-collapsed">
+<div class="rounded-[18px] px-3 py-3 mb-3 text-[11px] leading-[1.4] bg-blue-500/5 border border-blue-500/10 text-slate-400"><b class="text-blue-400">How to read:</b> :05 = 5 min past every hour. Tap a stop to see travel to next. Looped routes repeat.</div>
+<div id="fullTimeline" class="relative pl-1">
+<div class="absolute left-[19px] top-2 bottom-2 w-[2px] bg-gradient-to-b from-blue-500/50 to-white/5"></div>
+<div id="timelineList" class="flex flex-col gap-[14px]"></div>
+</div>
+</div>
+<button onclick="window.open('tel:8159374287')" class="w-full mt-6 py-4 rounded-[22px] font-black text-[13px] tracking-wide bg-gradient-to-br from-emerald-500 to-emerald-600 border border-white/10 shadow-[0_12px_24px_rgba(34,197,94,0.25)]">📞 CALL DISPATCH • (815) 937-4287</button>
+</main>
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[98%] max-w-[460px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
+<a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">ALERTS</span></a>
+<a href="index.html" class="nav-link flex flex-col items-center gap-1.5 text-blue-500 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">FIND BUS</span></a>
+<a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">MIDWAY</span></a>
+<a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">NOTICES</span></a>
+<a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">PASSES</span></a>
+<a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">WEATHER</span></a>
+</nav>
+<script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
+<script id="fs" type="x-shader/x-fragment">precision highp float; uniform float uTime; uniform vec2 uRes; void main(){vec2 uv=(gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);float t=uTime*0.1;vec3 c=vec3(0.);for(float i=1.;i<4.;i++){uv.x+=.4/i*sin(i*3.*uv.y+t);uv.y+=.4/i*cos(i*3.*uv.x+t);c+=.004/abs(sin(t+uv.y+uv.x));}gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);}</script>
+<script>
 const canvas=document.getElementById('canvas'),gl=canvas.getContext('webgl');
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight;gl.viewport(0,0,canvas.width,canvas.height);}
 addEventListener('resize',resize);resize();
