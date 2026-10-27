@@ -1,88 +1,3 @@
-<!DOCTYPE html>
-<html lang="en" class="bg-black">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>Find Bus - RVM PREMIUM</title>
-
-<!-- PWA Manifest Link Added -->
-<link rel="manifest" href="/rvmapp/manifest.json">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},animation:{'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite'}}}}</script>
-<style>
-body{-webkit-tap-highlight-color:transparent}
-.glass-panel{background:rgba(15,23,42,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 32px 0 rgba(0,0,0,0.8)}
-.timeline-collapsed{max-height:0;opacity:0;overflow:hidden;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
-.timeline-expanded{max-height:2000px;opacity:1;margin-top:16px;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
-@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(56,189,248,0.35), inset 0 0 20px rgba(56,189,248,0.15)}50%{box-shadow:0 0 35px rgba(56,189,248,0.6), inset 0 0 30px rgba(56,189,248,0.25)}}
-@keyframes pulse-urgent{0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.45), inset 0 0 20px rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.7) !important}50%{box-shadow:0 0 40px rgba(239,68,68,0.75), inset 0 0 30px rgba(239,68,68,0.3)}}
-.app-container::-webkit-scrollbar{display:none}
-</style>
-</head>
-<body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
-<canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
-<main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-36">
-<header class="glass-panel rounded-[2.5rem] p-6 mb-4 relative z-[500] overflow-visible">
-<div class="flex items-center gap-4 mb-5">
-<a href="index.html" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</a>
-<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">Live Time Points</p></div>
-</div>
-<div class="relative" id="routeDropdownRoot" style="z-index:999; isolation:isolate">
-<button id="routeBtn" class="w-full flex items-center justify-between bg-white/5 hover:bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 font-bold transition relative" style="z-index:1000">
-<span id="routeBtnText" class="flex items-center gap-2"></span>
-<span id="routeArrow" class="text-xs opacity-60">▼</span>
-</button>
-<div id="routeMenu" class="hidden absolute top-[108%] left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl max-h-[320px] overflow-y-auto p-1.5 shadow-[0_25px_80px_rgba(0,0,0,0.9)]" style="z-index:99999"></div>
-</div>
-</header>
-<div id="status-msg" class="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative" style="z-index:1">
-<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]"></span>
-<span id="statusText">Loading...</span>
-</div>
-<div id="mainCard" class="glass-panel rounded-[32px] p-6 cursor-pointer relative" style="z-index:1">
-<div class="flex justify-between items-center mb-3">
-<span id="routeTag" class="bg-blue-500/15 border border-blue-500/30 text-blue-400 rounded-full px-3 py-1 text-[12px] font-black"></span>
-<span class="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400"><span class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]"></span> ON TIME</span>
-</div>
-<div id="closestInfo" class="font-black text-[18px] leading-tight"></div>
-<div class="flex items-center gap-5 mt-6">
-<div id="etaCircle" class="w-[120px] h-[120px] rounded-full flex items-center justify-center flex-col border-4 flex-shrink-0">
-<div class="flex flex-col items-center">
-<span id="etaVal" class="text-[36px] font-black leading-none tabular-nums"></span>
-<span id="etaLabel" class="text-[10px] tracking-[0.18em] font-bold opacity-60 mt-1">MIN</span>
-</div>
-</div>
-<div class="flex-1 min-w-0">
-<div id="nextStopName" class="font-bold text-[15px] leading-tight"></div>
-<div id="nextStopTime" class="text-[13px] text-slate-300 mt-1 leading-snug"></div>
-<div id="phoneTime" class="font-mono text-[11px] text-slate-500 mt-2"></div>
-</div>
-</div>
-</div>
-<div id="tapHint" class="mt-4 text-center text-blue-400 text-[11px] font-black tracking-[0.14em]">TAP TO SEE FULL SCHEDULE ▼</div>
-<div id="timelineBox" class="timeline-collapsed">
-<div class="rounded-[18px] px-3 py-3 mb-3 text-[11px] leading-[1.4] bg-blue-500/5 border border-blue-500/10 text-slate-400"><b class="text-blue-400">How to read:</b> :05 = 5 min past every hour. Tap a stop to see travel to next. Looped routes repeat.</div>
-<div id="fullTimeline" class="relative pl-1">
-<div class="absolute left-[19px] top-2 bottom-2 w-[2px] bg-gradient-to-b from-blue-500/50 to-white/5"></div>
-<div id="timelineList" class="flex flex-col gap-[14px]"></div>
-</div>
-</div>
-<button onclick="window.open('tel:8159374287')" class="w-full mt-6 py-4 rounded-[22px] font-black text-[13px] tracking-wide bg-gradient-to-br from-emerald-500 to-emerald-600 border border-white/10 shadow-[0_12px_24px_rgba(34,197,94,0.25)]">📞 CALL DISPATCH • (815) 937-4287</button>
-</main>
-<!-- CORRECT 6-ITEM MENU - YOUR PREMIUM NAV -->
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[98%] max-w-[460px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-<a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">ALERTS</span></a>
-<a href="index.html" class="nav-link flex flex-col items-center gap-1.5 text-blue-500 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">FIND BUS</span></a>
-<a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">MIDWAY</span></a>
-<a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">NOTICES</span></a>
-<a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">PASSES</span></a>
-<a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">WEATHER</span></a>
-</nav>
-<script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
-<script id="fs" type="x-shader/x-fragment">precision highp float; uniform float uTime; uniform vec2 uRes; void main(){vec2 uv=(gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);float t=uTime*0.1;vec3 c=vec3(0.);for(float i=1.;i<4.;i++){uv.x+=.4/i*sin(i*3.*uv.y+t);uv.y+=.4/i*cos(i*3.*uv.x+t);c+=.004/abs(sin(t+uv.y+uv.x));}gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);}</script>
-<script>
 const canvas=document.getElementById('canvas'),gl=canvas.getContext('webgl');
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight;gl.viewport(0,0,canvas.width,canvas.height);}
 addEventListener('resize',resize);resize();
@@ -120,7 +35,72 @@ function getRouteSpecificService(now,route){
   return null;
 }
 function isInService(now){const win=getServiceWindow(now);const curMin=now.getHours()*60+now.getMinutes();return {inService:curMin>=win.startMin&&curMin<=win.endMin,window:win,curMin};}
-let selectedRouteId=6,expanded=false,routeMenuOpen=false;
+let selectedRouteId=null,expanded=false,routeMenuOpen=false;
+window.liveAlerts = [];
+function normalizeRoute(r){
+  if(!r) return "";
+  r = r.toString().trim().toUpperCase();
+  if(r.includes("SYSTEM") || r==="ALL" || r==="SYSTEM WIDE") return "SYSTEM";
+  if(r==="MIDWAY") return "MIDWAY";
+  let m = r.match(/RT\s*0*(\d+)/);
+  if(m) return `ROUTE ${m[1]}`;
+  m = r.match(/ROUTE\s*0*(\d+)/);
+  if(m) return `ROUTE ${m[1]}`;
+  return r;
+}
+function getLiveStatusForRoute(route) {
+  if (!window.liveAlerts || window.liveAlerts.length === 0) return null;
+  const wanted = normalizeRoute(route.name);
+  const sorted = [...window.liveAlerts].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  // exact match
+  let match = sorted.find(a => a.active!==false && normalizeRoute(a.route) === wanted);
+  if (!match) match = sorted.find(a => a.active!==false && normalizeRoute(a.route) === "SYSTEM");
+  if (!match) match = sorted.find(a => a.active!==false && normalizeRoute(a.routeNormalized||a.route) === wanted);
+  return match || null;
+}
+function applyLiveBadge(route) {
+  const badge = document.getElementById('liveStatusBadge');
+  const dot = document.getElementById('liveStatusDot');
+  const txt = document.getElementById('liveStatusText');
+  const msgBox = document.getElementById('liveAlertMessage');
+  const statusDot = document.getElementById('statusDot');
+  const statusMsg = document.getElementById('status-msg');
+  if (!badge || !dot || !txt) return;
+  const alert = getLiveStatusForRoute(route);
+  if (!alert) {
+    txt.textContent = 'ON TIME';
+    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400';
+    dot.className = 'w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]';
+    if(msgBox){ msgBox.classList.add('hidden'); }
+    if(statusDot){ statusDot.className='w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]'; }
+    return;
+  }
+  const shortStatus = (alert.badgeStatus || alert.title || 'DELAYED').toString().toUpperCase();
+  txt.textContent = shortStatus.length>20 ? shortStatus.substring(0,20) : shortStatus;
+  if(msgBox && alert.message){
+    msgBox.textContent = alert.message;
+    msgBox.classList.remove('hidden');
+  }
+  const sev = (alert.severity||'high').toLowerCase();
+  if(sev==='high'){
+    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-red-400 animate-pulse';
+    dot.className = 'w-2 h-2 bg-red-400 rounded-full shadow-[0_0_8px_#ef4444] animate-pulse';
+    if(statusDot) statusDot.className='w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse';
+    if(statusMsg) statusMsg.className="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative border-red-500/20";
+    document.getElementById('statusText').innerHTML=`<b class="text-red-400">${shortStatus}</b> - ${alert.title||''} • ${alert.route}`;
+  } else if(sev==='medium'){
+    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-amber-400';
+    dot.className = 'w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_6px_#f59e0b]';
+    if(statusDot) statusDot.className='w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_#f59e0b]';
+    if(statusMsg) statusMsg.className="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative border-amber-500/20";
+    document.getElementById('statusText').innerHTML=`<b class="text-amber-400">${shortStatus}</b> - ${alert.title||''} • ${alert.route}`;
+  } else {
+    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400';
+    dot.className = 'w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]';
+    if(statusDot) statusDot.className='w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]';
+    document.getElementById('statusText').innerHTML=`<b>${shortStatus}</b> - ${alert.title||''}`;
+  }
+}
 function S0(route,now){let t=now.getMinutes(),r=now.getHours(),best=null,min=Infinity;for(let u of route.stops)for(let i of u.mins){let s=i-t;if(s<0)s+=60;if(s<min){min=s;best={name:u.name,min:i,wait:s,hour:s+t>=60?(r+1)%24:r};}}return best;}
 function formatTime(h,m){let ap=h>=12,hh=h%12||12;return `${hh}:${String(m).padStart(2,'0')} ${ap?'PM':'AM'}`;}
 function toggleRouteMenu(e){e.stopPropagation();routeMenuOpen=!routeMenuOpen;document.getElementById('routeMenu').classList.toggle('hidden',!routeMenuOpen);document.getElementById('routeArrow').textContent=routeMenuOpen?'▲':'▼';}
@@ -129,10 +109,27 @@ function toggleTimeline(){expanded=!expanded;document.getElementById('timelineBo
 document.getElementById('mainCard').onclick=toggleTimeline;
 function selectRoute(id){selectedRouteId=id;routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';update();}
 function update(){
-const now=new Date();const route=routes.find(r=>r.id===selectedRouteId)||routes[0];const serviceCheck=isInService(now);const win=serviceCheck.window;
+const now=new Date();
+if(!selectedRouteId){
+  document.getElementById('routeBtnText').innerHTML=`<span class="text-slate-400 font-bold text-[13px]">Select Route ▼</span>`;
+  document.getElementById('routeTag').textContent=`SELECT A ROUTE`;
+  document.getElementById('closestInfo').innerHTML=`<span class="text-blue-400">Choose a route above</span>`;
+  document.getElementById('statusText').innerHTML=`<span><b>Please select a route</b> from the dropdown menu above.</span>`;
+  document.getElementById('status-msg').className="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative border-blue-500/20";
+  document.getElementById('etaVal').textContent='--';document.getElementById('etaLabel').textContent='SELECT';
+  document.getElementById('nextStopName').textContent='No Route Selected';
+  document.getElementById('nextStopTime').textContent='Tap the dropdown above to view schedules.';
+  document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • Select a route to begin`;
+  const etaEl=document.getElementById('etaCircle');etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(56,189,248,0.1), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(56,189,248,0.3)';etaEl.style.animation='none';
+  const list=document.getElementById('timelineList');list.innerHTML='';
+  const menu=document.getElementById('routeMenu');menu.innerHTML='';
+  routes.forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl flex flex-col gap-1';b.style.background='transparent';b.style.border='1px solid transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name} <span class="opacity-60 font-normal text-[12px]">• ${r.freq}</span></span><span class="text-[11px] opacity-50 leading-tight">${r.run}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);});
+  return;
+}
+const route=routes.find(r=>r.id===selectedRouteId)||routes[0];const serviceCheck=isInService(now);const win=serviceCheck.window;
 const routeSpecific=getRouteSpecificService(now,route);
 let isOutOfService=!serviceCheck.inService;let outReason=win.label;let bannerExtra='';
-if(routeSpecific&&!routeSpecific.inService){isOutOfService=true;outReason=routeSpecific.reason;bannerExtra=`<div class="mt-2 text-[11px] bg-amber-500/15 border border-amber-500/30 text-amber-200 rounded-xl px-3 py-2">⚠️ Route 6: Mon-Fri ONLY 7:30 AM - 5:00 PM • No weekends/holidays</div>`;}
+if(routeSpecific&&!routeSpecific.inService){isOutOfService=true;outReason=routeSpecific.reason;bannerExtra=`<div class="mt-2 text-[11px] bg-amber-500/15 border border-amber-500/30 text-amber-200 rounded-xl px-3 py-2">⚠ Route 6: Mon-Fri ONLY 7:30 AM - 5:00 PM • No weekends/holidays</div>`;}
 else if(routeSpecific&&routeSpecific.inService){outReason=routeSpecific.label;}
 if(isOutOfService||(routeSpecific&&!routeSpecific.inService)){
   document.getElementById('routeBtnText').innerHTML=`<span class="bg-blue-500 text-slate-900 rounded-full px-2.5 py-0.5 text-[12px] font-black">${route.name}</span><span class="text-[12px] opacity-70">${route.freq}</span>`;
@@ -155,7 +152,10 @@ const closest=S0(route,now);
 document.getElementById('routeBtnText').innerHTML=`<span class="bg-blue-500 text-slate-900 rounded-full px-2.5 py-0.5 text-[12px] font-black">${route.name}</span><span class="text-[12px] opacity-70">${route.freq}</span>`;
 document.getElementById('routeTag').textContent=`${route.name} • ${route.id}${route.id===6?' • M-F 7:30a-5p':''}`;
 document.getElementById('closestInfo').textContent=`Closest bus: ${closest?closest.name:'—'}`;
-document.getElementById('statusText').innerHTML=closest?`Next bus in <b>${closest.wait} min</b> at <b>${route.name}</b> • ${formatTime(closest.hour,closest.min)} • ${route.freq}`:`Select a route`;
+if(!getLiveStatusForRoute(route)){
+  document.getElementById('statusText').innerHTML=closest?`Next bus in <b>${closest.wait} min</b> at <b>${route.name}</b> • ${formatTime(closest.hour,closest.min)} • ${route.freq}`:`Select a route`;
+}
+applyLiveBadge(route);
 const etaEl=document.getElementById('etaCircle');const wait=closest?closest.wait:0;
 document.getElementById('etaVal').textContent=wait===0?'NOW':wait;document.getElementById('etaLabel').textContent=wait===0?'DEPARTING':'MIN';
 if(wait<=5){etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(239,68,68,0.25), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(239,68,68,0.6)';etaEl.style.animation='pulse-urgent 1.2s infinite';}
@@ -180,8 +180,7 @@ b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);
 }
 window.addEventListener('click',(e)=>{if(!e.target.closest('#routeDropdownRoot')){routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';}});
 update();setInterval(update,30000);
-
-// Service Worker Registration Added
+window.update = update;
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/rvmapp/sw.js')
@@ -189,6 +188,26 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error('SW registration failed:', err));
   });
 }
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g",
+  authDomain: "rvm-software-manifest.firebaseapp.com",
+  databaseURL: "https://rvm-software-manifest-default-rtdb.firebaseio.com",
+  projectId: "rvm-software-manifest",
+  storageBucket: "rvm-software-manifest.appspot.com",
+  messagingSenderId: "1096220577213",
+  appId: "1:1096220577213:web:8c9a0f8f1a2b3c4d5e6f7a"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+onValue(ref(db, 'alerts'), (snap) => {
+  const val = snap.val();
+  window.liveAlerts = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
+  if (window.update) window.update();
+});
 </script>
 </body>
 </html>
