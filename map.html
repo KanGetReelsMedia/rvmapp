@@ -182,7 +182,7 @@ window.enablePush = async () => {
     if (perm !== 'granted') return alert('Permission denied. Enable in browser settings.');
     
     // REPLACE THIS WITH YOUR VAPID KEY FROM FIREBASE CONSOLE
-    const VAPID_KEY = "REPLACE_WITH_YOUR_VAPID_KEY_FROM_FIREBASE_CONSOLE";
+    const VAPID_KEY = "BLmK89lLyB48jQmIxJ7jPLBm_2OS6dI4j48N-8yvZ0zgmUkjAy4V-3l0F6Y20FxRswc28yErPl60xlXPPOPCZuM";
     if(VAPID_KEY.includes("REPLACE")) {
       // Fallback to local test if no VAPID yet
       if(Notification.permission === 'granted') {
