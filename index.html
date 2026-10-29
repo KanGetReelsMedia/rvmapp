@@ -190,7 +190,7 @@ onValue(alertsRefForDot, (snap)=>{
     if(navigator.vibrate) navigator.vibrate([100,50,100]);
     // Optional: show latest alert in status-msg bar
     if(statusText && unread[0]){
-      statusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-2 animate-pulse"></span><b class="text-red-400">${unread[0].route||'SYSTEM'} ALERT:</b> ${unread[0].title} - Tap ALERTS to view`;
+      statusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-2 animate-pulse"></span><b class="text-red-400">${unread[0].route||'SYSTEM'} ALERT:</b> ${unread[0].title} - Tap notices to view`;
     }
   } else {
     dot.classList.add('hidden');
