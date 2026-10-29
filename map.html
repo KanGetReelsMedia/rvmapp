@@ -23,13 +23,12 @@ body{-webkit-tap-highlight-color:transparent}
 <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
 <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-36">
 <header class="glass-panel rounded-[2.5rem] p-6 mb-4 relative z-[500] overflow-visible">
-<!-- OFFICIAL RVM LOGO FROM YOUR LINK -->
 <div class="bg-white rounded-[1.4rem] p-3 flex items-center justify-center mb-5 shadow-[0_0_20px_rgba(255,255,255,0.15)]">
 <img src="https://www.rivervalleymetro.com/wp-content/themes/wp-bootstrap-rivervalley/assets/images/logo-river-valley-metro-color.png" alt="RVM Logo" class="w-full max-w-[240px] h-auto object-contain" />
 </div>
 <div class="flex items-center gap-4 mb-5">
 <a href="index.html" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</a>
-<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">Live Time Points • PUSH READY</p></div>
+<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">Live Time Points • RED DOT LIVE</p></div>
 </div>
 <div class="relative" id="routeDropdownRoot" style="z-index:999; isolation:isolate">
 <button id="routeBtn" class="w-full flex items-center justify-between bg-white/5 hover:bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 font-bold transition relative" style="z-index:1000">
@@ -42,13 +41,6 @@ body{-webkit-tap-highlight-color:transparent}
 <div id="status-msg" class="glass-panel rounded-3xl px-4 py-3 mb-3 text-[12px] flex items-center gap-2 relative" style="z-index:1">
 <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]"></span>
 <span id="statusText">Loading...</span>
-</div>
-<!-- PUSH BUTTON - NEW -->
-<div class="flex gap-2 mb-4" style="position:relative; z-index:1">
-<button id="pushBtn" onclick="enablePush()" class="flex-1 glass-panel rounded-full py-3 px-4 text-[11px] font-black tracking-[0.15em] bg-blue-500/15 border-blue-500/30 hover:bg-blue-500/25 transition">
-🔔 ENABLE PUSH ALERTS
-</button>
-<button onclick="testLocalPush()" class="glass-panel rounded-full py-3 px-3 text-[10px] font-bold bg-white/5 border-white/10">TEST</button>
 </div>
 <div id="mainCard" class="glass-panel rounded-[32px] p-6 cursor-pointer relative" style="z-index:1">
 <div class="flex justify-between items-center mb-3">
@@ -80,8 +72,12 @@ body{-webkit-tap-highlight-color:transparent}
 </div>
 <button onclick="window.open('tel:8159374287')" class="w-full mt-6 py-4 rounded-[22px] font-black text-[13px] tracking-wide bg-gradient-to-br from-emerald-500 to-emerald-600 border border-white/10 shadow-[0_12px_24px_rgba(34,197,94,0.25)]">📞 CALL DISPATCH • (815) 937-4287</button>
 </main>
+<!-- NAV WITH RED DOT ON ALERTS - THIS IS THE FIX -->
 <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[98%] max-w-[460px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-<a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">ALERTS</span></a>
+<a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 relative">
+  <span id="alertsDot" class="hidden absolute -top-1 right-3 w-3.5 h-3.5 bg-red-500 rounded-full border-[2px] border-slate-900 shadow-[0_0_10px_#ef4444]"><span class="absolute inset-0 rounded-full bg-red-500 animate-ping"></span></span>
+  <span id="alertsCount" class="hidden absolute -top-2 right-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[14px] text-center leading-none">0</span>
+  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">ALERTS</span></a>
 <a href="index.html" class="nav-link flex flex-col items-center gap-1.5 text-blue-500 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">FIND BUS</span></a>
 <a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">MIDWAY</span></a>
 <a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg><span class="text-[7px] font-black uppercase tracking-tighter">NOTICES</span></a>
@@ -145,19 +141,17 @@ const menu=document.getElementById('routeMenu');menu.innerHTML='';routes.forEach
 }
 window.addEventListener('click',(e)=>{if(!e.target.closest('#routeDropdownRoot')){routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';}});
 update();setInterval(update,30000);
-// SERVICE WORKER REGISTER
+// SERVICE WORKER REGISTER - SIMPLE, NO PUSH
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/rvmapp/sw.js')
-      .then(reg => console.log('SW registered:', reg))
-      .catch(err => console.error('SW registration failed:', err));
+    navigator.serviceWorker.register('/rvmapp/sw.js').catch(()=>{});
   });
 }
 </script>
 <script type="module">
+// ONLY RTDB + RED DOT - NO PUSH, NO MESSAGING
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 const firebaseConfig = {
   apiKey: "AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g",
   authDomain: "rvm-software-manifest.firebaseapp.com",
@@ -169,58 +163,40 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const messaging = getMessaging(app);
-onValue(ref(db, 'alerts'), (snap) => {
+// RED DOT LOGIC FOR ALERTS TAB
+const alertsRefForDot = ref(db, 'alerts');
+onValue(alertsRefForDot, (snap)=>{
   const val = snap.val();
-  // Your existing live alerts logic would go here
-  console.log('Live alerts:', val);
-});
-// PUSH LOGIC
-window.enablePush = async () => {
-  try {
-    const perm = await Notification.requestPermission();
-    if (perm !== 'granted') return alert('Permission denied. Enable in browser settings.');
-    
-    // REPLACE THIS WITH YOUR VAPID KEY FROM FIREBASE CONSOLE
-    const VAPID_KEY = "BLmK89lLyB48jQmIxJ7jPLBm_2OS6dI4j48N-8yvZ0zgmUkjAy4V-3l0F6Y20FxRswc28yErPl60xlXPPOPCZuM";
-    if(VAPID_KEY.includes("REPLACE")) {
-      // Fallback to local test if no VAPID yet
-      if(Notification.permission === 'granted') {
-        new Notification('RVM - Push Test (Local)', { body: 'Local push works! Now add VAPID key for real FCM background push.', icon: '/rvmapp/icon-192.png' });
-        document.getElementById('pushBtn').textContent = '✅ LOCAL PUSH WORKS - ADD VAPID KEY FOR FCM';
-        return;
-      }
+  const dot = document.getElementById('alertsDot');
+  const countEl = document.getElementById('alertsCount');
+  const statusText = document.getElementById('statusText');
+  if(!dot) return;
+  if(!val){
+    dot.classList.add('hidden');
+    if(countEl) countEl.classList.add('hidden');
+    return;
+  }
+  const entries = Object.entries(val).map(([id,data])=>({id,...data}))
+    .filter(a=>a.active!==false && (!a.expiresAtTS || Date.now() < a.expiresAtTS))
+    .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const lastSeen = parseInt(localStorage.getItem('rvm_last_seen_alerts_ts')||'0');
+  const unread = entries.filter(a=>(a.createdAt||0) > lastSeen);
+  if(unread.length>0 && entries.length>0){
+    dot.classList.remove('hidden');
+    if(countEl){
+      countEl.textContent = unread.length>9?'9+':unread.length;
+      countEl.classList.remove('hidden');
     }
-    
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-    console.log('FCM Token:', token);
-    await set(ref(db, 'fcmTokens/' + token.slice(0,20)), { token, createdAt: Date.now() });
-    document.getElementById('pushBtn').textContent = '✅ PUSH ENABLED';
-    document.getElementById('pushBtn').classList.add('bg-emerald-500/20','border-emerald-500/30');
-    alert('Push enabled! Token saved to Firebase. You will get alerts even when app is closed.');
-  } catch(e) { console.error(e); alert('Push error: ' + e.message); }
-};
-onMessage(messaging, (payload) => {
-  console.log('Foreground push:', payload);
-  const title = payload.notification?.title || 'RVM Alert';
-  const body = payload.notification?.body || payload.data?.message || '';
-  document.getElementById('statusText').innerHTML = `<b class="text-blue-400">${title}</b> - ${body}`;
-  if(navigator.vibrate) navigator.vibrate([200,100,200]);
-  // Show as notification even when in foreground
-  if(Notification.permission === 'granted') {
-    new Notification(title, { body, icon: '/rvmapp/icon-192.png' });
-  }
-};
-window.testLocalPush = () => {
-  if(Notification.permission !== 'granted') {
-    Notification.requestPermission().then(p => {
-      if(p==='granted') new Notification('RVM Test', { body: 'Push notifications are working!', icon: '/rvmapp/icon-192.png' });
-    });
+    if(navigator.vibrate) navigator.vibrate([100,50,100]);
+    // Optional: show latest alert in status-msg bar
+    if(statusText && unread[0]){
+      statusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-2 animate-pulse"></span><b class="text-red-400">${unread[0].route||'SYSTEM'} ALERT:</b> ${unread[0].title} - Tap ALERTS to view`;
+    }
   } else {
-    new Notification('RVM - River Valley Metro', { body: '🔔 Push is working! This is a test alert from Find Bus.', icon: '/rvmapp/icon-192.png', badge: '/rvmapp/icon-192.png', vibrate: [200,100,200] });
+    dot.classList.add('hidden');
+    if(countEl) countEl.classList.add('hidden');
   }
-};
+});
 </script>
 </body>
 </html>
-
