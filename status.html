@@ -15,10 +15,9 @@ body { font-family:'Plus Jakarta Sans',sans-serif; background:#000; overflow:hid
 #canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
 .app-container { position:relative; width:100vw; height:100dvh; max-width:430px; z-index:10; overflow-y:auto; scrollbar-width:none; background:rgba(0,0,0,0.2); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); scroll-behavior:smooth; }
 .app-container::-webkit-scrollbar { display:none; }
-/* NEW BUS SPLASH */
 #splash { position:fixed; inset:0; background:#000; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; transition:all 0.8s cubic-bezier(0.4,0,0.2,1); overflow:hidden; }
-#splashBg { position:absolute; inset:0; background-image:url('https://alchetron.com/cdn/river-valley-metro-mass-transit-district-89a6b261-79cc-4ec1-882a-41fbf8b47f2-resize-750.jpeg'); background-size:cover; background-position:center; filter:brightness(0.7) contrast(1.1); }
-#splashOverlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.85) 100%); }
+#splashBg { position:absolute; inset:0; background-image:url('https://alchetron.com/cdn/river-valley-metro-mass-transit-district-89a6b261-79cc-4ec1-882a-41fbf8b47f2-resize-750.jpeg'); background-size:cover; background-position:center; filter:brightness(0.65) contrast(1.15) saturate(1.1); }
+#splashOverlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.9) 100%); }
 #splashContent { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; width:100%; height:100%; }
 .loader-track { width:140px; height:3px; background:rgba(255,255,255,0.2); border-radius:9999px; overflow:hidden; margin-top:24px; }
 .loader-progress { width:40%; height:100%; background:#3b82f6; border-radius:9999px; animation:loading 1.5s infinite ease-in-out; box-shadow:0 0 10px #3b82f6; }
@@ -32,26 +31,36 @@ body { font-family:'Plus Jakarta Sans',sans-serif; background:#000; overflow:hid
 @keyframes alertPulse { 0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.2);}50%{box-shadow:0 0 30px rgba(239,68,68,0.4);} }
 @keyframes slideDown { from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);} }
 .slide-down { animation:slideDown 0.4s ease-out; }
+/* TODAY HIGHLIGHT STYLES */
+.schedule-row { transition:all 0.3s ease; border-radius:0.8rem; padding:0.5rem 0.7rem; margin:0 -0.7rem; }
+.schedule-row.today { background:linear-gradient(135deg, rgba(59,130,246,0.25), rgba(59,130,246,0.05)); border:1px solid rgba(59,130,246,0.4); box-shadow:0 0 20px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.1); transform:scale(1.02); }
+.schedule-row.today span:first-child { color:white !important; font-weight:800; }
+.schedule-row.today span:last-child { color:#60a5fa !important; text-shadow:0 0 10px #3b82f6; }
+.schedule-row.today-weekend { background:linear-gradient(135deg, rgba(99,102,241,0.25), rgba(99,102,241,0.05)); border:1px solid rgba(99,102,241,0.4); box-shadow:0 0 20px rgba(99,102,241,0.25); }
+.today-badge { display:none; font-size:7px; font-weight:900; letter-spacing:0.15em; padding:2px 6px; border-radius:9999px; margin-left:8px; }
+.schedule-row.today .today-badge { display:inline-block; background:#3b82f6; color:white; box-shadow:0 0 8px #3b82f6; animation:badgePulse 2s infinite; }
+.schedule-row.today-weekend .today-badge { display:inline-block; background:#6366f1; }
+@keyframes badgePulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
 </style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
-<!-- NEW BUS SPLASH SCREEN -->
+<!-- BUS SPLASH - CIRCULAR IMAGE NOW IS THE ALCHETRON BUS -->
 <div id="splash">
   <div id="splashBg"></div>
   <div id="splashOverlay"></div>
   <div id="splashContent">
-    <div class="fade-up">
-      <div class="w-20 h-20 mx-auto rounded-full bg-white p-1.5 shadow-[0_0_30px_rgba(59,130,246,0.5)] mb-6">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjBRXORehZGVAUiu8vzUjk_Jli1YGIERGWwA&s" alt="RVM Logo" class="w-full h-full rounded-full object-cover">
+    <div class="fade-up flex flex-col items-center">
+      <div class="w-28 h-28 mx-auto rounded-full bg-white p-1 shadow-[0_0_40px_rgba(59,130,246,0.6)] mb-6 border-2 border-white/30 overflow-hidden">
+        <img src="https://alchetron.com/cdn/river-valley-metro-mass-transit-district-89a6b261-79cc-4ec1-882a-41fbf8b47f2-resize-750.jpeg" alt="RVM Bus" class="w-full h-full rounded-full object-cover">
       </div>
-      <h1 class="text-white text-2xl font-black tracking-tighter uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">River Valley Metro</h1>
+      <h1 class="text-white text-2xl font-black tracking-tighter uppercase drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">River Valley Metro</h1>
       <p class="text-blue-400 font-bold text-[10px] uppercase tracking-[0.4em] mt-1 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">Official Transit Portal</p>
     </div>
     <div class="fade-up-delay mt-auto mb-10 flex flex-col items-center">
-      <p class="text-white/90 text-[13px] font-bold tracking-wide text-center leading-relaxed max-w-[280px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">Go where you want to go<br>with <span class="text-blue-400">River Valley Metro</span>.</p>
+      <p class="text-white text-[15px] font-extrabold tracking-wide text-center leading-relaxed max-w-[300px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">Go where you want to go<br>with <span class="text-blue-400">River Valley Metro</span>.</p>
       <div class="loader-track"><div class="loader-progress"></div></div>
-      <p class="text-white/40 text-[9px] font-bold tracking-[0.3em] uppercase mt-3">LOADING • CONNECTING TO DISPATCH</p>
+      <p class="text-white/50 text-[9px] font-bold tracking-[0.3em] uppercase mt-3">LOADING • CONNECTING TO DISPATCH</p>
     </div>
   </div>
 </div>
@@ -59,11 +68,18 @@ body { font-family:'Plus Jakarta Sans',sans-serif; background:#000; overflow:hid
   <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-40">
     <header class="text-center mb-6">
       <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
+      <!-- HEADER BUS IMAGE ALSO REPLACED -->
+      <div class="flex justify-center mb-4">
+        <div class="w-16 h-16 rounded-full border-2 border-white/20 shadow-xl overflow-hidden bg-white p-0.5">
+          <img src="https://alchetron.com/cdn/river-valley-metro-mass-transit-district-89a6b261-79cc-4ec1-882a-41fbf8b47f2-resize-750.jpeg" class="w-full h-full rounded-full object-cover" alt="Bus">
+        </div>
+      </div>
       <h1 class="text-3xl font-black glow-text tracking-tight">River Valley Metro</h1>
       <p class="text-blue-500 font-bold text-[10px] uppercase tracking-[0.4em]">Official Transit Portal</p>
       <a href="https://www.rivervalleymetro.com" target="_blank" class="inline-block mt-3 text-[10px] text-white/40 hover:text-blue-400 underline tracking-widest uppercase">Visit Website • rivervalleymetro.com</a>
+      <p id="todayLabel" class="mt-3 text-[10px] font-black tracking-[0.2em] text-blue-400 uppercase bg-blue-500/10 border border-blue-500/20 inline-block px-3 py-1 rounded-full">—</p>
     </header>
-    <div id="liveServiceBanner" class="hidden mb-6">
+    <div id="liveServiceBanner" class="hidden mb-6" onclick="markSeenOnly()" title="Tap to mark as read - Only dispatch can remove this alert">
       <div class="service-alert rounded-[1.8rem] p-5 slide-down">
         <div class="flex items-start gap-3">
           <div class="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center flex-shrink-0"><span class="text-red-400 text-lg">⚠</span></div>
@@ -73,7 +89,7 @@ body { font-family:'Plus Jakarta Sans',sans-serif; background:#000; overflow:hid
             <p id="bannerMessage" class="text-[12px] leading-relaxed text-slate-300 mt-1 font-medium">Details loading...</p>
             <p id="bannerTime" class="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-widest">Just now</p>
           </div>
-          <button onclick="dismissBanner()" class="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white">✕</button>
+          <div class="w-7 h-7 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center" title="Only dispatch can remove this"><span class="w-2 h-2 bg-red-400 rounded-full animate-pulse"></span></div>
         </div>
       </div>
     </div>
@@ -83,20 +99,22 @@ body { font-family:'Plus Jakarta Sans',sans-serif; background:#000; overflow:hid
       <div class="ml-auto"><span class="w-2 h-2 bg-emerald-400 rounded-full inline-block animate-pulse shadow-[0_0_8px_#22c55e]"></span></div>
     </div>
     <div class="space-y-6">
+      <!-- LOCAL HOURS WITH WEEKDAY HIGHLIGHT -->
       <div class="glass-card p-6">
         <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">Local & Metro Plus <span class="text-[9px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black">HOURS</span></h2>
-        <div class="space-y-4 text-sm">
-          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">5:00A - 9:30P</span></div>
-          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
-          <div class="flex justify-between text-blue-400 font-bold"><span>Sun / Holiday</span><span>8:00A - 4:00P</span></div>
+        <div class="space-y-2 text-sm">
+          <div id="row-mon-fri" class="schedule-row flex justify-between items-center"><span class="text-white/40 flex items-center">Mon – Fri <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">5:00A - 9:30P</span></div>
+          <div id="row-sat" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Saturday <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
+          <div id="row-sun" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Sun / Holiday <span class="today-badge">TODAY</span></span><span class="font-bold text-blue-400">8:00A - 4:00P</span></div>
         </div>
       </div>
+      <!-- MIDWAY HOURS WITH WEEKDAY HIGHLIGHT -->
       <div class="glass-card p-6">
         <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">Midway Commuter<span class="text-[9px] bg-indigo-500/20 px-2 py-1 rounded text-indigo-400 font-black">HOURS</span></h2>
-        <div class="space-y-4 text-sm">
-          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">4:45A - 9:30P</span></div>
-          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
-          <div class="flex justify-between text-indigo-400 font-bold"><span>Sun / Holiday</span><span>8:00A - 6:40P</span></div>
+        <div class="space-y-2 text-sm">
+          <div id="row-mid-mon-fri" class="schedule-row flex justify-between items-center"><span class="text-white/40 flex items-center">Mon – Fri <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">4:45A - 9:30P</span></div>
+          <div id="row-mid-sat" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Saturday <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
+          <div id="row-mid-sun" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Sun / Holiday <span class="today-badge">TODAY</span></span><span class="font-bold text-indigo-400">8:00A - 6:40P</span></div>
         </div>
       </div>
       <div class="glass-card p-5">
@@ -130,8 +148,60 @@ const program=gl.createProgram();const vs=gl.createShader(gl.VERTEX_SHADER);gl.s
 const posLoc=gl.getAttribLocation(program,'position');const uTime=gl.getUniformLocation(program,'uTime');const uRes=gl.getUniformLocation(program,'uResolution');const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
 function render(t){gl.useProgram(program);gl.uniform1f(uTime,t*0.001);gl.uniform2f(uRes,canvas.width,canvas.height);gl.enableVertexAttribArray(posLoc);gl.vertexAttribPointer(posLoc,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);}
 requestAnimationFrame(render);
-document.addEventListener('DOMContentLoaded',()=>{ setTimeout(()=>{ const splash=document.getElementById('splash'); splash.style.opacity='0'; splash.style.transform='scale(1.05)'; setTimeout(()=>{ splash.style.display='none'; document.getElementById('mainContent').classList.remove('opacity-0'); },800); }, 2500); });
-function dismissBanner(){ document.getElementById('liveServiceBanner').classList.add('hidden'); document.getElementById('normalStatus').classList.remove('hidden'); localStorage.setItem('rvm_last_seen_notices_ts',Date.now().toString()); const dot=document.getElementById('noticesDot'); const count=document.getElementById('noticesCount'); if(dot) dot.classList.add('hidden'); if(count) count.classList.add('hidden'); }
+// WEEKDAY HIGHLIGHT LOGIC
+function highlightTodaySchedule(){
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun, 1=Mon ... 6=Sat
+  let label = "";
+  // Clear all
+  document.querySelectorAll('.schedule-row').forEach(el=>{
+    el.classList.remove('today','today-weekend');
+  });
+  if(day>=1 && day<=5){ // Mon-Fri
+    document.getElementById('row-mon-fri')?.classList.add('today');
+    document.getElementById('row-mid-mon-fri')?.classList.add('today');
+    label = "TODAY: MONDAY - FRIDAY SCHEDULE";
+    if(day===1) label = "TODAY: MONDAY • WEEKDAY SCHEDULE";
+    if(day===2) label = "TODAY: TUESDAY • WEEKDAY SCHEDULE";
+    if(day===3) label = "TODAY: WEDNESDAY • WEEKDAY SCHEDULE";
+    if(day===4) label = "TODAY: THURSDAY • WEEKDAY SCHEDULE";
+    if(day===5) label = "TODAY: FRIDAY • WEEKDAY SCHEDULE";
+  } else if(day===6){
+    document.getElementById('row-sat')?.classList.add('today');
+    document.getElementById('row-mid-sat')?.classList.add('today');
+    label = "TODAY: SATURDAY • WEEKEND SCHEDULE";
+  } else {
+    document.getElementById('row-sun')?.classList.add('today-weekend','today');
+    document.getElementById('row-mid-sun')?.classList.add('today-weekend','today');
+    label = "TODAY: SUNDAY • SUNDAY/HOLIDAY SCHEDULE";
+  }
+  const lbl = document.getElementById('todayLabel');
+  if(lbl) lbl.textContent = label + " • " + now.toLocaleDateString('en-US',{weekday:'long', month:'short', day:'numeric'});
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  highlightTodaySchedule();
+  setTimeout(()=>{
+    const splash=document.getElementById('splash');
+    splash.style.opacity='0'; splash.style.transform='scale(1.05)';
+    setTimeout(()=>{ splash.style.display='none'; document.getElementById('mainContent').classList.remove('opacity-0'); },800);
+  }, 2600);
+});
+function dismissBanner(){ 
+  // PASSENGER CANNOT DELETE - ONLY MARKS AS SEEN (hides dot, not banner)
+  // Banner only disappears when dispatch deletes alert from Firebase
+  localStorage.setItem('rvm_last_seen_notices_ts',Date.now().toString()); 
+  const dot=document.getElementById('noticesDot'); 
+  const count=document.getElementById('noticesCount'); 
+  if(dot) dot.classList.add('hidden'); 
+  if(count) count.classList.add('hidden'); 
+}
+function markSeenOnly(){
+  localStorage.setItem('rvm_last_seen_notices_ts',Date.now().toString());
+  const dot=document.getElementById('noticesDot');
+  const count=document.getElementById('noticesCount');
+  if(dot) dot.classList.add('hidden');
+  if(count) count.classList.add('hidden');
+}
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
