@@ -1,5 +1,5 @@
-// RVM Premium Service Worker - Optimized for Reliability & Offline Performance
-const CACHE_NAME = 'rvm-premium-v11';
+// RVM Premium Service Worker v12 - Offline + FCM Push Ready
+const CACHE_NAME = 'rvm-premium-v12';
 const OFFLINE_URL = '/rvmapp/index.html';
 const CORE_ASSETS = [
   '/rvmapp/',
@@ -15,37 +15,58 @@ const CORE_ASSETS = [
   '/rvmapp/icon-512.png'
 ];
 
-// INSTALL - Cache core assets for offline usage
+// Import Firebase for background push
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey: "AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g",
+  authDomain: "rvm-software-manifest.firebaseapp.com",
+  databaseURL: "https://rvm-software-manifest-default-rtdb.firebaseio.com",
+  projectId: "rvm-software-manifest",
+  storageBucket: "rvm-software-manifest.appspot.com",
+  messagingSenderId: "1096220577213",
+  appId: "1:1096220577213:web:8c9a0f8f1a2b3c4d5e6f7a"
+});
+
+const messaging = firebase.messaging();
+
+// FCM Background Handler - when app is CLOSED
+messaging.onBackgroundMessage((payload) => {
+  console.log('[SW] FCM Background:', payload);
+  const title = payload.notification?.title || payload.data?.title || 'River Valley Metro';
+  const options = {
+    body: payload.notification?.body || payload.data?.body || payload.data?.message || 'New alert from Dispatch',
+    icon: '/rvmapp/icon-192.png',
+    badge: '/rvmapp/icon-192.png',
+    vibrate: [200, 100, 200],
+    data: { url: payload.data?.url || '/rvmapp/status.html' }
+  };
+  self.registration.showNotification(title, options);
+});
+
+// INSTALL
 self.addEventListener('install', event => {
-  console.log('[SW] Installing new version...');
+  console.log('[SW] Installing v12...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(CORE_ASSETS);
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)).then(() => self.skipWaiting())
   );
 });
 
-// ACTIVATE - Clean up old cache versions safely
+// ACTIVATE
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating and cleaning old caches...');
+  console.log('[SW] Activating v12...');
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))).then(() => self.clients.claim())
   );
 });
 
-// FETCH - Intercept requests with targeted strategies
+// FETCH - Your existing logic
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
-
-  // Skip non-GET requests
   if (req.method !== 'GET') return;
 
-  // 1. External APIs (Weather, Firebase, CDNs) - Network First, fallback to Cache
   if (url.hostname.includes('open-meteo.com') || url.hostname.includes('firebaseio.com') || url.hostname.includes('gstatic.com') || url.hostname.includes('googleapis.com')) {
     event.respondWith(
       fetch(req).then(res => {
@@ -59,7 +80,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 2. App Shell & Local Assets - Stale-While-Revalidate / Cache First with background update
   event.respondWith(
     caches.match(req).then(cachedRes => {
       const fetchPromise = fetch(req).then(networkRes => {
@@ -69,28 +89,17 @@ self.addEventListener('fetch', event => {
         }
         return networkRes;
       }).catch(() => {
-        // Fallback if offline and asset not in cache
-        if (req.mode === 'navigate') {
-          return caches.match(OFFLINE_URL);
-        }
+        if (req.mode === 'navigate') return caches.match(OFFLINE_URL);
       });
-
       return cachedRes || fetchPromise;
     })
   );
 });
 
-// PUSH NOTIFICATIONS - Handle real-time dispatch alerts
+// Generic Web Push (fallback)
 self.addEventListener('push', event => {
   let data = { title: 'RVM Alert', body: 'New system alert' };
-  try {
-    if (event.data) {
-      data = event.data.json();
-    }
-  } catch (e) {
-    data.body = event.data ? event.data.text() : 'Check app for updates';
-  }
-
+  try { if (event.data) data = event.data.json(); } catch (e) { data.body = event.data ? event.data.text() : 'Check app'; }
   const options = {
     body: data.body || data.message || 'Check app for updates',
     icon: '/rvmapp/icon-192.png',
@@ -98,38 +107,28 @@ self.addEventListener('push', event => {
     vibrate: [200, 100, 200],
     data: { url: data.url || '/rvmapp/status.html' }
   };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'River Valley Metro', options)
-  );
+  event.waitUntil(self.registration.showNotification(data.title || 'River Valley Metro', options));
 });
 
-// NOTIFICATION CLICK - Bring app to focus or open relevant page
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   const targetUrl = event.notification.data.url || '/rvmapp/index.html';
-
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.focus();
-          client.navigate(targetUrl);
-          return;
+          client.focus(); client.navigate(targetUrl); return;
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
+      if (clients.openWindow) return clients.openWindow(targetUrl);
     })
   );
 });
 
-// BACKGROUND SYNC - Retry pending network operations when connection returns
 self.addEventListener('sync', event => {
   if (event.tag === 'rvm-sync-alerts') {
-    event.waitUntil(
-      fetch('/rvmapp/manifest.json').then(() => console.log('[SW] Background sync completed successfully'))
-    );
+    event.waitUntil(fetch('/rvmapp/manifest.json').then(() => console.log('[SW] Background sync ok')));
+  }
+});
   }
 });
