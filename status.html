@@ -1,264 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- PWA Manifest Connection -->
-    <link rel="manifest" href="manifest.json">
-    <title>River Valley Metro | Premium</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #000; overflow: hidden; height: 100dvh; color: white; display: flex; justify-content: center; align-items: center; }
-
-        /* WebGL Background Layer */
-        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-
-        /* App Container */
-        .app-container { 
-            position: relative; 
-            width: 100vw; 
-            height: 100dvh; 
-            max-width: 430px; 
-            z-index: 10; 
-            overflow-y: auto; 
-            scrollbar-width: none;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            scroll-behavior: smooth;
-        }
-        .app-container::-webkit-scrollbar { display: none; }
-
-        /* Splash Screen */
-        #splash { 
-            position: fixed; inset: 0; background: #000; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            z-index: 10000; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .loader-progress { width: 40%; height: 100%; background: #3b82f6; animation: loading 1.5s infinite ease-in-out; }
-        @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
-
-        /* Glass Components */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2.5rem;
-        }
-
-        .glow-text {
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>River Valley Metro | Premium - NOTICES</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Plus Jakarta Sans',sans-serif; background:#000; overflow:hidden; height:100dvh; color:white; display:flex; justify-content:center; align-items:center; }
+#canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
+.app-container { position:relative; width:100vw; height:100dvh; max-width:430px; z-index:10; overflow-y:auto; scrollbar-width:none; background:rgba(0,0,0,0.2); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); scroll-behavior:smooth; }
+.app-container::-webkit-scrollbar { display:none; }
+/* NEW BUS SPLASH */
+#splash { position:fixed; inset:0; background:#000; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; transition:all 0.8s cubic-bezier(0.4,0,0.2,1); overflow:hidden; }
+#splashBg { position:absolute; inset:0; background-image:url('https://alchetron.com/cdn/river-valley-metro-mass-transit-district-89a6b261-79cc-4ec1-882a-41fbf8b47f2-resize-750.jpeg'); background-size:cover; background-position:center; filter:brightness(0.7) contrast(1.1); }
+#splashOverlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.85) 100%); }
+#splashContent { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; width:100%; height:100%; }
+.loader-track { width:140px; height:3px; background:rgba(255,255,255,0.2); border-radius:9999px; overflow:hidden; margin-top:24px; }
+.loader-progress { width:40%; height:100%; background:#3b82f6; border-radius:9999px; animation:loading 1.5s infinite ease-in-out; box-shadow:0 0 10px #3b82f6; }
+@keyframes loading { 0% { transform:translateX(-100%); } 100% { transform:translateX(350%); } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.fade-up { animation:fadeUp 0.8s ease-out forwards; }
+.fade-up-delay { animation:fadeUp 0.8s ease-out 0.3s forwards; opacity:0; }
+.glass-card { background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:2.5rem; }
+.glow-text { background:linear-gradient(135deg,#fff 0%,#94a3b8 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.service-alert { background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(15,23,42,0.8)); border:1px solid rgba(239,68,68,0.3); animation:alertPulse 2s infinite; }
+@keyframes alertPulse { 0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.2);}50%{box-shadow:0 0 30px rgba(239,68,68,0.4);} }
+@keyframes slideDown { from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);} }
+.slide-down { animation:slideDown 0.4s ease-out; }
+</style>
 </head>
 <body>
-
-    <canvas id="canvas"></canvas>
-
-    <!-- Splash Screen -->
-    <div id="splash">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjBRXORehZGVAUiu8vzUjk_Jli1YGIERGWwA&s" alt="Logo" class="w-24 h-24 rounded-full border-4 border-white/20 shadow-2xl">
-        <h1 class="text-white text-xl font-black mt-6 tracking-tighter uppercase">River Valley Metro</h1>
-        <div class="mt-8 w-24 h-1 bg-white/10 rounded-full overflow-hidden">
-            <div class="loader-progress"></div>
-        </div>
+<canvas id="canvas"></canvas>
+<!-- NEW BUS SPLASH SCREEN -->
+<div id="splash">
+  <div id="splashBg"></div>
+  <div id="splashOverlay"></div>
+  <div id="splashContent">
+    <div class="fade-up">
+      <div class="w-20 h-20 mx-auto rounded-full bg-white p-1.5 shadow-[0_0_30px_rgba(59,130,246,0.5)] mb-6">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjBRXORehZGVAUiu8vzUjk_Jli1YGIERGWwA&s" alt="RVM Logo" class="w-full h-full rounded-full object-cover">
+      </div>
+      <h1 class="text-white text-2xl font-black tracking-tighter uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">River Valley Metro</h1>
+      <p class="text-blue-400 font-bold text-[10px] uppercase tracking-[0.4em] mt-1 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">Official Transit Portal</p>
     </div>
-
-    <!-- Main Content Container -->
-    <div class="app-container" id="scrollContainer">
-        <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-40">
-            
-            <header class="text-center mb-10" id="top-anchor">
-                <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
-                <h1 class="text-3xl font-black glow-text tracking-tight">River Valley Metro</h1>
-                <p class="text-blue-500 font-bold text-[10px] uppercase tracking-[0.4em]">Official Transit Portal</p>
-            </header>
-
-            <div class="space-y-6">
-                <!-- Hours Cards -->
-                <div class="glass-card p-6">
-                    <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">
-                        Local & Metro Plus 
-                        <span class="text-[9px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black">HOURS</span>
-                    </h2>
-                    <div class="space-y-4 text-sm">
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">5:00A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between text-blue-400 font-bold">
-                            <span>Sun / Holiday</span><span>8:00A - 4:00P</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card p-6">
-                    <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">
-                        Midway Commuter
-                        <span class="text-[9px] bg-indigo-500/20 px-2 py-1 rounded text-indigo-400 font-black">HOURS</span>
-                    </h2>
-                    <div class="space-y-4 text-sm">
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">4:45A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-3">
-                            <span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span>
-                        </div>
-                        <div class="flex justify-between text-indigo-400 font-bold">
-                            <span>Sun / Holiday</span><span>8:00A - 6:40P</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-4">
-                    <a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-white text-black w-full py-5 rounded-[2rem] font-black active:scale-95 transition-all shadow-xl">
-                        CALL SUPPORT
-                    </a>
-                </div>
-            </div>
-        </div>
+    <div class="fade-up-delay mt-auto mb-10 flex flex-col items-center">
+      <p class="text-white/90 text-[13px] font-bold tracking-wide text-center leading-relaxed max-w-[280px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">Go where you want to go<br>with <span class="text-blue-400">River Valley Metro</span>.</p>
+      <div class="loader-track"><div class="loader-progress"></div></div>
+      <p class="text-white/40 text-[9px] font-bold tracking-[0.3em] uppercase mt-3">LOADING • CONNECTING TO DISPATCH</p>
     </div>
-
-      <!-- Navigation Bar -->
+  </div>
+</div>
+<div class="app-container" id="scrollContainer">
+  <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-40">
+    <header class="text-center mb-6">
+      <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
+      <h1 class="text-3xl font-black glow-text tracking-tight">River Valley Metro</h1>
+      <p class="text-blue-500 font-bold text-[10px] uppercase tracking-[0.4em]">Official Transit Portal</p>
+      <a href="https://www.rivervalleymetro.com" target="_blank" class="inline-block mt-3 text-[10px] text-white/40 hover:text-blue-400 underline tracking-widest uppercase">Visit Website • rivervalleymetro.com</a>
+    </header>
+    <div id="liveServiceBanner" class="hidden mb-6">
+      <div class="service-alert rounded-[1.8rem] p-5 slide-down">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center flex-shrink-0"><span class="text-red-400 text-lg">⚠</span></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1"><span id="bannerRoute" class="bg-red-500/20 border border-red-500/30 text-red-300 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest">SYSTEM</span><span class="flex items-center gap-1.5 text-[9px] font-bold text-red-400 tracking-widest"><span class="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></span>LIVE FROM DISPATCH</span></div>
+            <h3 id="bannerTitle" class="text-[14px] font-black uppercase tracking-tight text-white leading-tight">Service Alert</h3>
+            <p id="bannerMessage" class="text-[12px] leading-relaxed text-slate-300 mt-1 font-medium">Details loading...</p>
+            <p id="bannerTime" class="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-widest">Just now</p>
+          </div>
+          <button onclick="dismissBanner()" class="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white">✕</button>
+        </div>
+      </div>
+    </div>
+    <div id="normalStatus" class="glass-card rounded-[1.8rem] p-4 mb-6 flex items-center gap-3 border-emerald-500/20">
+      <div class="w-10 h-10 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center"><span class="text-emerald-400">✓</span></div>
+      <div><h3 class="text-[13px] font-black uppercase tracking-tight">System Normal</h3><p class="text-[11px] text-slate-400">All routes operating on schedule</p></div>
+      <div class="ml-auto"><span class="w-2 h-2 bg-emerald-400 rounded-full inline-block animate-pulse shadow-[0_0_8px_#22c55e]"></span></div>
+    </div>
+    <div class="space-y-6">
+      <div class="glass-card p-6">
+        <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">Local & Metro Plus <span class="text-[9px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black">HOURS</span></h2>
+        <div class="space-y-4 text-sm">
+          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">5:00A - 9:30P</span></div>
+          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
+          <div class="flex justify-between text-blue-400 font-bold"><span>Sun / Holiday</span><span>8:00A - 4:00P</span></div>
+        </div>
+      </div>
+      <div class="glass-card p-6">
+        <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">Midway Commuter<span class="text-[9px] bg-indigo-500/20 px-2 py-1 rounded text-indigo-400 font-black">HOURS</span></h2>
+        <div class="space-y-4 text-sm">
+          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Mon – Fri</span><span class="font-bold text-white/90">4:45A - 9:30P</span></div>
+          <div class="flex justify-between border-b border-white/5 pb-3"><span class="text-white/40">Saturday</span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
+          <div class="flex justify-between text-indigo-400 font-bold"><span>Sun / Holiday</span><span>8:00A - 6:40P</span></div>
+        </div>
+      </div>
+      <div class="glass-card p-5">
+        <h2 class="font-extrabold text-white mb-4 text-[13px] tracking-widest uppercase">Quick Links</h2>
+        <div class="grid grid-cols-2 gap-3 text-[11px]">
+          <a href="https://www.rivervalleymetro.com" target="_blank" class="bg-white/5 border border-white/10 rounded-2xl p-4 font-bold hover:bg-white/10 transition">🌐 Website</a>
+          <a href="./map.html" class="bg-blue-500/15 border border-blue-500/20 rounded-2xl p-4 font-bold text-blue-300">🚌 Find Bus</a>
+          <a href="./status.html" class="bg-white/5 border border-white/10 rounded-2xl p-4 font-bold">⚠️ Alerts</a>
+          <a href="./midway.html" class="bg-white/5 border border-white/10 rounded-2xl p-4 font-bold">✈️ Midway</a>
+        </div>
+      </div>
+      <div class="pt-2"><a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-white text-black w-full py-5 rounded-[2rem] font-black active:scale-95 transition-all shadow-xl">📞 CALL DISPATCH • (815) 937-4287</a><p class="text-center text-[9px] text-white/30 mt-3 tracking-[0.2em] uppercase">Official River Valley Metro App</p></div>
+    </div>
+  </div>
+</div>
 <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-    
-    <!-- Alerts/Status -->
-    <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span>
-    </a>
-
-    <!-- Map -->
-    <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span>
-    </a>
-
-    <!-- Midway -->
-    <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Midway</span>
-    </a>
-
-    <!-- Notices (NOW WITH BUS ICON) -->
-    <a href="./notices.html" class="nav-link active flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="notices.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter text-blue-500">Notices</span>
-    </a>
-
-    <!-- Passes -->
-    <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Passes</span>
-    </a>
-
-    <!-- Weather -->
-    <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-        </svg>
-        <span class="text-[8px] font-black uppercase tracking-tighter">Weather</span>
-    </a>
+    <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span></a>
+    <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span></a>
+    <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Midway</span></a>
+    <a href="./notices.html" class="nav-link active flex flex-col items-center gap-1.5 text-blue-500 flex-1 relative"><span id="noticesDot" class="hidden absolute -top-1 right-3 w-3.5 h-3.5 bg-red-500 rounded-full border-[2px] border-slate-900 shadow-[0_0_10px_#ef4444]"><span class="absolute inset-0 rounded-full bg-red-500 animate-ping"></span></span><span id="noticesCount" class="hidden absolute -top-2 right-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[14px] text-center leading-none">0</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" /></svg><span class="text-[8px] font-black uppercase tracking-tighter text-blue-500">Notices</span></a>
+    <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Passes</span></a>
+    <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Weather</span></a>
 </nav>
-
-    <!-- WebGL Shaders -->
-    <script id="vertexShader" type="x-shader/x-vertex">
-        attribute vec2 position;
-        void main() { gl_Position = vec4(position, 0.0, 1.0); }
-    </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-        precision highp float;
-        uniform float uTime;
-        uniform vec2 uResolution;
-        void main() {
-            vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y);
-            float t = uTime * 0.1;
-            vec3 col = vec3(0.0);
-            for(float i = 1.0; i < 4.0; i++) {
-                uv.x += 0.4 / i * sin(i * 3.0 * uv.y + t);
-                uv.y += 0.4 / i * cos(i * 3.0 * uv.x + t);
-                col += 0.006 / abs(sin(t + uv.y + uv.x));
-            }
-            gl_FragColor = vec4(col * vec3(0.1, 0.3, 0.7), 1.0);
-        }
-    </script>
-
-    <script>
-        // WebGL Engine
-        const canvas = document.getElementById('canvas');
-        const gl = canvas.getContext('webgl');
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        const program = gl.createProgram();
-        const vs = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(vs, document.getElementById('vertexShader').textContent);
-        gl.compileShader(vs);
-        const fs = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fs, document.getElementById('fragmentShader').textContent);
-        gl.compileShader(fs);
-        gl.attachShader(program, vs);
-        gl.attachShader(program, fs);
-        gl.linkProgram(program);
-
-        const posLoc = gl.getAttribLocation(program, 'position');
-        const uTime = gl.getUniformLocation(program, 'uTime');
-        const uRes = gl.getUniformLocation(program, 'uResolution');
-        const buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-
-        function render(t) {
-            gl.useProgram(program);
-            gl.uniform1f(uTime, t * 0.001);
-            gl.uniform2f(uRes, canvas.width, canvas.height);
-            gl.enableVertexAttribArray(posLoc);
-            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(render);
-        }
-        requestAnimationFrame(render);
-
-        // App Initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splash');
-                splash.style.opacity = '0';
-                splash.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    document.getElementById('mainContent').classList.remove('opacity-0');
-                }, 800);
-            }, 2000);
-        });
-    </script>
+<script id="vertexShader" type="x-shader/x-vertex">attribute vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }</script>
+<script id="fragmentShader" type="x-shader/x-fragment">precision highp float; uniform float uTime; uniform vec2 uResolution; void main() { vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / min(uResolution.x, uResolution.y); float t = uTime * 0.1; vec3 col = vec3(0.0); for(float i = 1.0; i < 4.0; i++) { uv.x += 0.4 / i * sin(i * 3.0 * uv.y + t); uv.y += 0.4 / i * cos(i * 3.0 * uv.x + t); col += 0.006 / abs(sin(t + uv.y + uv.x)); } gl_FragColor = vec4(col * vec3(0.1, 0.3, 0.7), 1.0); }</script>
+<script>
+const canvas=document.getElementById('canvas');const gl=canvas.getContext('webgl');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;gl.viewport(0,0,canvas.width,canvas.height);}
+addEventListener('resize',resize);resize();
+const program=gl.createProgram();const vs=gl.createShader(gl.VERTEX_SHADER);gl.shaderSource(vs,document.getElementById('vertexShader').textContent);gl.compileShader(vs);const fs=gl.createShader(gl.FRAGMENT_SHADER);gl.shaderSource(fs,document.getElementById('fragmentShader').textContent);gl.compileShader(fs);gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
+const posLoc=gl.getAttribLocation(program,'position');const uTime=gl.getUniformLocation(program,'uTime');const uRes=gl.getUniformLocation(program,'uResolution');const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+function render(t){gl.useProgram(program);gl.uniform1f(uTime,t*0.001);gl.uniform2f(uRes,canvas.width,canvas.height);gl.enableVertexAttribArray(posLoc);gl.vertexAttribPointer(posLoc,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);}
+requestAnimationFrame(render);
+document.addEventListener('DOMContentLoaded',()=>{ setTimeout(()=>{ const splash=document.getElementById('splash'); splash.style.opacity='0'; splash.style.transform='scale(1.05)'; setTimeout(()=>{ splash.style.display='none'; document.getElementById('mainContent').classList.remove('opacity-0'); },800); }, 2500); });
+function dismissBanner(){ document.getElementById('liveServiceBanner').classList.add('hidden'); document.getElementById('normalStatus').classList.remove('hidden'); localStorage.setItem('rvm_last_seen_notices_ts',Date.now().toString()); const dot=document.getElementById('noticesDot'); const count=document.getElementById('noticesCount'); if(dot) dot.classList.add('hidden'); if(count) count.classList.add('hidden'); }
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const firebaseConfig={ apiKey:"AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g", authDomain:"rvm-software-manifest.firebaseapp.com", databaseURL:"https://rvm-software-manifest-default-rtdb.firebaseio.com", projectId:"rvm-software-manifest", storageBucket:"rvm-software-manifest.appspot.com", messagingSenderId:"1096220577213", appId:"1:1096220577213:web:8c9a0f8f1a2b3c4d5e6f7a" };
+const app=initializeApp(firebaseConfig); const db=getDatabase(app);
+const alertsRef=ref(db,'alerts');
+onValue(alertsRef,(snap)=>{
+  const val=snap.val(); const banner=document.getElementById('liveServiceBanner'); const normal=document.getElementById('normalStatus'); const dot=document.getElementById('noticesDot'); const countEl=document.getElementById('noticesCount');
+  if(!val){ if(banner) banner.classList.add('hidden'); if(normal) normal.classList.remove('hidden'); if(dot) dot.classList.add('hidden'); if(countEl) countEl.classList.add('hidden'); return; }
+  const entries=Object.entries(val).map(([id,data])=>({id,...data})).filter(a=>a.active!==false && (!a.expiresAtTS || Date.now() < a.expiresAtTS)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(entries.length===0){ if(banner) banner.classList.add('hidden'); if(normal) normal.classList.remove('hidden'); if(dot) dot.classList.add('hidden'); if(countEl) countEl.classList.add('hidden'); return; }
+  const latest=entries[0];
+  document.getElementById('bannerRoute').textContent=latest.route||'SYSTEM';
+  document.getElementById('bannerTitle').textContent=latest.title||'Service Alert';
+  document.getElementById('bannerMessage').textContent=latest.message||'';
+  document.getElementById('bannerTime').textContent=latest.timestamp||'Just now';
+  if(banner) banner.classList.remove('hidden'); if(normal) normal.classList.add('hidden');
+  const lastSeen=parseInt(localStorage.getItem('rvm_last_seen_notices_ts')||'0'); const unread=entries.filter(a=>(a.createdAt||0) > lastSeen);
+  if(unread.length>0){ if(dot) dot.classList.remove('hidden'); if(countEl){ countEl.textContent=unread.length>9?'9+':unread.length; countEl.classList.remove('hidden'); } if(navigator.vibrate) navigator.vibrate([100,50,100]); } else { setTimeout(()=>{ if(dot) dot.classList.add('hidden'); if(countEl) countEl.classList.add('hidden'); },3000); }
+});
+setTimeout(()=>{ localStorage.setItem('rvm_last_seen_notices_ts',Date.now().toString()); },5000);
+</script>
 </body>
 </html>
