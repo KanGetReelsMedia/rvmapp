@@ -130,5 +130,3 @@ self.addEventListener('sync', event => {
     event.waitUntil(fetch('/rvmapp/manifest.json').then(() => console.log('[SW] Background sync ok')));
   }
 });
-  }
-});
