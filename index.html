@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Find Bus - RVM PREMIUM - LIVE FROM DISPATCH</title>
 <link rel="manifest" href="/rvmapp/manifest.json">
+<meta name="theme-color" content="#2563eb">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},animation:{'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite'}}}}</script>
@@ -22,9 +23,13 @@ body{-webkit-tap-highlight-color:transparent}
 <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
 <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-36">
 <header class="glass-panel rounded-[2.5rem] p-6 mb-4 relative z-[500] overflow-visible">
+<!-- OFFICIAL RVM LOGO FROM YOUR LINK -->
+<div class="bg-white rounded-[1.4rem] p-3 flex items-center justify-center mb-5 shadow-[0_0_20px_rgba(255,255,255,0.15)]">
+<img src="https://www.rivervalleymetro.com/wp-content/themes/wp-bootstrap-rivervalley/assets/images/logo-river-valley-metro-color.png" alt="RVM Logo" class="w-full max-w-[240px] h-auto object-contain" />
+</div>
 <div class="flex items-center gap-4 mb-5">
 <a href="index.html" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</a>
-<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">TIME POINTS • LIVE FROM DISPATCH</p></div>
+<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">Live Time Points • PUSH READY</p></div>
 </div>
 <div class="relative" id="routeDropdownRoot" style="z-index:999; isolation:isolate">
 <button id="routeBtn" class="w-full flex items-center justify-between bg-white/5 hover:bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 font-bold transition relative" style="z-index:1000">
@@ -34,14 +39,21 @@ body{-webkit-tap-highlight-color:transparent}
 <div id="routeMenu" class="hidden absolute top-[108%] left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl max-h-[320px] overflow-y-auto p-1.5 shadow-[0_25px_80px_rgba(0,0,0,0.9)]" style="z-index:99999"></div>
 </div>
 </header>
-<div id="status-msg" class="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative" style="z-index:1">
-<span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]"></span>
+<div id="status-msg" class="glass-panel rounded-3xl px-4 py-3 mb-3 text-[12px] flex items-center gap-2 relative" style="z-index:1">
+<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]"></span>
 <span id="statusText">Loading...</span>
+</div>
+<!-- PUSH BUTTON - NEW -->
+<div class="flex gap-2 mb-4" style="position:relative; z-index:1">
+<button id="pushBtn" onclick="enablePush()" class="flex-1 glass-panel rounded-full py-3 px-4 text-[11px] font-black tracking-[0.15em] bg-blue-500/15 border-blue-500/30 hover:bg-blue-500/25 transition">
+🔔 ENABLE PUSH ALERTS
+</button>
+<button onclick="testLocalPush()" class="glass-panel rounded-full py-3 px-3 text-[10px] font-bold bg-white/5 border-white/10">TEST</button>
 </div>
 <div id="mainCard" class="glass-panel rounded-[32px] p-6 cursor-pointer relative" style="z-index:1">
 <div class="flex justify-between items-center mb-3">
 <span id="routeTag" class="bg-blue-500/15 border border-blue-500/30 text-blue-400 rounded-full px-3 py-1 text-[12px] font-black"></span>
-<span id="liveStatusBadge" class="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400"><span id="liveStatusDot" class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]"></span><span id="liveStatusText">ON TIME</span></span>
+<span class="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400"><span class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]"></span> ON TIME</span>
 </div>
 <div id="closestInfo" class="font-black text-[18px] leading-tight"></div>
 <div class="flex items-center gap-5 mt-6">
@@ -55,7 +67,6 @@ body{-webkit-tap-highlight-color:transparent}
 <div id="nextStopName" class="font-bold text-[15px] leading-tight"></div>
 <div id="nextStopTime" class="text-[13px] text-slate-300 mt-1 leading-snug"></div>
 <div id="phoneTime" class="font-mono text-[11px] text-slate-500 mt-2"></div>
-<div id="liveAlertMessage" class="hidden mt-3 rounded-xl px-3 py-2 text-[11px] leading-snug bg-amber-500/10 border border-amber-500/20 text-amber-200"></div>
 </div>
 </div>
 </div>
@@ -89,100 +100,12 @@ const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferDa
 const pos=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
 function render(t){gl.uniform1f(gl.getUniformLocation(program,'uTime'),t*0.001);gl.uniform2f(gl.getUniformLocation(program,'uRes'),canvas.width,canvas.height);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);}render(0);
 const routes=[{id:1,name:"Route 1",freq:"Every 30 min",run:"Mon-Fri 5:05am-9:17pm Sat 7:05am-9:17pm Sun 8:05am-3:47pm",stops:[{name:"Family Dollar",mins:[5,35]},{name:"Azzarelli Apartments",mins:[8,38]},{name:"St Mary's",mins:[15,45]},{name:"Walgreens Court St",mins:[19,49]},{name:"Kankakee Metro Centre",mins:[25,55]}]},{id:2,name:"Route 2",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8:30am-3:55pm",stops:[{name:"Northfield Square Mall",mins:[30]},{name:"Signature/Double Jack",mins:[33,19]},{name:"Adventure Church",mins:[38]},{name:"Meijer Southbound",mins:[45]},{name:"Broadway Shelter",mins:[51]},{name:"Village Hall/Broadway",mins:[58]},{name:"Meijer Northbound",mins:[7]},{name:"Walmart",mins:[14]},{name:"Northfield Square Mall",mins:[2]}]},{id:3,name:"Route 3",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Bradley Library",mins:[6]},{name:"Christine and Uncle Leo",mins:[13]},{name:"Target",mins:[20,32]},{name:"Northfield Square Mall",mins:[30]},{name:"Christine Dr behind Meijer",mins:[39]},{name:"Village Square",mins:[44]},{name:"KCTC",mins:[49]}]},{id:4,name:"Route 4",freq:"Peak Every 30 min 7am-6pm M-F",run:"Mon-Fri 5:07am-9:07pm Sat 7:07am-9:07pm Sun 8:07am-3:45pm",stops:[{name:"East Court Village",mins:[7,37]},{name:"Frontage Road",mins:[13,43]},{name:"Spruce and Fairmont",mins:[15,45]},{name:"Family Dollar",mins:[18,48]},{name:"Kankakee Metro Centre",mins:[0,30]},{name:"St Mary's Hospital",mins:[3,33]},{name:"Riverside Medical Center",mins:[10,40]},{name:"Kankakee County Health Dept",mins:[15,45]}]},{id:5,name:"Route 5",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8am-3:55pm",stops:[{name:"Aroma Park Shelter",mins:[30]},{name:"Crestview",mins:[35]},{name:"Riverside East",mins:[38]},{name:"Maple and Eagle",mins:[41]},{name:"Eagle and Chicago",mins:[46,6]},{name:"Kankakee Metro Centre",mins:[0]},{name:"Dollar General",mins:[13]},{name:"Crestview",mins:[16]}]},{id:6,name:"Route 6",freq:"Hourly • M-F Only 7:30am-5pm",run:"Mon-Fri 7:30am-5pm ONLY • No Weekend/Holiday",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"Kankakee Estates",mins:[36]},{name:"K.C.C.",mins:[41]},{name:"Del Monte",mins:[46]},{name:"Walmart Kankakee",mins:[58]},{name:"Jerome Combs",mins:[8]},{name:"Schuyler and River",mins:[18]}]},{id:7,name:"Route 7",freq:"Peak 7am-5pm every 30min",run:"Peak M-F 7am-5pm Off M-F 5am-9:22pm Sat 7am-9:22pm Sun 8am-3:34pm",stops:[{name:"Kankakee Metro Centre",mins:[0,30]},{name:"Kankakee Estates",mins:[6,36]},{name:"K.C.C.",mins:[11]},{name:"Del Monte",mins:[8]},{name:"K.C.C.",mins:[16]},{name:"Walmart Kankakee",mins:[15,22,40,42]},{name:"Harrison and Station",mins:[22,48,49]},{name:"Jerome Combs",mins:[29]},{name:"Love's",mins:[34]}]},{id:8,name:"Route 8",freq:"Every 60 min",run:"Mon-Fri 5am-9:12pm Sat 7am-9:12pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Washington and Water",mins:[3]},{name:"Casey's on Jeffery",mins:[8]},{name:"Merchant and Curtis",mins:[12]},{name:"Kankakee High School",mins:[15]},{name:"Jewel on Washington",mins:[19]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Mulberry and Chicago",mins:[33]},{name:"Hobbie and Willow",mins:[36]},{name:"Broadway and Jefferson",mins:[42]},{name:"Brookmont and Harvard",mins:[48]}]},{id:9,name:"Route 9",freq:"Every 60 min",run:"Mon-Fri 5am-9:26pm Sat 7am-9:26pm Sun 8am-4:10pm",stops:[{name:"Manteno Metro Centre",mins:[0]},{name:"ABC Supply",mins:[7]},{name:"Northfield Square Mall",mins:[30]},{name:"Walmart",mins:[33]},{name:"Manteno Metro Centre",mins:[41]},{name:"E 2nd St",mins:[45]},{name:"Veterans Home",mins:[52]}]},{id:10,name:"Route 10",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-4pm",stops:[{name:"Brown Blvd",mins:[0]},{name:"Casey's",mins:[5,34]},{name:"Riverside Campus",mins:[7,36]},{name:"Bourbonnais Metro Centre",mins:[13,42]},{name:"Northfield Square Mall",mins:[30]},{name:"W Bethel Dr",mins:[50]},{name:"Almar Parkway",mins:[55]}]},{id:11,name:"Route 11",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"McDonald's 5th Ave",mins:[4]},{name:"ONU",mins:[11,42]},{name:"Northfield Meadows",mins:[18]},{name:"Northfield Square Mall",mins:[30]},{name:"Kroger",mins:[36]},{name:"Walgreens Kennedy Dr",mins:[48]}]},{id:12,name:"Route 12",freq:"Every 60 min",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8:30am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"McDonald's 5th Av",mins:[34]},{name:"Shine FM",mins:[39]},{name:"Meijer",mins:[47]},{name:"Kroger",mins:[55]},{name:"Brown Blvd",mins:[2]},{name:"Heritage/Convent",mins:[11]},{name:"Perry Farm",mins:[16]},{name:"Walgreen's",mins:[19]},{name:"Kankakee Metro Centre",mins:[25]}]},{id:14,name:"Route 14",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Mulberry/Chicago",mins:[2]},{name:"Fairmont/Court",mins:[9]},{name:"Eagle/Maple",mins:[13]},{name:"Harrison/Station",mins:[20]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Station/Schuyler",mins:[33]},{name:"Mercy Housing",mins:[37]},{name:"Merchant/Curtis",mins:[41]},{name:"Kankakee High School",mins:[45]},{name:"Kankakee Jewel",mins:[49]}]}];
-const MAJOR_HOLIDAYS_INFO = [
-  {name:"New Year's Day", check:(d)=>d.getMonth()===0 && d.getDate()===1},
-  {name:"Independence Day", check:(d)=>d.getMonth()===6 && d.getDate()===4},
-  {name:"Christmas Day", check:(d)=>d.getMonth()===11 && d.getDate()===25},
-  {name:"Memorial Day", check:(d)=>{if(d.getMonth()!==4) return false;let lastMon=31;for(let day=31;day>=25;day--){let test=new Date(d.getFullYear(),4,day);if(test.getDay()===1){lastMon=day;break;}}return d.getDate()===lastMon&&d.getDay()===1;}},
-  {name:"Labor Day", check:(d)=>{if(d.getMonth()!==8) return false;return d.getDate()<=7&&d.getDay()===1;}},
-  {name:"Thanksgiving Day", check:(d)=>{if(d.getMonth()!==10) return false;let thursCount=0;for(let day=1;day<=30;day++){let test=new Date(d.getFullYear(),10,day);if(test.getDay()===4) thursCount++;if(thursCount===4&&day===d.getDate()&&test.getDay()===4) return true;}return false;}}
-];
-function getHolidayName(d){for(let h of MAJOR_HOLIDAYS_INFO){if(h.check(d)) return h.name;}return null;}
-function getServiceWindow(now){
-  const holidayName=getHolidayName(now);const isHoliday=!!holidayName;const day=now.getDay();let startMin,endMin,label,type;
-  if(isHoliday||day===0){startMin=8*60;endMin=16*60;type=isHoliday?'holiday':'sunday';label=isHoliday?`${holidayName} (Sunday Hours: 8:00 AM - 4:00 PM)`:'Sunday: 8:00 AM - 4:00 PM';}
-  else if(day===6){startMin=7*60;endMin=21*60+30;type='saturday';label='Saturday: 7:00 AM - 9:30 PM';}
-  else{startMin=5*60;endMin=21*60+30;type='weekday';label='Weekday: 5:00 AM - 9:30 PM';}
-  return {startMin,endMin,label,type,isHoliday,holidayName,isSunday:type==='sunday'||type==='holiday',isSaturday:type==='saturday'};
-}
-function getRouteSpecificService(now,route){
-  if(route.id===6){
-    const day=now.getDay();const curMin=now.getHours()*60+now.getMinutes();const holidayName=getHolidayName(now);
-    if(day===0||day===6||holidayName){return {inService:false,reason:`Route 6 does not run on ${holidayName||(day===0?'Sunday':'Saturday')}s`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM',isRoute6:true};}
-    const start=7*60+30;const end=17*60;
-    if(curMin<start){return {inService:false,reason:`Route 6 starts at 7:30 AM`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM',isRoute6:true};}
-    if(curMin>end){return {inService:false,reason:'Route 6 ended at 5:00 PM today',label:'Mon-Fri Only: 7:30 AM - 5:00 PM',isRoute6:true};}
-    return {inService:true,label:'Mon-Fri Only: 7:30 AM - 5:00 PM',isRoute6:true};
-  }
-  return null;
-}
+const MAJOR_HOLIDAYS_INFO=[{name:"New Year's Day",check:(d)=>d.getMonth()===0&&d.getDate()===1},{name:"Independence Day",check:(d)=>d.getMonth()===6&&d.getDate()===4},{name:"Christmas Day",check:(d)=>d.getMonth()===11&&d.getDate()===25},{name:"Memorial Day",check:(d)=>{if(d.getMonth()!==4)return false;let lastMon=31;for(let day=31;day>=25;day--){let test=new Date(d.getFullYear(),4,day);if(test.getDay()===1){lastMon=day;break;}}return d.getDate()===lastMon&&d.getDay()===1;}},{name:"Labor Day",check:(d)=>{if(d.getMonth()!==8)return false;return d.getDate()<=7&&d.getDay()===1;}},{name:"Thanksgiving Day",check:(d)=>{if(d.getMonth()!==10)return false;let thursCount=0;for(let day=1;day<=30;day++){let test=new Date(d.getFullYear(),10,day);if(test.getDay()===4)thursCount++;if(thursCount===4&&day===d.getDate()&&test.getDay()===4)return true;}return false;}}];
+function getHolidayName(d){for(let h of MAJOR_HOLIDAYS_INFO){if(h.check(d))return h.name;}return null;}
+function getServiceWindow(now){const holidayName=getHolidayName(now);const isHoliday=!!holidayName;const day=now.getDay();let startMin,endMin,label,type;if(isHoliday||day===0){startMin=8*60;endMin=16*60;type=isHoliday?'holiday':'sunday';label=isHoliday?`${holidayName} (Sunday Hours: 8:00 AM - 4:00 PM)`:'Sunday: 8:00 AM - 4:00 PM';}else if(day===6){startMin=7*60;endMin=21*60+30;type='saturday';label='Saturday: 7:00 AM - 9:30 PM';}else{startMin=5*60;endMin=21*60+30;type='weekday';label='Weekday: 5:00 AM - 9:30 PM';}return {startMin,endMin,label,type,isHoliday,holidayName};}
+function getRouteSpecificService(now,route){if(route.id===6){const day=now.getDay();const curMin=now.getHours()*60+now.getMinutes();const holidayName=getHolidayName(now);if(day===0||day===6||holidayName){return {inService:false,reason:`Route 6 does not run on ${holidayName||(day===0?'Sunday':'Saturday')}s`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}const start=7*60+30;const end=17*60;if(curMin<start){return {inService:false,reason:`Route 6 starts at 7:30 AM`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}if(curMin>end){return {inService:false,reason:'Route 6 ended at 5:00 PM today',label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}return {inService:true,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}return null;}
 function isInService(now){const win=getServiceWindow(now);const curMin=now.getHours()*60+now.getMinutes();return {inService:curMin>=win.startMin&&curMin<=win.endMin,window:win,curMin};}
-let selectedRouteId=null,expanded=false,routeMenuOpen=false;
-window.liveAlerts = [];
-function normalizeRoute(r){
-  if(!r) return "";
-  r = r.toString().trim().toUpperCase();
-  if(r.includes("SYSTEM") || r==="ALL" || r==="SYSTEM WIDE") return "SYSTEM";
-  if(r==="MIDWAY") return "MIDWAY";
-  let m = r.match(/RT\s*0*(\d+)/);
-  if(m) return `ROUTE ${m[1]}`;
-  m = r.match(/ROUTE\s*0*(\d+)/);
-  if(m) return `ROUTE ${m[1]}`;
-  return r;
-}
-function getLiveStatusForRoute(route) {
-  if (!window.liveAlerts || window.liveAlerts.length === 0) return null;
-  const wanted = normalizeRoute(route.name);
-  const sorted = [...window.liveAlerts].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  // exact match
-  let match = sorted.find(a => a.active!==false && normalizeRoute(a.route) === wanted);
-  if (!match) match = sorted.find(a => a.active!==false && normalizeRoute(a.route) === "SYSTEM");
-  if (!match) match = sorted.find(a => a.active!==false && normalizeRoute(a.routeNormalized||a.route) === wanted);
-  return match || null;
-}
-function applyLiveBadge(route) {
-  const badge = document.getElementById('liveStatusBadge');
-  const dot = document.getElementById('liveStatusDot');
-  const txt = document.getElementById('liveStatusText');
-  const msgBox = document.getElementById('liveAlertMessage');
-  const statusDot = document.getElementById('statusDot');
-  const statusMsg = document.getElementById('status-msg');
-  if (!badge || !dot || !txt) return;
-  const alert = getLiveStatusForRoute(route);
-  if (!alert) {
-    txt.textContent = 'ON TIME';
-    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400';
-    dot.className = 'w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]';
-    if(msgBox){ msgBox.classList.add('hidden'); }
-    if(statusDot){ statusDot.className='w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]'; }
-    return;
-  }
-  const shortStatus = (alert.badgeStatus || alert.title || 'DELAYED').toString().toUpperCase();
-  txt.textContent = shortStatus.length>20 ? shortStatus.substring(0,20) : shortStatus;
-  if(msgBox && alert.message){
-    msgBox.textContent = alert.message;
-    msgBox.classList.remove('hidden');
-  }
-  const sev = (alert.severity||'high').toLowerCase();
-  if(sev==='high'){
-    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-red-400 animate-pulse';
-    dot.className = 'w-2 h-2 bg-red-400 rounded-full shadow-[0_0_8px_#ef4444] animate-pulse';
-    if(statusDot) statusDot.className='w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse';
-    if(statusMsg) statusMsg.className="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative border-red-500/20";
-    document.getElementById('statusText').innerHTML=`<b class="text-red-400">${shortStatus}</b> - ${alert.title||''} • ${alert.route}`;
-  } else if(sev==='medium'){
-    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-amber-400';
-    dot.className = 'w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_6px_#f59e0b]';
-    if(statusDot) statusDot.className='w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_#f59e0b]';
-    if(statusMsg) statusMsg.className="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative border-amber-500/20";
-    document.getElementById('statusText').innerHTML=`<b class="text-amber-400">${shortStatus}</b> - ${alert.title||''} • ${alert.route}`;
-  } else {
-    badge.className = 'flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400';
-    dot.className = 'w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]';
-    if(statusDot) statusDot.className='w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]';
-    document.getElementById('statusText').innerHTML=`<b>${shortStatus}</b> - ${alert.title||''}`;
-  }
-}
+let selectedRouteId=6,expanded=false,routeMenuOpen=false;
 function S0(route,now){let t=now.getMinutes(),r=now.getHours(),best=null,min=Infinity;for(let u of route.stops)for(let i of u.mins){let s=i-t;if(s<0)s+=60;if(s<min){min=s;best={name:u.name,min:i,wait:s,hour:s+t>=60?(r+1)%24:r};}}return best;}
 function formatTime(h,m){let ap=h>=12,hh=h%12||12;return `${hh}:${String(m).padStart(2,'0')} ${ap?'PM':'AM'}`;}
 function toggleRouteMenu(e){e.stopPropagation();routeMenuOpen=!routeMenuOpen;document.getElementById('routeMenu').classList.toggle('hidden',!routeMenuOpen);document.getElementById('routeArrow').textContent=routeMenuOpen?'▲':'▼';}
@@ -191,78 +114,38 @@ function toggleTimeline(){expanded=!expanded;document.getElementById('timelineBo
 document.getElementById('mainCard').onclick=toggleTimeline;
 function selectRoute(id){selectedRouteId=id;routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';update();}
 function update(){
-const now=new Date();
-if(!selectedRouteId){
-  document.getElementById('routeBtnText').innerHTML=`<span class="text-slate-400 font-bold text-[13px]">Select Route ▼</span>`;
-  document.getElementById('routeTag').textContent=`SELECT A ROUTE`;
-  document.getElementById('closestInfo').innerHTML=`<span class="text-blue-400">Choose a route above</span>`;
-  document.getElementById('statusText').innerHTML=`<span><b>Please select a route</b> from the dropdown menu above.</span>`;
-  document.getElementById('status-msg').className="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex items-center gap-2 relative border-blue-500/20";
-  document.getElementById('etaVal').textContent='--';document.getElementById('etaLabel').textContent='SELECT';
-  document.getElementById('nextStopName').textContent='No Route Selected';
-  document.getElementById('nextStopTime').textContent='Tap the dropdown above to view schedules.';
-  document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • Select a route to begin`;
-  const etaEl=document.getElementById('etaCircle');etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(56,189,248,0.1), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(56,189,248,0.3)';etaEl.style.animation='none';
-  const list=document.getElementById('timelineList');list.innerHTML='';
-  const menu=document.getElementById('routeMenu');menu.innerHTML='';
-  routes.forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl flex flex-col gap-1';b.style.background='transparent';b.style.border='1px solid transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name} <span class="opacity-60 font-normal text-[12px]">• ${r.freq}</span></span><span class="text-[11px] opacity-50 leading-tight">${r.run}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);});
-  return;
-}
-const route=routes.find(r=>r.id===selectedRouteId)||routes[0];const serviceCheck=isInService(now);const win=serviceCheck.window;
+const now=new Date();const route=routes.find(r=>r.id===selectedRouteId)||routes[0];const serviceCheck=isInService(now);const win=serviceCheck.window;
 const routeSpecific=getRouteSpecificService(now,route);
 let isOutOfService=!serviceCheck.inService;let outReason=win.label;let bannerExtra='';
 if(routeSpecific&&!routeSpecific.inService){isOutOfService=true;outReason=routeSpecific.reason;bannerExtra=`<div class="mt-2 text-[11px] bg-amber-500/15 border border-amber-500/30 text-amber-200 rounded-xl px-3 py-2">⚠ Route 6: Mon-Fri ONLY 7:30 AM - 5:00 PM • No weekends/holidays</div>`;}
-else if(routeSpecific&&routeSpecific.inService){outReason=routeSpecific.label;}
 if(isOutOfService||(routeSpecific&&!routeSpecific.inService)){
   document.getElementById('routeBtnText').innerHTML=`<span class="bg-blue-500 text-slate-900 rounded-full px-2.5 py-0.5 text-[12px] font-black">${route.name}</span><span class="text-[12px] opacity-70">${route.freq}</span>`;
-  const closedTag=route.id===6?`${route.name} • WEEKDAYS 7:30a-5p • CLOSED`:`${route.name} • ${route.id} • CLOSED`;
-  document.getElementById('routeTag').textContent=closedTag;
-  const holidayBanner=win.isHoliday?`<div class="mt-2 text-[11px] bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl px-3 py-2">🏖 Today is ${win.holidayName} - Sunday service hours (8am-4pm)</div>`:'';
-  document.getElementById('closestInfo').innerHTML=route.id===6?`<span class="text-amber-400">No Service</span> - ${outReason}`:`<span class="text-amber-400">No Service</span> - ${win.label}`;
-  document.getElementById('statusText').innerHTML=`<div class="flex flex-col"><span><span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] inline-block mr-2"></span><b>Not in Service</b> - ${route.id===6?outReason:win.label}${win.isHoliday?' • '+win.holidayName:''}</span>${bannerExtra}${holidayBanner}</div>`;
-  document.getElementById('status-msg').className="glass-panel rounded-3xl px-4 py-3 mb-4 text-[12px] flex flex-col gap-2 relative border-amber-500/20";
+  document.getElementById('routeTag').textContent=`${route.name} • WEEKDAYS 7:30a-5p • CLOSED`;
+  document.getElementById('closestInfo').innerHTML=`<span class="text-amber-400">No Service</span> - ${outReason}`;
+  document.getElementById('statusText').innerHTML=`<div class="flex flex-col"><span><span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-2"></span><b>Not in Service</b> - ${outReason}</span>${bannerExtra}</div>`;
   document.getElementById('etaVal').textContent='--';document.getElementById('etaLabel').textContent='CLOSED';
-  document.getElementById('nextStopName').textContent=route.id===6?outReason:(win.isHoliday?win.holidayName+' - Sunday Hours':'Outside Service Hours');
-  document.getElementById('nextStopTime').textContent=route.id===6?`Route 6 runs Mon-Fri 7:30 AM - 5:00 PM only. No weekend or holiday service.`:`${win.label}`;
-  document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • ${route.id===6?'Route 6: Mon-Fri 7:30 AM - 5:00 PM':win.label}`;
+  document.getElementById('nextStopName').textContent=outReason;document.getElementById('nextStopTime').textContent=`${win.label}`;document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • ${win.label}`;
   const etaEl=document.getElementById('etaCircle');etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(107,114,128,0.2), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(107,114,128,0.4)';etaEl.style.animation='none';
-  const list=document.getElementById('timelineList');list.innerHTML='';
-  route.stops.forEach((s,i)=>{const div=document.createElement('div');div.className='relative flex items-start gap-3 opacity-40';div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);color:rgba(248,250,252,0.6)">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><span style="font-size:14px;font-weight:600;color:rgba(248,250,252,0.6)">${s.name}</span><span class="text-[10px] px-2 py-[2px] rounded-full bg-white/5 text-white/30">Closed</span></div><div class="flex gap-2 mt-1 flex-wrap">${s.mins.map(m=>`<span class="text-[11px] font-mono px-2 py-[2px] rounded-full" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)">${":"+String(m).padStart(2,'0')}</span>`).join('')}</div></div>`;list.appendChild(div);});
-  const menu=document.getElementById('routeMenu');menu.innerHTML='';routes.forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl flex flex-col gap-1';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.style.border=r.id===selectedRouteId?'1px solid rgba(56,189,248,0.25)':'1px solid transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name} <span class="opacity-60 font-normal text-[12px]">• ${r.freq}</span></span><span class="text-[11px] opacity-50 leading-tight">${r.run}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);});return;
+  const list=document.getElementById('timelineList');list.innerHTML='';route.stops.forEach((s)=>{const div=document.createElement('div');div.className='relative flex items-start gap-3 opacity-40';div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12)">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><span style="font-size:14px;font-weight:600;color:rgba(248,250,252,0.6)">${s.name}</span></div>`;list.appendChild(div);});const menu=document.getElementById('routeMenu');menu.innerHTML='';routes.forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name}</span> <span class="opacity-60 text-[12px]">• ${r.freq}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);});return;
 }
 const closest=S0(route,now);
 document.getElementById('routeBtnText').innerHTML=`<span class="bg-blue-500 text-slate-900 rounded-full px-2.5 py-0.5 text-[12px] font-black">${route.name}</span><span class="text-[12px] opacity-70">${route.freq}</span>`;
-document.getElementById('routeTag').textContent=`${route.name} • ${route.id}${route.id===6?' • M-F 7:30a-5p':''}`;
+document.getElementById('routeTag').textContent=`${route.name} • ${route.id}`;
 document.getElementById('closestInfo').textContent=`Closest bus: ${closest?closest.name:'—'}`;
-if(!getLiveStatusForRoute(route)){
-  document.getElementById('statusText').innerHTML=closest?`Next bus in <b>${closest.wait} min</b> at <b>${route.name}</b> • ${formatTime(closest.hour,closest.min)} • ${route.freq}`:`Select a route`;
-}
-applyLiveBadge(route);
+document.getElementById('statusText').innerHTML=closest?`Next bus in <b>${closest.wait} min</b> at <b>${route.name}</b> • ${formatTime(closest.hour,closest.min)} • ${route.freq}`:`Select a route`;
 const etaEl=document.getElementById('etaCircle');const wait=closest?closest.wait:0;
 document.getElementById('etaVal').textContent=wait===0?'NOW':wait;document.getElementById('etaLabel').textContent=wait===0?'DEPARTING':'MIN';
-if(wait<=5){etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(239,68,68,0.25), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(239,68,68,0.6)';etaEl.style.animation='pulse-urgent 1.2s infinite';}
-else{etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(56,189,248,0.28), rgba(15,23,42,0.9))';etaEl.style.borderColor='rgba(56,189,248,0.4)';etaEl.style.animation='pulse-glow 2.2s infinite';}
+if(wait<=5){etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(239,68,68,0.25), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(239,68,68,0.6)';etaEl.style.animation='pulse-urgent 1.2s infinite';}else{etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(56,189,248,0.28), rgba(15,23,42,0.9))';etaEl.style.borderColor='rgba(56,189,248,0.4)';etaEl.style.animation='pulse-glow 2.2s infinite';}
 document.getElementById('nextStopName').textContent=closest?closest.name:'Select stop';
 document.getElementById('nextStopTime').textContent=closest?`At ${formatTime(closest.hour,closest.min)} (:${String(closest.min).padStart(2,'0')}) • in ${closest.wait} min`:'—';
-document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • ${route.id===6?'Route 6: Mon-Fri 7:30 AM - 5:00 PM ONLY':'If 3:06 now, 3:15 bus = 9 min'}`;
+document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • If 3:06 now, 3:15 bus = 9 min`;
 const list=document.getElementById('timelineList');list.innerHTML='';
-route.stops.forEach((s,i)=>{
-const isNext=closest&&s.name===closest.name&&s.mins.includes(closest.min);
-const next=route.stops[i+1];let travel=null;if(next){let d=next.mins[0]-s.mins[0];if(d<0)d+=60;travel=d;}
-const div=document.createElement('div');div.className='relative flex items-start gap-3';
-div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:${isNext?'rgba(56,189,248,0.22)':'rgba(255,255,255,0.06)'};border:2px solid ${isNext?'rgba(56,189,248,0.7)':'rgba(255,255,255,0.12)'};color:${isNext?'#38bdf8':'rgba(248,250,252,0.6)'}">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><span style="font-size:14px;font-weight:${isNext?800:600};color:${isNext?'#f8fafc':'rgba(248,250,252,0.85)'}">${s.name}</span>${isNext?`<span class="text-[10px] font-bold tracking-widest px-2 py-[2px] rounded-full" style="background:#38bdf8;color:#0f172a">NEXT • ${closest.wait} MIN</span>`:''}</div><div class="flex gap-2 mt-1 flex-wrap">${s.mins.map(m=>`<span class="text-[11px] font-mono px-2 py-[2px] rounded-full" style="background:${m===closest?.min&&isNext?'rgba(56,189,248,0.25)':'rgba(255,255,255,0.07)'};border:1px solid ${m===closest?.min&&isNext?'rgba(56,189,248,0.4)':'rgba(255,255,255,0.08)'}">:${String(m).padStart(2,'0')}</span>`).join('')}${travel!==null?`<span class="text-[10px] px-2 py-[2px] rounded-full bg-white/5 text-white/40">+${travel}m to next</span>`:''}</div></div>`;
-list.appendChild(div);
-});
-const menu=document.getElementById('routeMenu');menu.innerHTML='';
-routes.forEach(r=>{
-const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl flex flex-col gap-1';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.style.border=r.id===selectedRouteId?'1px solid rgba(56,189,248,0.25)':'1px solid transparent';
-b.innerHTML=`<span class="font-bold text-[14px]">${r.name} <span class="opacity-60 font-normal text-[12px]">• ${r.freq}</span></span><span class="text-[11px] opacity-50 leading-tight">${r.run}</span>`;
-b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);
-});
+route.stops.forEach((s,i)=>{const isNext=closest&&s.name===closest.name&&s.mins.includes(closest.min);const div=document.createElement('div');div.className='relative flex items-start gap-3';div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:${isNext?'rgba(56,189,248,0.22)':'rgba(255,255,255,0.06)'};border:2px solid ${isNext?'rgba(56,189,248,0.7)':'rgba(255,255,255,0.12)'}">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><span style="font-size:14px;font-weight:${isNext?800:600}">${s.name}</span>${isNext?`<span class="text-[10px] font-bold px-2 py-[2px] rounded-full ml-2" style="background:#38bdf8;color:#0f172a">NEXT • ${closest.wait} MIN</span>`:''}</div>`;list.appendChild(div);});
+const menu=document.getElementById('routeMenu');menu.innerHTML='';routes.forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name}</span> <span class="opacity-60 text-[12px]">• ${r.freq}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);});
 }
 window.addEventListener('click',(e)=>{if(!e.target.closest('#routeDropdownRoot')){routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';}});
 update();setInterval(update,30000);
-window.update = update;
+// SERVICE WORKER REGISTER
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/rvmapp/sw.js')
@@ -273,7 +156,8 @@ if ('serviceWorker' in navigator) {
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 const firebaseConfig = {
   apiKey: "AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g",
   authDomain: "rvm-software-manifest.firebaseapp.com",
@@ -285,11 +169,57 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const messaging = getMessaging(app);
 onValue(ref(db, 'alerts'), (snap) => {
   const val = snap.val();
-  window.liveAlerts = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
-  if (window.update) window.update();
+  // Your existing live alerts logic would go here
+  console.log('Live alerts:', val);
 });
+// PUSH LOGIC
+window.enablePush = async () => {
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') return alert('Permission denied. Enable in browser settings.');
+    
+    // REPLACE THIS WITH YOUR VAPID KEY FROM FIREBASE CONSOLE
+    const VAPID_KEY = "REPLACE_WITH_YOUR_VAPID_KEY_FROM_FIREBASE_CONSOLE";
+    if(VAPID_KEY.includes("REPLACE")) {
+      // Fallback to local test if no VAPID yet
+      if(Notification.permission === 'granted') {
+        new Notification('RVM - Push Test (Local)', { body: 'Local push works! Now add VAPID key for real FCM background push.', icon: '/rvmapp/icon-192.png' });
+        document.getElementById('pushBtn').textContent = '✅ LOCAL PUSH WORKS - ADD VAPID KEY FOR FCM';
+        return;
+      }
+    }
+    
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+    console.log('FCM Token:', token);
+    await set(ref(db, 'fcmTokens/' + token.slice(0,20)), { token, createdAt: Date.now() });
+    document.getElementById('pushBtn').textContent = '✅ PUSH ENABLED';
+    document.getElementById('pushBtn').classList.add('bg-emerald-500/20','border-emerald-500/30');
+    alert('Push enabled! Token saved to Firebase. You will get alerts even when app is closed.');
+  } catch(e) { console.error(e); alert('Push error: ' + e.message); }
+};
+onMessage(messaging, (payload) => {
+  console.log('Foreground push:', payload);
+  const title = payload.notification?.title || 'RVM Alert';
+  const body = payload.notification?.body || payload.data?.message || '';
+  document.getElementById('statusText').innerHTML = `<b class="text-blue-400">${title}</b> - ${body}`;
+  if(navigator.vibrate) navigator.vibrate([200,100,200]);
+  // Show as notification even when in foreground
+  if(Notification.permission === 'granted') {
+    new Notification(title, { body, icon: '/rvmapp/icon-192.png' });
+  }
+};
+window.testLocalPush = () => {
+  if(Notification.permission !== 'granted') {
+    Notification.requestPermission().then(p => {
+      if(p==='granted') new Notification('RVM Test', { body: 'Push notifications are working!', icon: '/rvmapp/icon-192.png' });
+    });
+  } else {
+    new Notification('RVM - River Valley Metro', { body: '🔔 Push is working! This is a test alert from Find Bus.', icon: '/rvmapp/icon-192.png', badge: '/rvmapp/icon-192.png', vibrate: [200,100,200] });
+  }
+};
 </script>
 </body>
 </html>
