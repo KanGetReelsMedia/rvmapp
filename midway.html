@@ -7,318 +7,261 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Midway Commuter | River Valley Metro - LIVE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    animation: { 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
-                }
-            }
-        }
-    </script>
-    <style type="text/css">
-        body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
-        .app-container::-webkit-scrollbar { display: none; }
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-        }
-        .btn-pulse { animation: pulse-subtle 2s infinite; }
-        @keyframes pulse-subtle {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
-        @keyframes pulse-urgent {
-            0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.45), inset 0 0 20px rgba(239,68,68,0.2)}
-            50%{box-shadow:0 0 40px rgba(239,68,68,0.75), inset 0 0 30px rgba(239,68,68,0.3)}
-        }
+    <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},animation:{'pulse-slow':'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite'}}}}</script>
+    <style>
+        body{-webkit-tap-highlight-color:transparent;scroll-behavior:smooth}
+        .glass-panel{background:rgba(15,23,42,.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px 0 rgba(0,0,0,.8)}
+        .btn-pulse{animation:pulse-subtle 2s infinite}
+        @keyframes pulse-subtle{0%{box-shadow:0 0 0 0 rgba(59,130,246,.4)}70%{box-shadow:0 0 0 10px rgba(59,130,246,0)}100%{box-shadow:0 0 0 0 rgba(59,130,246,0)}}
+        #pullIndicator{transform:translateY(-100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+        #pullIndicator.show{transform:translateY(0)}
     </style>
 </head>
 <body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
+    <div id="pullIndicator" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-blue-500 text-slate-900 text-[10px] font-black tracking-widest px-6 py-2 rounded-b-2xl">↓ PULL TO REFRESH</div>
     <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
-    <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-32 scrollbar-hide">
-        
+    <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-32 scrollbar-hide" id="scrollContainer">
         <header class="glass-panel rounded-[2.5rem] p-6 text-center mb-4">
             <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-4"></div>
             <h1 class="text-2xl font-black tracking-tight leading-none italic uppercase">MIDWAY <span class="text-blue-500">COMMUTER</span></h1>
             <p class="text-[10px] mt-2 text-blue-400 font-bold tracking-[0.3em] uppercase opacity-80">Bourbonnais ↔ Chicago • LIVE FROM DISPATCH</p>
+            <p id="liveClock" class="mt-2 text-[10px] font-bold tracking-widest text-slate-400">--:-- --</p>
         </header>
         <section class="p-5 space-y-4 pb-4"> 
             <div class="glass-panel rounded-[2.5rem] p-6 text-center">
                 <div class="flex flex-col items-center mb-5">
                     <span id="dayTitle" class="bg-blue-500/10 text-blue-400 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-2 border border-blue-500/20">Checking Schedule...</span>
-                    <h2 class="text-xl font-black text-slate-100 uppercase tracking-tight">Current Service</h2>
+                    <h2 id="countdownTitle" class="text-xl font-black text-slate-100 uppercase tracking-tight">Current Service</h2>
+                    <p id="nextIn" class="text-[11px] font-black text-emerald-400 mt-1 tracking-widest"></p>
                 </div>
                 <div id="busButtons" class="space-y-4"></div>
-                <!-- LIVE ALERT BOX - ONLY SHOWS WHEN DISPATCH SENDS MIDWAY ALERT -->
                 <div id="midwayLiveBox" class="hidden mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug"></div>
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <a href="tel:8159374287" class="glass-panel p-5 rounded-2xl flex flex-col items-center hover:bg-white/5 active:scale-95 transition-all">
                     <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mb-2 border border-blue-500/20">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" ></path></svg>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
                     </div>
                     <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Support</span>
                     <span class="text-xs font-black text-slate-200 uppercase tracking-tight">Dispatch</span>
                 </a>
                 <div id="statusCard" class="glass-panel p-5 rounded-2xl flex flex-col items-center">
                     <div id="statusIcon" class="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" ></path></svg>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
                     </div>
                     <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</span>
                     <span id="statusText" class="text-xs font-black text-emerald-400 uppercase tracking-tight text-center leading-tight">Active</span>
+                    <span id="statusSub" class="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1 text-center"></span>
                 </div>
             </div>
+            <details class="glass-panel rounded-[2rem] p-5 group">
+                <summary class="list-none flex items-center justify-between cursor-pointer">
+                    <h3 class="text-slate-200 text-[10px] font-black uppercase tracking-[0.2em]">Full Day Schedule</h3>
+                    <span class="text-blue-400 text-xs font-black group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div id="fullSchedule" class="mt-4 space-y-1 text-[11px]"></div>
+            </details>
             <div class="glass-panel rounded-[2.5rem] p-5 shadow-2xl">
                 <h3 class="text-slate-400 text-[9px] font-black text-center mb-4 uppercase tracking-[0.2em]">Midway Boarding Area</h3>
                 <div class="rounded-2xl overflow-hidden bg-black/40 border border-white/5">
-                    <video class="w-full h-40 object-cover" controls playsinline>
+                    <video class="w-full h-40 object-cover" controls playsinline poster="">
                         <source src="https://www.rivervalleymetro.com/wp-content/uploads/2024/02/20240212_185242.mp4" type="video/mp4">
                     </video>
                 </div>
             </div>
         </section>
-        <footer class="text-center opacity-30 text-[9px] font-bold tracking-widest uppercase pt-6 pb-10">
-            &copy; 2026 River Valley Metro Transit • LIVE DISPATCH
-        </footer>
+        <footer class="text-center opacity-30 text-[9px] font-bold tracking-widest uppercase pt-6 pb-10">&copy; 2026 River Valley Metro • LIVE DISPATCH</footer>
     </main>
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-        <a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="status.html">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span></a>
-        <a href="map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="map.html"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span></a>
-        <a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="midway.html"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Midway</span></a>
-        <a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="notices.html"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Notices</span></a>
-        <a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="passes.html"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Passes</span></a>
-        <a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1 transition-all" data-page="weather.html"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Weather</span></a>
+        <a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="status.html"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span></a>
+        <a href="map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="map.html"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span></a>
+        <a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="midway.html"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Midway</span></a>
+        <a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="notices.html"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Notices</span></a>
+        <a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="passes.html"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Passes</span></a>
+        <a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1" data-page="weather.html"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Weather</span></a>
     </nav>
     <script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
-    <script id="fs" type="x-shader/x-fragment">
-        precision highp float; uniform float uTime; uniform vec2 uRes;
-        void main(){
-            vec2 uv = (gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);
-            float t=uTime*0.1; vec3 c=vec3(0.);
-            for(float i=1.;i<4.;i++){ 
-                uv.x+=.4/i*sin(i*3.*uv.y+t); 
-                uv.y+=.4/i*cos(i*3.*uv.x+t); 
-                c+=.004/abs(sin(t+uv.y+uv.x)); 
-            }
-            gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);
-        }
-    </script>
+    <script id="fs" type="x-shader/x-fragment">precision highp float; uniform float uTime; uniform vec2 uRes; void main(){vec2 uv=(gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);float t=uTime*0.1;vec3 c=vec3(0.);for(float i=1.;i<4.;i++){uv.x+=.4/i*sin(i*3.*uv.y+t);uv.y+=.4/i*cos(i*3.*uv.x+t);c+=.004/abs(sin(t+uv.y+uv.x));}gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);}</script>
     <script>
-        const canvas = document.getElementById('canvas'), gl = canvas.getContext('webgl');
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-        }
-        window.addEventListener('resize', resize);
-        resize();
-        const program = gl.createProgram();
-        const addShader = (type, src) => {
-            const s = gl.createShader(type);
-            gl.shaderSource(s, src);
-            gl.compileShader(s);
-            gl.attachShader(program, s);
-        };
-        addShader(gl.VERTEX_SHADER, document.getElementById('vs').textContent);
-        addShader(gl.FRAGMENT_SHADER, document.getElementById('fs').textContent);
-        gl.linkProgram(program);
-        gl.useProgram(program);
-        const buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-        const pos = gl.getAttribLocation(program, 'position');
-        gl.enableVertexAttribArray(pos);
-        gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-        function renderCanvas(t) {
-            gl.uniform1f(gl.getUniformLocation(program, 'uTime'), t * 0.001);
-            gl.uniform2f(gl.getUniformLocation(program, 'uRes'), canvas.width, canvas.height);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(renderCanvas);
-        }
-        renderCanvas(0);
-        const weekdaySchedule = [{ b: "4:45 AM", m: "6:00 AM" }, { b: "6:00 AM", m: "7:15 AM" }, { b: "7:25 AM", m: "8:45 AM" }, { b: "8:45 AM", m: "10:05 AM" }, { b: "10:15 AM", m: "11:35 AM" }, { b: "11:35 AM", m: "12:55 PM" }, { b: "1:25 PM", m: "2:45 PM" }, { b: "3:05 PM", m: "4:25 PM" }, { b: "4:15 PM", m: "5:35 PM" }, { b: "5:50 PM", m: "7:05 PM" }, { b: "7:05 PM", m: "8:20 PM" }];
-        const saturdaySchedule = [{ b: "7:00 AM", m: "8:15 AM" }, { b: "9:40 AM", m: "11:00 AM" }, { b: "12:30 PM", m: "1:50 PM" }, { b: "4:20 PM", m: "5:40 PM" }, { b: "7:05 PM", m: "8:20 PM" }];
-        const sundaySchedule = [{ b: "8:00 AM", m: "9:15 AM" }, { b: "10:35 AM", m: "11:55 AM" }, { b: "1:20 PM", m: "2:40 PM" }, { b: "4:05 PM", m: "5:25 PM" }];
-        function parseTime(t) {
-            if (!t) return 0;
-            let [time, mod] = t.split(" ");
-            let [h, m] = time.split(":").map(Number);
-            if (mod === "PM" && h !== 12) h += 12;
-            if (mod === "AM" && h === 12) h = 0;
-            return h * 60 + m;
-        }
-        function getDirectionDisplay(schedule, key, currentTime) {
-            const activeBus = schedule.find(bus => {
-                const startTime = parseTime(bus[key]);
-                return currentTime >= startTime && currentTime < (startTime + 75);
-            });
-            if (activeBus) return `<span class="text-emerald-400 animate-pulse uppercase font-bold text-[10px] tracking-wider block mt-1">● Route Active</span>${activeBus[key]}`;
-            const nextBus = schedule.find(bus => parseTime(bus[key]) > currentTime);
-            return nextBus ? `<span class="text-slate-400 font-medium text-[10px] block mt-1">Next Departure</span>${nextBus[key]}` : `<span class="text-slate-500 uppercase text-[10px] font-bold block mt-1">Not In Service</span>`;
-        }
-        // LIVE ALERTS FROM DISPATCH - GLOBAL
-        window.liveAlerts = [];
-        function normalizeRoute(r){
-            if(!r) return "";
-            r = r.toString().trim().toUpperCase();
-            if(r.includes("SYSTEM") || r==="ALL" || r==="SYSTEM WIDE") return "SYSTEM";
-            if(r==="MIDWAY") return "MIDWAY";
-            let m = r.match(/RT\s*0*(\d+)/);
-            if(m) return `ROUTE ${m[1]}`;
-            m = r.match(/ROUTE\s*0*(\d+)/);
-            if(m) return `ROUTE ${m[1]}`;
-            return r;
-        }
-        function getMidwayAlert(){
-            if(!window.liveAlerts || window.liveAlerts.length===0) return null;
-            const sorted = [...window.liveAlerts].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-            // Prefer MIDWAY specific, then SYSTEM
-            let match = sorted.find(a => a.active!==false && normalizeRoute(a.route)==='MIDWAY');
-            if(!match) match = sorted.find(a => a.active!==false && normalizeRoute(a.route)==='SYSTEM');
-            // also check routes array if dispatch sent multi
-            if(!match){
-                match = sorted.find(a => {
-                    if(a.active===false) return false;
-                    if(a.routes && Array.isArray(a.routes)){
-                        return a.routes.some(r=>normalizeRoute(r)==='MIDWAY' || normalizeRoute(r)==='SYSTEM');
-                    }
-                    return false;
-                });
+        // Canvas - paused when tab hidden
+        const canvas=document.getElementById('canvas'),gl=canvas.getContext('webgl');
+        function resize(){canvas.width=innerWidth;canvas.height=innerHeight;gl.viewport(0,0,canvas.width,canvas.height)};addEventListener('resize',resize);resize();
+        const program=gl.createProgram();const addShader=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);gl.attachShader(program,s)};addShader(gl.VERTEX_SHADER,vs.textContent);addShader(gl.FRAGMENT_SHADER,fs.textContent);gl.linkProgram(program);gl.useProgram(program);const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);const pos=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+        let raf=null;function renderCanvas(t){if(document.hidden){raf=requestAnimationFrame(renderCanvas);return}gl.uniform1f(gl.getUniformLocation(program,'uTime'),t*0.001);gl.uniform2f(gl.getUniformLocation(program,'uRes'),canvas.width,canvas.height);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);raf=requestAnimationFrame(renderCanvas)};renderCanvas(0);
+        // Schedules
+        const weekdaySchedule=[{b:"4:45 AM",m:"6:00 AM"},{b:"6:00 AM",m:"7:15 AM"},{b:"7:25 AM",m:"8:45 AM"},{b:"8:45 AM",m:"10:05 AM"},{b:"10:15 AM",m:"11:35 AM"},{b:"11:35 AM",m:"12:55 PM"},{b:"1:25 PM",m:"2:45 PM"},{b:"3:05 PM",m:"4:25 PM"},{b:"4:15 PM",m:"5:35 PM"},{b:"5:50 PM",m:"7:05 PM"},{b:"7:05 PM",m:"8:20 PM"}];
+        const saturdaySchedule=[{b:"7:00 AM",m:"8:15 AM"},{b:"9:40 AM",m:"11:00 AM"},{b:"12:30 PM",m:"1:50 PM"},{b:"4:20 PM",m:"5:40 PM"},{b:"7:05 PM",m:"8:20 PM"}];
+        const sundaySchedule=[{b:"8:00 AM",m:"9:15 AM"},{b:"10:35 AM",m:"11:55 AM"},{b:"1:20 PM",m:"2:40 PM"},{b:"4:05 PM",m:"5:25 PM"}];
+        const HOLIDAYS_2026=["2026-01-01","2026-01-19","2026-02-16","2026-05-25","2026-06-19","2026-07-04","2026-09-07","2026-11-11","2026-11-26","2026-12-25"];
+        function isHoliday(d){const iso=d.toISOString().slice(0,10);return HOLIDAYS_2026.includes(iso)}
+        function parseTime(t){if(!t)return 0;let[time,mod]=t.split(" ");let[h,m]=time.split(":").map(Number);if(mod==="PM"&&h!==12)h+=12;if(mod==="AM"&&h===12)h=0;return h*60+m}
+        function getBusState(schedule,key,cur){
+            // Bourbonnais->Midway is ~95 min, Midway->Bourbonnais ~85
+            const trip= key==='b'?95:85;
+            for(let i=0;i<schedule.length;i++){
+                const start=parseTime(schedule[i][key]);
+                const end=start+trip;
+                if(cur>=start && cur<end){
+                    const minsLeft=end-cur;
+                    return {state:'ACTIVE', bus:schedule[i], minsLeft, progress:((cur-start)/trip*100).toFixed(0)};
+                }
             }
+            const next=schedule.find(b=>parseTime(b[key])>cur);
+            if(next){
+                return {state:'UPCOMING', bus:next, minsUntil:parseTime(next[key])-cur};
+            }
+            return {state:'DONE'};
+        }
+        window.liveAlerts=[];
+        function normalizeRoute(r){if(!r)return"";r=r.toString().trim().toUpperCase();if(r.includes("SYSTEM")||r==="ALL"||r==="SYSTEM WIDE")return"SYSTEM";if(r==="MIDWAY")return"MIDWAY";let m=r.match(/RT\s*0*(\d+)/);if(m)return`ROUTE ${m[1]}`;m=r.match(/ROUTE\s*0*(\d+)/);if(m)return`ROUTE ${m[1]}`;return r}
+        function getMidwayAlert(){
+            if(!window.liveAlerts||window.liveAlerts.length===0)return null;
+            const sorted=[...window.liveAlerts].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+            let match=sorted.find(a=>a.active!==false&&normalizeRoute(a.route)==='MIDWAY');
+            if(!match)match=sorted.find(a=>a.active!==false&&normalizeRoute(a.route)==='SYSTEM');
+            if(!match){match=sorted.find(a=>{if(a.active===false)return false;if(a.routes&&Array.isArray(a.routes)){return a.routes.some(r=>normalizeRoute(r)==='MIDWAY'||normalizeRoute(r)==='SYSTEM')}return false})}
             return match||null;
         }
         function applyLiveMidwayStatus(){
-            const alert = getMidwayAlert();
-            const statusIcon = document.getElementById('statusIcon');
-            const statusText = document.getElementById('statusText');
-            const statusCard = document.getElementById('statusCard');
-            const liveBox = document.getElementById('midwayLiveBox');
-            
-            if(!alert){
-                if(liveBox){ liveBox.classList.add('hidden'); }
-                // return false so original schedule logic runs
-                return false;
-            }
-            const shortStatus = (alert.badgeStatus || alert.title || 'DELAYED').toString().toUpperCase();
-            const sev = (alert.severity||'high').toLowerCase();
-            // Show message box
+            const alert=getMidwayAlert();
+            const statusIcon=document.getElementById('statusIcon');
+            const statusText=document.getElementById('statusText');
+            const statusSub=document.getElementById('statusSub');
+            const liveBox=document.getElementById('midwayLiveBox');
+            if(!alert){if(liveBox)liveBox.classList.add('hidden');return false}
+            const shortStatus=(alert.badgeStatus||alert.title||'DELAYED').toString().toUpperCase();
+            const sev=(alert.severity||'high').toLowerCase();
             if(liveBox){
                 liveBox.classList.remove('hidden');
-                if(sev==='high'){
-                    liveBox.className = 'mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug bg-red-500/10 border-red-500/20 text-red-200';
-                } else if(sev==='medium'){
-                    liveBox.className = 'mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug bg-amber-500/10 border-amber-500/20 text-amber-200';
-                } else {
-                    liveBox.className = 'mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug bg-emerald-500/10 border-emerald-500/20 text-emerald-200';
-                }
-                liveBox.innerHTML = `<div class="font-black text-[10px] uppercase tracking-widest mb-1 opacity-70">DISPATCH: ${shortStatus}</div><div class="font-bold">${alert.title||shortStatus}</div><div class="mt-1 opacity-80">${alert.message||''}</div>`;
+                if(sev==='high')liveBox.className='mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug bg-red-500/10 border-red-500/20 text-red-200';
+                else if(sev==='medium')liveBox.className='mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug bg-amber-500/10 border-amber-500/20 text-amber-200';
+                else liveBox.className='mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug bg-emerald-500/10 border-emerald-500/20 text-emerald-200';
+                liveBox.innerHTML=`<div class="font-black text-[10px] uppercase tracking-widest mb-1 opacity-70">DISPATCH: ${shortStatus}</div><div class="font-bold">${alert.title||shortStatus}</div><div class="mt-1 opacity-80">${alert.message||''}</div>`;
             }
-            // Override status card - SAME LOOK, just different color/text
-            if(sev==='high'){
-                statusIcon.className = "w-10 h-10 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mb-2 border border-red-500/20 animate-pulse";
-                statusText.className = "text-xs font-black text-red-400 uppercase tracking-tight text-center leading-tight";
-                statusText.textContent = shortStatus;
-                statusCard.classList.add('border-red-500/20');
-            } else if(sev==='medium'){
-                statusIcon.className = "w-10 h-10 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mb-2 border border-amber-500/20";
-                statusText.className = "text-xs font-black text-amber-400 uppercase tracking-tight text-center leading-tight";
-                statusText.textContent = shortStatus;
-            } else {
-                // info / ON TIME
-                if(shortStatus.includes('ON TIME')){
-                    statusIcon.className = "w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20";
-                    statusText.className = "text-xs font-black text-emerald-400 uppercase tracking-tight text-center leading-tight";
-                    statusText.textContent = "ON TIME";
-                } else {
-                    statusIcon.className = "w-10 h-10 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mb-2 border border-blue-500/20";
-                    statusText.className = "text-xs font-black text-blue-400 uppercase tracking-tight text-center leading-tight";
-                    statusText.textContent = shortStatus;
-                }
-            }
-            return true; // we overrode
+            if(sev==='high'){statusIcon.className="w-10 h-10 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mb-2 border border-red-500/20 animate-pulse";statusText.className="text-xs font-black text-red-400 uppercase tracking-tight text-center leading-tight";statusText.textContent=shortStatus;statusSub.textContent="LIVE FROM DISPATCH"}
+            else if(sev==='medium'){statusIcon.className="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mb-2 border border-amber-500/20";statusText.className="text-xs font-black text-amber-400 uppercase tracking-tight text-center leading-tight";statusText.textContent=shortStatus;statusSub.textContent="LIVE FROM DISPATCH"}
+            else{if(shortStatus.includes('ON TIME')){statusIcon.className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20";statusText.className="text-xs font-black text-emerald-400 uppercase tracking-tight text-center leading-tight";statusText.textContent="ON TIME";statusSub.textContent="LIVE FROM DISPATCH"}else{statusIcon.className="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mb-2 border border-blue-500/20";statusText.className="text-xs font-black text-blue-400 uppercase tracking-tight text-center leading-tight";statusText.textContent=shortStatus;statusSub.textContent="LIVE FROM DISPATCH"}}
+            return true;
         }
-        function renderSchedule() {
-            const now = new Date();
-            const cur = now.getHours() * 60 + now.getMinutes();
-            const d = now.getDay();
-            let schedule = weekdaySchedule;
-            let title = "Weekday Schedule";
-            if (d === 0) { schedule = sundaySchedule; title = "Sunday Schedule"; }
-            else if (d === 6) { schedule = saturdaySchedule; title = "Saturday Schedule"; }
-            document.getElementById('dayTitle').textContent = title;
-            const northText = getDirectionDisplay(schedule, 'b', cur);
-            const southText = getDirectionDisplay(schedule, 'm', cur);
-            const lastDeparture = parseTime(schedule[schedule.length - 1].m) + 75;
-            const systemActive = cur < lastDeparture;
-            const statusIcon = document.getElementById('statusIcon');
-            const statusText = document.getElementById('statusText');
-            if (!systemActive) {
-                statusIcon.className = "w-10 h-10 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mb-2 border border-red-500/20";
-                statusText.className = "text-xs font-black text-red-400 uppercase tracking-tight";
-                statusText.textContent = "No Service";
-            } else {
-                statusIcon.className = "w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20";
-                statusText.className = "text-xs font-black text-emerald-400 uppercase tracking-tight";
-                statusText.textContent = "Active";
-            }
-            document.getElementById('busButtons').innerHTML = `
-                <div class="bg-blue-600/90 border border-blue-400/20 p-5 rounded-2xl text-white shadow-lg btn-pulse">
-                    <p class="text-[9px] font-black uppercase opacity-70 mb-1 tracking-widest">Northbound</p>
-                    <p class="text-sm font-black leading-tight uppercase tracking-wide">Bourbonnais → Midway</p>
-                    <p class="text-lg font-black mt-1 leading-none">${northText}</p>
-                </div>
-                <div class="bg-slate-900/80 border border-white/5 p-5 rounded-2xl text-white shadow-lg">
-                    <p class="text-[9px] font-black uppercase opacity-60 mb-1 tracking-widest">Southbound</p>
-                    <p class="text-sm font-black leading-tight uppercase tracking-wide">Midway → Bourbonnais</p>
-                    <p class="text-lg font-black mt-1 leading-none">${southText}</p>
-                </div>
-            `;
-            // AFTER normal schedule logic, check if dispatch is overriding - SAME LOOK, just status info
-            applyLiveMidwayStatus();
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentPath = window.location.pathname.split("/").pop() || "midway.html";
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if(link.getAttribute('data-page') === currentPath) {
-                    link.classList.remove('text-slate-400');
-                    link.classList.add('text-blue-500');
+        function renderSchedule(){
+            const now=new Date();
+            const cur=now.getHours()*60+now.getMinutes();
+            const d=now.getDay();
+            let schedule=weekdaySchedule;let title="Weekday Schedule";
+            if(isHoliday(now)){schedule=sundaySchedule;title="Holiday • Sunday Schedule"}
+            else if(d===0){schedule=sundaySchedule;title="Sunday Schedule"}
+            else if(d===6){schedule=saturdaySchedule;title="Saturday Schedule"}
+            document.getElementById('dayTitle').textContent=title;
+            const north=getBusState(schedule,'b',cur);
+            const south=getBusState(schedule,'m',cur);
+            // Overall active check
+            const lastDep=Math.max(...schedule.map(s=>parseTime(s.m)))+90;
+            const systemActive=cur<lastDep;
+            // Render cards
+            function renderCard(dir,label,timeObj){
+                const tripKey=dir==='north'?'b':'m';
+                const bg=dir==='north'?'bg-blue-600/90 border-blue-400/20 btn-pulse':'bg-slate-900/80 border-white/5';
+                let statusHtml='';
+                if(timeObj.state==='ACTIVE'){
+                    statusHtml=`<div class="mt-2"><div class="flex justify-between text-[9px] font-black uppercase tracking-widest opacity-70 mb-1"><span>● EN ROUTE</span><span>${timeObj.minsLeft} MIN TO ARRIVAL</span></div><div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-white rounded-full transition-all" style="width:${timeObj.progress}%"></div></div><p class="text-[10px] mt-2 opacity-80">Departed ${timeObj.bus[tripKey]} • Arriving ~${timeObj.minsLeft}m</p></div>`;
+                } else if(timeObj.state==='UPCOMING'){
+                    const hrs=Math.floor(timeObj.minsUntil/60);const mins=timeObj.minsUntil%60;
+                    const inTxt=hrs>0?`IN ${hrs}H ${mins}M`:`IN ${mins} MIN`;
+                    statusHtml=`<p class="text-lg font-black mt-1 leading-none">${timeObj.bus[tripKey]} <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full ml-2">${inTxt}</span></p><p class="text-[10px] mt-1 opacity-60">Next Departure</p>`;
+                } else {
+                    statusHtml=`<p class="text-[10px] font-bold mt-1 opacity-50 uppercase tracking-widest">No More Buses Today</p>`;
                 }
-            });
-            renderSchedule();
-            setInterval(renderSchedule, 30000);
+                const isActive=timeObj.state==='ACTIVE';
+                const timeDisplay=timeObj.state==='UPCOMING'? '':(isActive? '':timeObj.bus?timeObj.bus[tripKey]:'');
+                // for UPCOMING we already rendered time inside statusHtml, so hide duplicate
+                return `<div class="${bg} border p-5 rounded-2xl text-white shadow-lg ${isActive?'ring-2 ring-white/20':''}">
+                    <p class="text-[9px] font-black uppercase opacity-70 mb-1 tracking-widest">${label}</p>
+                    <p class="text-sm font-black leading-tight uppercase tracking-wide">${dir==='north'?'Bourbonnais → Midway':'Midway → Bourbonnais'}</p>
+                    ${timeObj.state!=='UPCOMING'?`<p class="text-lg font-black mt-1 leading-none">${timeObj.bus?timeObj.bus[tripKey]:''}</p>`:''}
+                    ${statusHtml}
+                </div>`;
+            }
+            document.getElementById('busButtons').innerHTML=renderCard('north','Northbound',north)+renderCard('south','Southbound',south);
+            // Next in overall
+            const nextMins=Math.min(north.minsUntil??9999,south.minsUntil??9999);
+            const nextEl=document.getElementById('nextIn');
+            const titleEl=document.getElementById('countdownTitle');
+            if(north.state==='ACTIVE'||south.state==='ACTIVE'){
+                titleEl.textContent='LIVE • BUS EN ROUTE';
+                nextEl.textContent='';
+            } else if(nextMins<9999){
+                const h=Math.floor(nextMins/60);const m=nextMins%60;
+                nextEl.textContent=h>0?`NEXT BUS IN ${h}H ${m}M`:`NEXT BUS IN ${m} MIN`;
+                titleEl.textContent='Current Service';
+            } else {
+                nextEl.textContent='NO MORE BUSES TODAY';
+                titleEl.textContent='Service Ended';
+            }
+            // Full schedule list
+            const full=document.getElementById('fullSchedule');
+            if(full){
+                full.innerHTML=schedule.map((bus,i)=>{
+                    const bStart=parseTime(bus.b);const mStart=parseTime(bus.m);
+                    const isBpast=cur>bStart;const isMpast=cur>mStart;
+                    const isBnext=north.bus===bus&&north.state==='UPCOMING';const isMnext=south.bus===bus&&south.state==='UPCOMING';
+                    const isBactive=north.bus===bus&&north.state==='ACTIVE';const isMactive=south.bus===bus&&south.state==='ACTIVE';
+                    return `<div class="flex justify-between py-1.5 px-2 rounded-lg ${isBactive||isMactive?'bg-blue-500/20 border border-blue-500/20':''} ${isBnext||isMnext?'bg-white/[0.04]':''}">
+                        <span class="${isBpast?'line-through opacity-40':''} ${isBnext?'font-black text-blue-300':''} ${isBactive?'text-emerald-300 font-black':''}">${bus.b} ${isBactive?'●':''}</span>
+                        <span class="opacity-30">→</span>
+                        <span class="${isMpast?'line-through opacity-40':''} ${isMnext?'font-black text-blue-300':''} ${isMactive?'text-emerald-300 font-black':''}">${bus.m} ${isMactive?'●':''}</span>
+                    </div>`;
+                }).join('');
+            }
+            // Base status (if not overridden by dispatch)
+            const statusIcon=document.getElementById('statusIcon');
+            const statusText=document.getElementById('statusText');
+            const statusSub=document.getElementById('statusSub');
+            if(!applyLiveMidwayStatus()){
+                if(!systemActive){
+                    statusIcon.className="w-10 h-10 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mb-2 border border-red-500/20";
+                    statusText.className="text-xs font-black text-red-400 uppercase tracking-tight";statusText.textContent="No Service";statusSub.textContent="Resumes tomorrow";
+                } else if(north.state==='ACTIVE'||south.state==='ACTIVE'){
+                    statusIcon.className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20 animate-pulse";
+                    statusText.className="text-xs font-black text-emerald-400 uppercase tracking-tight";statusText.textContent="En Route";statusSub.textContent=`${north.state==='ACTIVE'?north.minsLeft:south.minsLeft}m to arrival`;
+                } else {
+                    statusIcon.className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-2 border border-emerald-500/20";
+                    statusText.className="text-xs font-black text-emerald-400 uppercase tracking-tight";statusText.textContent="Active";statusSub.textContent=nextMins<9999?`Next in ${nextMins}m`:'';
+                }
+            }
+            // Clock
+            const clock=document.getElementById('liveClock');
+            if(clock)clock.textContent=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true})+' • '+now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+        }
+        // Pull to refresh
+        let startY=0,pulling=false;
+        const scrollEl=document.getElementById('scrollContainer');const pullEl=document.getElementById('pullIndicator');
+        scrollEl.addEventListener('touchstart',e=>{if(scrollEl.scrollTop<=0)startY=e.touches[0].clientY},{passive:true});
+        scrollEl.addEventListener('touchmove',e=>{
+            if(scrollEl.scrollTop>0)return;
+            const dy=e.touches[0].clientY-startY;
+            if(dy>20&&dy<140){pulling=true;pullEl.classList.add('show');pullEl.textContent=dy>80?'↻ RELEASE TO REFRESH':'↓ PULL TO REFRESH';}
+        },{passive:true});
+        scrollEl.addEventListener('touchend',()=>{
+            if(pulling){const txt=pullEl.textContent;if(txt.includes('RELEASE')){pullEl.textContent='⟳ REFRESHING...';setTimeout(()=>{renderSchedule();pullEl.classList.remove('show');if(navigator.vibrate)navigator.vibrate(20)},600)}else pullEl.classList.remove('show')}
+            pulling=false;
         });
-        window.renderSchedule = renderSchedule;
+        document.addEventListener('DOMContentLoaded',()=>{
+            const cur=location.pathname.split("/").pop()||"midway.html";
+            document.querySelectorAll('.nav-link').forEach(l=>{if(l.dataset.page===cur){l.classList.remove('text-slate-400');l.classList.add('text-blue-500')}});
+            renderSchedule();
+            setInterval(renderSchedule,30000); // refresh every 30s for countdown
+            setInterval(()=>{const c=document.getElementById('liveClock');if(c){const n=new Date();c.textContent=n.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true})+' • '+n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}},1000);
+        });
+        window.renderSchedule=renderSchedule;
     </script>
-    <!-- FIREBASE LIVE SYNC - MIDWAY ONLY LISTENS TO MIDWAY + SYSTEM -->
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    const firebaseConfig = {
-      apiKey: "AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g",
-      authDomain: "rvm-software-manifest.firebaseapp.com",
-      databaseURL: "https://rvm-software-manifest-default-rtdb.firebaseio.com",
-      projectId: "rvm-software-manifest",
-      storageBucket: "rvm-software-manifest.appspot.com",
-      messagingSenderId: "1096220577213",
-      appId: "1:1096220577213:web:8c9a0f8f1a2b3c4d5e6f7a"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    onValue(ref(db, 'alerts'), (snap) => {
-      const val = snap.val();
-      window.liveAlerts = val ? Object.entries(val).map(([id, data]) => ({ id, ...data })) : [];
-      if (window.renderSchedule) window.renderSchedule();
-    });
+    const firebaseConfig={apiKey:"AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g",authDomain:"rvm-software-manifest.firebaseapp.com",databaseURL:"https://rvm-software-manifest-default-rtdb.firebaseio.com",projectId:"rvm-software-manifest",storageBucket:"rvm-software-manifest.appspot.com",messagingSenderId:"1096220577213",appId:"1:1096220577213:web:8c9a0f8f1a2b3c4d5e6f7a"};
+    const app=initializeApp(firebaseConfig);const db=getDatabase(app);
+    onValue(ref(db,'alerts'),snap=>{const val=snap.val();window.liveAlerts=val?Object.entries(val).map(([id,data])=>({id,...data})):[];if(window.renderSchedule)window.renderSchedule()});
     </script>
 </body>
 </html>
