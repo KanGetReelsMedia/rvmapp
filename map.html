@@ -17,6 +17,10 @@ body{-webkit-tap-highlight-color:transparent}
 @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(56,189,248,0.35), inset 0 0 20px rgba(56,189,248,0.15)}50%{box-shadow:0 0 35px rgba(56,189,248,0.6), inset 0 0 30px rgba(56,189,248,0.25)}}
 @keyframes pulse-urgent{0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.45), inset 0 0 20px rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.7) !important}50%{box-shadow:0 0 40px rgba(239,68,68,0.75), inset 0 0 30px rgba(239,68,68,0.3)}}
 .app-container::-webkit-scrollbar{display:none}
+#pullIndicator{transition:all 0.3s ease;overflow:hidden;max-height:0;opacity:0}
+#pullIndicator.active{max-height:60px;opacity:1}
+.gps-pulse{animation:gpsPulse 2s infinite}
+@keyframes gpsPulse{0%{box-shadow:0 0 0 0 rgba(56,189,248,0.7)}70%{box-shadow:0 0 0 10px rgba(56,189,248,0)}100%{box-shadow:0 0 0 0 rgba(56,189,248,0)}}
 </style>
 </head>
 <body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
@@ -28,24 +32,37 @@ body{-webkit-tap-highlight-color:transparent}
 </div>
 <div class="flex items-center gap-4 mb-5">
 <a href="index.html" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">←</a>
-<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">Live Time Points • RED DOT LIVE</p></div>
+<div><h1 class="text-xl font-black uppercase italic">Find Bus</h1><p class="text-[9px] text-blue-400 font-bold tracking-[0.4em] uppercase">Go Where You Want TO GO</div>
 </div>
 <div class="relative" id="routeDropdownRoot" style="z-index:999; isolation:isolate">
 <button id="routeBtn" class="w-full flex items-center justify-between bg-white/5 hover:bg-white/[0.07] border border-white/10 rounded-2xl px-4 py-4 font-bold transition relative" style="z-index:1000">
 <span id="routeBtnText" class="flex items-center gap-2"></span>
 <span id="routeArrow" class="text-xs opacity-60">▼</span>
 </button>
-<div id="routeMenu" class="hidden absolute top-[108%] left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl max-h-[320px] overflow-y-auto p-1.5 shadow-[0_25px_80px_rgba(0,0,0,0.9)]" style="z-index:99999"></div>
+<div id="routeMenu" class="hidden absolute top-[108%] left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl max-h-[380px] overflow-hidden p-1.5 shadow-[0_25px_80px_rgba(0,0,0,0.9)] flex flex-col" style="z-index:99999">
+      <input id="routeSearch" type="text" placeholder="Search route or stop..." class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-[13px] mb-1.5 outline-none focus:border-blue-500/50" />
+      <div id="routeMenuList" class="overflow-y-auto flex-1"></div>
+    </div>
+</div>
+<button id="gpsBtn" onclick="findNearestStop()" class="w-full mt-3 py-3 rounded-2xl font-black text-[11px] tracking-[0.12em] bg-white/[0.06] hover:bg-white/[0.09] border border-white/10 flex items-center justify-center gap-2">
+<span id="gpsIcon">📍</span> <span id="gpsText">USE MY LOCATION • FIND NEAREST STOP</span>
+</button>
+<div id="gpsResult" class="hidden mt-2 rounded-xl bg-blue-500/10 border border-blue-500/20 px-3 py-2 text-[11px]"></div>
 </div>
 </header>
+<div id="pullIndicator" class="flex items-center justify-center gap-2 py-2 text-[11px] text-blue-400 font-bold"><span class="animate-spin">↻</span> Pull to refresh...</div>
+<div id="alertBanner" class="hidden glass-panel rounded-3xl px-4 py-3 mb-3 text-[12px] flex items-center gap-2 relative border-red-500/30 bg-red-500/10" style="z-index:1">
+<span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse"></span>
+<span id="alertText"></span>
+</div>
 <div id="status-msg" class="glass-panel rounded-3xl px-4 py-3 mb-3 text-[12px] flex items-center gap-2 relative" style="z-index:1">
 <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#22c55e]"></span>
-<span id="statusText">Loading...</span>
+<span id="statusText">Select a route to begin</span>
 </div>
 <div id="mainCard" class="glass-panel rounded-[32px] p-6 cursor-pointer relative" style="z-index:1">
 <div class="flex justify-between items-center mb-3">
 <span id="routeTag" class="bg-blue-500/15 border border-blue-500/30 text-blue-400 rounded-full px-3 py-1 text-[12px] font-black"></span>
-<span class="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400"><span class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]"></span> ON TIME</span>
+<span id="serviceBadge" class="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400"><span id="serviceBadgeDot" class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]"></span> <span id="serviceBadgeText">ON TIME</span></span>
 </div>
 <div id="closestInfo" class="font-black text-[18px] leading-tight"></div>
 <div class="flex items-center gap-5 mt-6">
@@ -92,39 +109,110 @@ addShader(gl.VERTEX_SHADER,document.getElementById('vs').textContent);addShader(
 const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
 const pos=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
 function render(t){gl.uniform1f(gl.getUniformLocation(program,'uTime'),t*0.001);gl.uniform2f(gl.getUniformLocation(program,'uRes'),canvas.width,canvas.height);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);}render(0);
-const routes=[{id:1,name:"Route 1",freq:"Every 30 min",run:"Mon-Fri 5:05am-9:17pm Sat 7:05am-9:17pm Sun 8:05am-3:47pm",stops:[{name:"Family Dollar",mins:[5,35]},{name:"Azzarelli Apartments",mins:[8,38]},{name:"St Mary's",mins:[15,45]},{name:"Walgreens Court St",mins:[19,49]},{name:"Kankakee Metro Centre",mins:[25,55]}]},{id:2,name:"Route 2",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8:30am-3:55pm",stops:[{name:"Northfield Square Mall",mins:[30]},{name:"Signature/Double Jack",mins:[33,19]},{name:"Adventure Church",mins:[38]},{name:"Meijer Southbound",mins:[45]},{name:"Broadway Shelter",mins:[51]},{name:"Village Hall/Broadway",mins:[58]},{name:"Meijer Northbound",mins:[7]},{name:"Walmart",mins:[14]},{name:"Northfield Square Mall",mins:[2]}]},{id:3,name:"Route 3",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Bradley Library",mins:[6]},{name:"Christine and Uncle Leo",mins:[13]},{name:"Target",mins:[20,32]},{name:"Northfield Square Mall",mins:[30]},{name:"Christine Dr behind Meijer",mins:[39]},{name:"Village Square",mins:[44]},{name:"KCTC",mins:[49]}]},{id:4,name:"Route 4",freq:"Peak Every 30 min 7am-6pm M-F",run:"Mon-Fri 5:07am-9:07pm Sat 7:07am-9:07pm Sun 8:07am-3:45pm",stops:[{name:"East Court Village",mins:[7,37]},{name:"Frontage Road",mins:[13,43]},{name:"Spruce and Fairmont",mins:[15,45]},{name:"Family Dollar",mins:[18,48]},{name:"Kankakee Metro Centre",mins:[0,30]},{name:"St Mary's Hospital",mins:[3,33]},{name:"Riverside Medical Center",mins:[10,40]},{name:"Kankakee County Health Dept",mins:[15,45]}]},{id:5,name:"Route 5",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8am-3:55pm",stops:[{name:"Aroma Park Shelter",mins:[30]},{name:"Crestview",mins:[35]},{name:"Riverside East",mins:[38]},{name:"Maple and Eagle",mins:[41]},{name:"Eagle and Chicago",mins:[46,6]},{name:"Kankakee Metro Centre",mins:[0]},{name:"Dollar General",mins:[13]},{name:"Crestview",mins:[16]}]},{id:6,name:"Route 6",freq:"Hourly • M-F Only 7:30am-5pm",run:"Mon-Fri 7:30am-5pm ONLY • No Weekend/Holiday",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"Kankakee Estates",mins:[36]},{name:"K.C.C.",mins:[41]},{name:"Del Monte",mins:[46]},{name:"Walmart Kankakee",mins:[58]},{name:"Jerome Combs",mins:[8]},{name:"Schuyler and River",mins:[18]}]},{id:7,name:"Route 7",freq:"Peak 7am-5pm every 30min",run:"Peak M-F 7am-5pm Off M-F 5am-9:22pm Sat 7am-9:22pm Sun 8am-3:34pm",stops:[{name:"Kankakee Metro Centre",mins:[0,30]},{name:"Kankakee Estates",mins:[6,36]},{name:"K.C.C.",mins:[11]},{name:"Del Monte",mins:[8]},{name:"K.C.C.",mins:[16]},{name:"Walmart Kankakee",mins:[15,22,40,42]},{name:"Harrison and Station",mins:[22,48,49]},{name:"Jerome Combs",mins:[29]},{name:"Love's",mins:[34]}]},{id:8,name:"Route 8",freq:"Every 60 min",run:"Mon-Fri 5am-9:12pm Sat 7am-9:12pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Washington and Water",mins:[3]},{name:"Casey's on Jeffery",mins:[8]},{name:"Merchant and Curtis",mins:[12]},{name:"Kankakee High School",mins:[15]},{name:"Jewel on Washington",mins:[19]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Mulberry and Chicago",mins:[33]},{name:"Hobbie and Willow",mins:[36]},{name:"Broadway and Jefferson",mins:[42]},{name:"Brookmont and Harvard",mins:[48]}]},{id:9,name:"Route 9",freq:"Every 60 min",run:"Mon-Fri 5am-9:26pm Sat 7am-9:26pm Sun 8am-4:10pm",stops:[{name:"Manteno Metro Centre",mins:[0]},{name:"ABC Supply",mins:[7]},{name:"Northfield Square Mall",mins:[30]},{name:"Walmart",mins:[33]},{name:"Manteno Metro Centre",mins:[41]},{name:"E 2nd St",mins:[45]},{name:"Veterans Home",mins:[52]}]},{id:10,name:"Route 10",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-4pm",stops:[{name:"Brown Blvd",mins:[0]},{name:"Casey's",mins:[5,34]},{name:"Riverside Campus",mins:[7,36]},{name:"Bourbonnais Metro Centre",mins:[13,42]},{name:"Northfield Square Mall",mins:[30]},{name:"W Bethel Dr",mins:[50]},{name:"Almar Parkway",mins:[55]}]},{id:11,name:"Route 11",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"McDonald's 5th Ave",mins:[4]},{name:"ONU",mins:[11,42]},{name:"Northfield Meadows",mins:[18]},{name:"Northfield Square Mall",mins:[30]},{name:"Kroger",mins:[36]},{name:"Walgreens Kennedy Dr",mins:[48]}]},{id:12,name:"Route 12",freq:"Every 60 min",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8:30am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"McDonald's 5th Av",mins:[34]},{name:"Shine FM",mins:[39]},{name:"Meijer",mins:[47]},{name:"Kroger",mins:[55]},{name:"Brown Blvd",mins:[2]},{name:"Heritage/Convent",mins:[11]},{name:"Perry Farm",mins:[16]},{name:"Walgreen's",mins:[19]},{name:"Kankakee Metro Centre",mins:[25]}]},{id:14,name:"Route 14",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Mulberry/Chicago",mins:[2]},{name:"Fairmont/Court",mins:[9]},{name:"Eagle/Maple",mins:[13]},{name:"Harrison/Station",mins:[20]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Station/Schuyler",mins:[33]},{name:"Mercy Housing",mins:[37]},{name:"Merchant/Curtis",mins:[41]},{name:"Kankakee High School",mins:[45]},{name:"Kankakee Jewel",mins:[49]}]}];
+const routes=[{id:1,name:"Route 1",freq:"Every 30 min",run:"Mon-Fri 5:05am-9:17pm Sat 7:05am-9:17pm Sun 8:05am-3:47pm",stops:[{name:"Family Dollar",mins:[5,35]},{name:"Azzarelli Apartments",mins:[8,38]},{name:"St Mary's",mins:[15,45]},{name:"Walgreens Court St",mins:[19,49]},{name:"Kankakee Metro Centre",mins:[25,55]}]},{id:2,name:"Route 2",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8:30am-3:55pm",stops:[{name:"Northfield Square Mall",mins:[30]},{name:"Signature/Double Jack",mins:[33]},{name:"Adventure Church",mins:[38]},{name:"Meijer Southbound",mins:[45]},{name:"Broadway Shelter",mins:[51]},{name:"Village Hall/Broadway",mins:[58]},{name:"Meijer Northbound",mins:[7]},{name:"Walmart",mins:[14]}]},{id:3,name:"Route 3",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Bradley Library",mins:[6]},{name:"Christine and Uncle Leo",mins:[13]},{name:"Target",mins:[20,32]},{name:"Northfield Square Mall",mins:[30]},{name:"Christine Dr behind Meijer",mins:[39]},{name:"Village Square",mins:[44]},{name:"KCTC",mins:[49]}]},{id:4,name:"Route 4",freq:"Peak Every 30 min 7am-6pm M-F",run:"Mon-Fri 5:07am-9:07pm Sat 7:07am-9:07pm Sun 8:07am-3:45pm",stops:[{name:"East Court Village",mins:[7,37]},{name:"Frontage Road",mins:[13,43]},{name:"Spruce and Fairmont",mins:[15,45]},{name:"Family Dollar",mins:[18,48]},{name:"Kankakee Metro Centre",mins:[0,30]},{name:"St Mary's Hospital",mins:[3,33]},{name:"Riverside Medical Center",mins:[10,40]},{name:"Kankakee County Health Dept",mins:[15,45]}]},{id:5,name:"Route 5",freq:"Every 60 min loop",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8am-3:55pm",stops:[{name:"Aroma Park Shelter",mins:[30]},{name:"Crestview",mins:[35]},{name:"Riverside East",mins:[38]},{name:"Maple and Eagle",mins:[41]},{name:"Eagle and Chicago",mins:[46,6]},{name:"Kankakee Metro Centre",mins:[0]},{name:"Dollar General",mins:[13]},{name:"Crestview",mins:[16]}]},{id:6,name:"Route 6",freq:"Hourly • M-F Only 7:30am-5pm",run:"Mon-Fri 7:30am-5pm ONLY • No Weekend/Holiday",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"Kankakee Estates",mins:[36]},{name:"K.C.C.",mins:[41]},{name:"Del Monte",mins:[46]},{name:"Walmart Kankakee",mins:[58]},{name:"Jerome Combs",mins:[8]},{name:"Schuyler and River",mins:[18]}]},{id:7,name:"Route 7",freq:"Peak 7am-5pm every 30min",run:"Peak M-F 7am-5pm Off M-F 5am-9:22pm Sat 7am-9:22pm Sun 8am-3:34pm",stops:[{name:"Kankakee Metro Centre",mins:[0,30]},{name:"Kankakee Estates",mins:[6,36]},{name:"K.C.C.",mins:[11]},{name:"Del Monte",mins:[8]},{name:"K.C.C.",mins:[16]},{name:"Walmart Kankakee",mins:[15,22,40,42]},{name:"Harrison and Station",mins:[22,48,49]},{name:"Jerome Combs",mins:[29]},{name:"Love's",mins:[34]}]},{id:8,name:"Route 8",freq:"Every 60 min",run:"Mon-Fri 5am-9:12pm Sat 7am-9:12pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Washington and Water",mins:[3]},{name:"Casey's on Jeffery",mins:[8]},{name:"Merchant and Curtis",mins:[12]},{name:"Kankakee High School",mins:[15]},{name:"Jewel on Washington",mins:[19]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Mulberry and Chicago",mins:[33]},{name:"Hobbie and Willow",mins:[36]},{name:"Broadway and Jefferson",mins:[42]},{name:"Brookmont and Harvard",mins:[48]}]},{id:9,name:"Route 9",freq:"Every 60 min",run:"Mon-Fri 5am-9:26pm Sat 7am-9:26pm Sun 8am-4:10pm",stops:[{name:"Manteno Metro Centre",mins:[0]},{name:"ABC Supply",mins:[7]},{name:"Northfield Square Mall",mins:[30]},{name:"Walmart",mins:[33]},{name:"Manteno Metro Centre",mins:[41]},{name:"E 2nd St",mins:[45]},{name:"Veterans Home",mins:[52]}]},{id:10,name:"Route 10",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-4pm",stops:[{name:"Brown Blvd",mins:[0]},{name:"Casey's",mins:[5,34]},{name:"Riverside Campus",mins:[7,36]},{name:"Bourbonnais Metro Centre",mins:[13,42]},{name:"Northfield Square Mall",mins:[30]},{name:"W Bethel Dr",mins:[50]},{name:"Almar Parkway",mins:[55]}]},{id:11,name:"Route 11",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"McDonald's 5th Ave",mins:[4]},{name:"ONU",mins:[11,42]},{name:"Northfield Meadows",mins:[18]},{name:"Northfield Square Mall",mins:[30]},{name:"Kroger",mins:[36]},{name:"Walgreens Kennedy Dr",mins:[48]}]},{id:12,name:"Route 12",freq:"Every 60 min",run:"Mon-Fri 5:30am-9:25pm Sat 7:30am-9:25pm Sun 8:30am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[30]},{name:"McDonald's 5th Av",mins:[34]},{name:"Shine FM",mins:[39]},{name:"Meijer",mins:[47]},{name:"Kroger",mins:[55]},{name:"Brown Blvd",mins:[2]},{name:"Heritage/Convent",mins:[11]},{name:"Perry Farm",mins:[16]},{name:"Walgreen's",mins:[19]},{name:"Kankakee Metro Centre",mins:[25]}]},{id:14,name:"Route 14",freq:"Every 60 min",run:"Mon-Fri 5am-9:25pm Sat 7am-9:25pm Sun 8am-3:55pm",stops:[{name:"Kankakee Metro Centre",mins:[0]},{name:"Mulberry/Chicago",mins:[2]},{name:"Fairmont/Court",mins:[9]},{name:"Eagle/Maple",mins:[13]},{name:"Harrison/Station",mins:[20]},{name:"Kankakee Metro Centre",mins:[30]},{name:"Station/Schuyler",mins:[33]},{name:"Mercy Housing",mins:[37]},{name:"Merchant/Curtis",mins:[41]},{name:"Kankakee High School",mins:[45]},{name:"Kankakee Jewel",mins:[49]}]}];
 const MAJOR_HOLIDAYS_INFO=[{name:"New Year's Day",check:(d)=>d.getMonth()===0&&d.getDate()===1},{name:"Independence Day",check:(d)=>d.getMonth()===6&&d.getDate()===4},{name:"Christmas Day",check:(d)=>d.getMonth()===11&&d.getDate()===25},{name:"Memorial Day",check:(d)=>{if(d.getMonth()!==4)return false;let lastMon=31;for(let day=31;day>=25;day--){let test=new Date(d.getFullYear(),4,day);if(test.getDay()===1){lastMon=day;break;}}return d.getDate()===lastMon&&d.getDay()===1;}},{name:"Labor Day",check:(d)=>{if(d.getMonth()!==8)return false;return d.getDate()<=7&&d.getDay()===1;}},{name:"Thanksgiving Day",check:(d)=>{if(d.getMonth()!==10)return false;let thursCount=0;for(let day=1;day<=30;day++){let test=new Date(d.getFullYear(),10,day);if(test.getDay()===4)thursCount++;if(thursCount===4&&day===d.getDate()&&test.getDay()===4)return true;}return false;}}];
 function getHolidayName(d){for(let h of MAJOR_HOLIDAYS_INFO){if(h.check(d))return h.name;}return null;}
 function getServiceWindow(now){const holidayName=getHolidayName(now);const isHoliday=!!holidayName;const day=now.getDay();let startMin,endMin,label,type;if(isHoliday||day===0){startMin=8*60;endMin=16*60;type=isHoliday?'holiday':'sunday';label=isHoliday?`${holidayName} (Sunday Hours: 8:00 AM - 4:00 PM)`:'Sunday: 8:00 AM - 4:00 PM';}else if(day===6){startMin=7*60;endMin=21*60+30;type='saturday';label='Saturday: 7:00 AM - 9:30 PM';}else{startMin=5*60;endMin=21*60+30;type='weekday';label='Weekday: 5:00 AM - 9:30 PM';}return {startMin,endMin,label,type,isHoliday,holidayName};}
-function getRouteSpecificService(now,route){if(route.id===6){const day=now.getDay();const curMin=now.getHours()*60+now.getMinutes();const holidayName=getHolidayName(now);if(day===0||day===6||holidayName){return {inService:false,reason:`Route 6 does not run on ${holidayName||(day===0?'Sunday':'Saturday')}s`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}const start=7*60+30;const end=17*60;if(curMin<start){return {inService:false,reason:`Route 6 starts at 7:30 AM`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}if(curMin>end){return {inService:false,reason:'Route 6 ended at 5:00 PM today',label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}return {inService:true,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}return null;}
+function getRouteSpecificService(now,route){
+  const holidayName=getHolidayName(now);
+  const day=now.getDay();
+  const curMin=now.getHours()*60+now.getMinutes();
+  // Routes 2,5,12 share 5:30/7:30/8:30 start
+  if([2,5,12].includes(route.id)){
+    let start, end, label;
+    if(holidayName || day===0){
+      start=8*60+30; end=15*60+55;
+      label = holidayName ? `${holidayName} (Sun/Hol: 8:30 AM - 3:55 PM)` : 'Sunday: 8:30 AM - 3:55 PM';
+    } else if(day===6){
+      start=7*60+30; end=21*60+25;
+      label='Saturday: 7:30 AM - 9:25 PM';
+    } else {
+      start=5*60+30; end=21*60+25;
+      label='Weekday: 5:30 AM - 9:25 PM';
+    }
+    if(curMin < start){
+      const hh = Math.floor(start/60); const mm = start%60;
+      const ap = hh>=12; let hh12 = hh%12||12;
+      return {inService:false, reason:`Route ${route.id} starts at ${hh12}:${String(mm).padStart(2,'0')} ${ap?'PM':'AM'}`, label};
+    }
+    if(curMin > end){
+      return {inService:false, reason:`Route ${route.id} ended at ${label.split(' - ')[1]||'end of service'} today`, label};
+    }
+    return {inService:true, label};
+  }
+  if(route.id===6){
+    if(day===0||day===6||holidayName){return {inService:false,reason:`Route 6 does not run on ${holidayName||(day===0?'Sunday':'Saturday')}s`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}
+    const start=7*60+30;const end=17*60;
+    if(curMin<start){return {inService:false,reason:`Route 6 starts at 7:30 AM`,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}
+    if(curMin>end){return {inService:false,reason:'Route 6 ended at 5:00 PM today',label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};}
+    return {inService:true,label:'Mon-Fri Only: 7:30 AM - 5:00 PM'};
+  }
+  return null;
+}
 function isInService(now){const win=getServiceWindow(now);const curMin=now.getHours()*60+now.getMinutes();return {inService:curMin>=win.startMin&&curMin<=win.endMin,window:win,curMin};}
-let selectedRouteId=6,expanded=false,routeMenuOpen=false;
+let selectedRouteId=null,expanded=false,routeMenuOpen=false;
 function S0(route,now){let t=now.getMinutes(),r=now.getHours(),best=null,min=Infinity;for(let u of route.stops)for(let i of u.mins){let s=i-t;if(s<0)s+=60;if(s<min){min=s;best={name:u.name,min:i,wait:s,hour:s+t>=60?(r+1)%24:r};}}return best;}
 function formatTime(h,m){let ap=h>=12,hh=h%12||12;return `${hh}:${String(m).padStart(2,'0')} ${ap?'PM':'AM'}`;}
 function toggleRouteMenu(e){e.stopPropagation();routeMenuOpen=!routeMenuOpen;document.getElementById('routeMenu').classList.toggle('hidden',!routeMenuOpen);document.getElementById('routeArrow').textContent=routeMenuOpen?'▲':'▼';}
 document.getElementById('routeBtn').onclick=toggleRouteMenu;
 function toggleTimeline(){expanded=!expanded;document.getElementById('timelineBox').className=expanded?'timeline-expanded':'timeline-collapsed';document.getElementById('tapHint').textContent=expanded?'TAP TO COLLAPSE ▲':'TAP TO SEE FULL SCHEDULE ▼';}
 document.getElementById('mainCard').onclick=toggleTimeline;
-function selectRoute(id){selectedRouteId=id;routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';update();}
+function selectRoute(id){selectedRouteId=id;localStorage.setItem('rvm_last_route', id);routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';const rs=document.getElementById('routeSearch');if(rs) rs.value='';update();}
 function update(){
-const now=new Date();const route=routes.find(r=>r.id===selectedRouteId)||routes[0];const serviceCheck=isInService(now);const win=serviceCheck.window;
+const now=new Date();
+const menuList=document.getElementById('routeMenuList');const searchVal=(document.getElementById('routeSearch')?.value||'').toLowerCase();menuList.innerHTML='';routes.filter(r=>{
+  if(!searchVal) return true;
+  const hay = (r.name + ' ' + r.freq + ' ' + r.stops.map(s=>s.name).join(' ')).toLowerCase();
+  return hay.includes(searchVal);
+}).forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl hover:bg-white/5';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name}</span> <span class="opacity-60 text-[12px]">• ${r.freq}</span><br><span class="text-[10px] opacity-40">${r.run}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);localStorage.setItem('rvm_last_route', r.id);};menuList.appendChild(b);});
+if(menuList.innerHTML===''){menuList.innerHTML='<div class="text-center text-slate-500 text-[11px] py-6">No routes match</div>';}
+// NO ROUTE SELECTED DEFAULT STATE
+if(selectedRouteId===null){
+  document.getElementById('routeBtnText').innerHTML=`<span class="text-[13px] text-slate-300">🔍 Select a Route to Begin</span>`;
+  document.getElementById('routeTag').textContent=`NO ROUTE SELECTED`;
+  const badge0=document.getElementById('serviceBadge'); const badgeText0=document.getElementById('serviceBadgeText'); const badgeDot0=document.getElementById('serviceBadgeDot');
+  if(badge0){badge0.className='flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-slate-400';}
+  if(badgeText0){badgeText0.textContent='NO ROUTE';}
+  if(badgeDot0){badgeDot0.className='w-2 h-2 bg-slate-500 rounded-full';}
+  document.getElementById('closestInfo').innerHTML=`<span class="text-slate-400">Please select a route</span>`;
+  document.getElementById('statusText').innerHTML=`<span class="w-2 h-2 rounded-full bg-blue-400 inline-block mr-2 animate-pulse"></span><b>Select a route</b> from the dropdown above to see live times`;
+  document.getElementById('etaVal').textContent='--';document.getElementById('etaLabel').textContent='NO ROUTE';
+  document.getElementById('nextStopName').textContent='No route selected';document.getElementById('nextStopTime').textContent=`Tap the dropdown above • ${routes.length} routes available`;document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()}`;
+  const etaEl=document.getElementById('etaCircle');etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(107,114,128,0.2), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(255,255,255,0.15)';etaEl.style.animation='none';
+  const list=document.getElementById('timelineList');list.innerHTML='<div class="text-center text-slate-500 text-[12px] py-6">Select a route to see stops</div>';
+  // auto-open menu on first load hint
+  return;
+}
+const route=routes.find(r=>r.id===selectedRouteId)||routes[0];const serviceCheck=isInService(now);const win=serviceCheck.window;
 const routeSpecific=getRouteSpecificService(now,route);
 let isOutOfService=!serviceCheck.inService;let outReason=win.label;let bannerExtra='';
-if(routeSpecific&&!routeSpecific.inService){isOutOfService=true;outReason=routeSpecific.reason;bannerExtra=`<div class="mt-2 text-[11px] bg-amber-500/15 border border-amber-500/30 text-amber-200 rounded-xl px-3 py-2">⚠ Route 6: Mon-Fri ONLY 7:30 AM - 5:00 PM • No weekends/holidays</div>`;}
+if(routeSpecific&&!routeSpecific.inService){isOutOfService=true;outReason=routeSpecific.reason;if(route.id===6){bannerExtra=`<div class="mt-2 text-[11px] bg-amber-500/15 border border-amber-500/30 text-amber-200 rounded-xl px-3 py-2">⚠ Route 6: Mon-Fri ONLY 7:30 AM - 5:00 PM • No weekends/holidays</div>`;} else if(route.id===2){bannerExtra=`<div class="mt-2 text-[11px] bg-blue-500/15 border border-blue-500/30 text-blue-200 rounded-xl px-3 py-2">ℹ Route 2: Mon-Fri 5:30 AM - 9:25 PM • Sat 7:30 AM - 9:25 PM • Sun/Hol 8:30 AM - 3:55 PM</div>`;}}
 if(isOutOfService||(routeSpecific&&!routeSpecific.inService)){
   document.getElementById('routeBtnText').innerHTML=`<span class="bg-blue-500 text-slate-900 rounded-full px-2.5 py-0.5 text-[12px] font-black">${route.name}</span><span class="text-[12px] opacity-70">${route.freq}</span>`;
-  document.getElementById('routeTag').textContent=`${route.name} • WEEKDAYS 7:30a-5p • CLOSED`;
+  if(route.id===2){
+    document.getElementById('routeTag').textContent=`${route.name} • ${routeSpecific?routeSpecific.label:win.label} • CLOSED`;
+  } else {
+    document.getElementById('routeTag').textContent=`${route.name} • WEEKDAYS 7:30a-5p • CLOSED`;
+  }
   document.getElementById('closestInfo').innerHTML=`<span class="text-amber-400">No Service</span> - ${outReason}`;
+  const badge=document.getElementById('serviceBadge'); const badgeText=document.getElementById('serviceBadgeText'); const badgeDot=document.getElementById('serviceBadgeDot');
+  if(badge){badge.className='flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-red-400';}
+  if(badgeText){badgeText.textContent='CLOSED • NO SERVICE';}
+  if(badgeDot){badgeDot.className='w-2 h-2 bg-red-500 rounded-full shadow-[0_0_6px_#ef4444]';}
   document.getElementById('statusText').innerHTML=`<div class="flex flex-col"><span><span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-2"></span><b>Not in Service</b> - ${outReason}</span>${bannerExtra}</div>`;
   document.getElementById('etaVal').textContent='--';document.getElementById('etaLabel').textContent='CLOSED';
-  document.getElementById('nextStopName').textContent=outReason;document.getElementById('nextStopTime').textContent=`${win.label}`;document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • ${win.label}`;
+  document.getElementById('nextStopName').textContent=outReason;document.getElementById('nextStopTime').textContent=`${routeSpecific?routeSpecific.label:win.label}`;document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • ${routeSpecific?routeSpecific.label:win.label}`;
   const etaEl=document.getElementById('etaCircle');etaEl.style.background='radial-gradient(circle at 30% 30%, rgba(107,114,128,0.2), rgba(15,23,42,0.8))';etaEl.style.borderColor='rgba(107,114,128,0.4)';etaEl.style.animation='none';
-  const list=document.getElementById('timelineList');list.innerHTML='';route.stops.forEach((s)=>{const div=document.createElement('div');div.className='relative flex items-start gap-3 opacity-40';div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12)">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><span style="font-size:14px;font-weight:600;color:rgba(248,250,252,0.6)">${s.name}</span></div>`;list.appendChild(div);});const menu=document.getElementById('routeMenu');menu.innerHTML='';routes.forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name}</span> <span class="opacity-60 text-[12px]">• ${r.freq}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);});return;
+  const list=document.getElementById('timelineList');list.innerHTML='';route.stops.forEach((s)=>{const div=document.createElement('div');div.className='relative flex items-start gap-3 opacity-40';div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12)">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><span style="font-size:14px;font-weight:600;color:rgba(248,250,252,0.6)">${s.name}</span></div>`;list.appendChild(div);});return;
 }
 const closest=S0(route,now);
 document.getElementById('routeBtnText').innerHTML=`<span class="bg-blue-500 text-slate-900 rounded-full px-2.5 py-0.5 text-[12px] font-black">${route.name}</span><span class="text-[12px] opacity-70">${route.freq}</span>`;
-document.getElementById('routeTag').textContent=`${route.name} • ${route.id}`;
+document.getElementById('routeTag').textContent=`${route.name} • ${route.run}`;
 document.getElementById('closestInfo').textContent=`Closest bus: ${closest?closest.name:'—'}`;
+  const badge2=document.getElementById('serviceBadge'); const badgeText2=document.getElementById('serviceBadgeText'); const badgeDot2=document.getElementById('serviceBadgeDot');
+  if(badge2){badge2.className='flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-emerald-400';}
+  if(badgeText2){badgeText2.textContent='ON TIME';}
+  if(badgeDot2){badgeDot2.className='w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_#22c55e]';}
 document.getElementById('statusText').innerHTML=closest?`Next bus in <b>${closest.wait} min</b> at <b>${route.name}</b> • ${formatTime(closest.hour,closest.min)} • ${route.freq}`:`Select a route`;
 const etaEl=document.getElementById('etaCircle');const wait=closest?closest.wait:0;
 document.getElementById('etaVal').textContent=wait===0?'NOW':wait;document.getElementById('etaLabel').textContent=wait===0?'DEPARTING':'MIN';
@@ -134,7 +222,465 @@ document.getElementById('nextStopTime').textContent=closest?`At ${formatTime(clo
 document.getElementById('phoneTime').textContent=`Phone: ${now.toLocaleTimeString()} • If 3:06 now, 3:15 bus = 9 min`;
 const list=document.getElementById('timelineList');list.innerHTML='';
 route.stops.forEach((s,i)=>{const isNext=closest&&s.name===closest.name&&s.mins.includes(closest.min);const div=document.createElement('div');div.className='relative flex items-start gap-3';div.innerHTML=`<div class="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:${isNext?'rgba(56,189,248,0.22)':'rgba(255,255,255,0.06)'};border:2px solid ${isNext?'rgba(56,189,248,0.7)':'rgba(255,255,255,0.12)'}">:${String(s.mins[0]).padStart(2,'0')}</div><div class="flex-1"><span style="font-size:14px;font-weight:${isNext?800:600}">${s.name}</span>${isNext?`<span class="text-[10px] font-bold px-2 py-[2px] rounded-full ml-2" style="background:#38bdf8;color:#0f172a">NEXT • ${closest.wait} MIN</span>`:''}</div>`;list.appendChild(div);});
-const menu=document.getElementById('routeMenu');menu.innerHTML='';routes.forEach(r=>{const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl';b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';b.innerHTML=`<span class="font-bold text-[14px]">${r.name}</span> <span class="opacity-60 text-[12px]">• ${r.freq}</span>`;b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);};menu.appendChild(b);});
+}
+const routeSearchEl=document.getElementById('routeSearch');
+if(routeSearchEl){
+  routeSearchEl.addEventListener('input', ()=>{ updateMenuOnly(); });
+  routeSearchEl.addEventListener('click', (e)=>e.stopPropagation());
+}
+function updateMenuOnly(){
+  const menuList=document.getElementById('routeMenuList');if(!menuList) return;
+  const searchVal=(document.getElementById('routeSearch')?.value||'').toLowerCase();
+  menuList.innerHTML='';routes.filter(r=>{
+    if(!searchVal) return true;
+    const hay = (r.name + ' ' + r.freq + ' ' + r.stops.map(s=>s.name).join(' ')).toLowerCase();
+    return hay.includes(searchVal);
+  }).forEach(r=>{
+    const b=document.createElement('button');b.className='w-full text-left p-3 rounded-xl hover:bg-white/5';
+    b.style.background=r.id===selectedRouteId?'rgba(56,189,248,0.15)':'transparent';
+    b.innerHTML=`<span class="font-bold text-[14px]">${r.name}</span> <span class="opacity-60 text-[12px]">• ${r.freq}</span><br><span class="text-[10px] opacity-40">${r.run}</span>`;
+    b.onclick=(e)=>{e.stopPropagation();selectRoute(r.id);localStorage.setItem('rvm_last_route', r.id);};menuList.appendChild(b);
+  });
+}
+// === GPS NEAREST STOP ===
+const STOP_COORDS = {
+  "Family Dollar": [
+    41.13534232590066,
+    -87.87541566341548
+  ],
+  "Azzarelli Apartments": [
+    41.132558282787926,
+    -87.86705282325629
+  ],
+  "St Mary's": [
+    41.11903859618852,
+    -87.873694804222
+  ],
+  "Walgreens Court St": [
+    41.12069010731733,
+    -87.8681846486396
+  ],
+  "Kankakee Metro Centre": [
+    41.123252014616064,
+    -87.86243904719272
+  ],
+  "Northfield Square Mall": [
+    41.1762603485573,
+    -87.85018855003774
+  ],
+  "Signature/Double Jack": [
+    41.17548517569144,
+    -87.84012889651318
+  ],
+  "Adventure Church": [
+    41.17173215344119,
+    -87.84525792466242
+  ],
+  "Meijer Southbound": [
+    41.159552329462045,
+    -87.84633372817697
+  ],
+  "Meijer (Southbound)": [
+    41.159552329462045,
+    -87.84633372817697
+  ],
+  "Broadway Shelter": [
+    41.14450219665159,
+    -87.86013271366927
+  ],
+  "Village Hall/Broadway": [
+    41.14232037968721,
+    -87.86514656012761
+  ],
+  "Meijer Northbound": [
+    41.159552329462045,
+    -87.84633372817697
+  ],
+  "Meijer (Northbound)": [
+    41.159552329462045,
+    -87.84633372817697
+  ],
+  "Walmart": [
+    41.1913335160717,
+    -87.84670254739918
+  ],
+  "Bradley Library": [
+    41.14793254750473,
+    -87.85589640882556
+  ],
+  "Christine and Uncle Leo": [
+    41.15948289062793,
+    -87.84624081899254
+  ],
+  "Target": [
+    41.17423038434954,
+    -87.85373226541836
+  ],
+  "Christine Dr behind Meijer": [
+    41.15948289062793,
+    -87.84624081899254
+  ],
+  "Christine Dr. (behind Meijer)": [
+    41.15948289062793,
+    -87.84624081899254
+  ],
+  "Village Square": [
+    41.1365,
+    -87.865
+  ],
+  "KCTC": [
+    41.13935292096647,
+    -87.86039750344446
+  ],
+  "East Court Village": [
+    41.11839166871631,
+    -87.8333283807284
+  ],
+  "Frontage Road": [
+    41.11925675397913,
+    -87.83265554707361
+  ],
+  "Spruce and Fairmont": [
+    41.12440122768351,
+    -87.84070788381479
+  ],
+  "St Mary's Hospital": [
+    41.12116295605891,
+    -87.87064785436392
+  ],
+  "Riverside Medical Center": [
+    41.12383330605369,
+    -87.88369326258646
+  ],
+  "Kankakee County Health Dept": [
+    41.117823129215054,
+    -87.89826997896004
+  ],
+  "Kankakee County Health Dept.": [
+    41.117823129215054,
+    -87.89826997896004
+  ],
+  "Kankakee Estates": [
+    41.0972047248434,
+    -87.8692240937097
+  ],
+  "K.C.C.": [
+    41.09792067659045,
+    -87.85062342805118
+  ],
+  "K.C.C": [
+    41.09792067659045,
+    -87.85062342805118
+  ],
+  "Del Monte": [
+    41.07871589370375,
+    -87.87366662119103
+  ],
+  "Walmart Kankakee": [
+    41.08011100815308,
+    -87.8597795221251
+  ],
+  "Jerome Combs": [
+    41.07473614772268,
+    -87.85906562492492
+  ],
+  "Schuyler and River": [
+    41.11672549179573,
+    -87.86453673865978
+  ],
+  "Harrison and Station": [
+    41.11833618234924,
+    -87.85992313487188
+  ],
+  "Love's": [
+    41.073173140614216,
+    -87.86845954634103
+  ],
+  "Washington and Water": [
+    41.106012519620215,
+    -87.87043428971234
+  ],
+  "Casey's on Jeffery": [
+    41.10576465134114,
+    -87.87864562300906
+  ],
+  "Merchant and Curtis": [
+    41.11990004056166,
+    -87.88760700866004
+  ],
+  "Merchant/Curtis": [
+    41.11990004056166,
+    -87.88760700866004
+  ],
+  "Kankakee High School": [
+    41.10586325862682,
+    -87.8836241495066
+  ],
+  "Jewel on Washington": [
+    41.116374675009936,
+    -87.86832066410358
+  ],
+  "Mulberry and Chicago": [
+    41.127362905178444,
+    -87.85705602784672
+  ],
+  "Mulberry/Chicago": [
+    41.127362905178444,
+    -87.85705602784672
+  ],
+  "Hobbie and Willow": [
+    41.12599602231651,
+    -87.84079523687518
+  ],
+  "Broadway and Jefferson": [
+    41.14448240451726,
+    -87.84699784000101
+  ],
+  "Brookmont and Harvard": [
+    41.13520018118087,
+    -87.84367834952168
+  ],
+  "Manteno Metro Centre": [
+    41.249941093563756,
+    -87.83396435391984
+  ],
+  "ABC Supply": [
+    41.24957033252565,
+    -87.85823485385484
+  ],
+  "E. 2nd St.": [
+    41.25055847427754,
+    -87.82920850983977
+  ],
+  "E 2nd St": [
+    41.25055847427754,
+    -87.82920850983977
+  ],
+  "Veterans' Home": [
+    41.23744894652634,
+    -87.80740739383387
+  ],
+  "Veterans Home": [
+    41.23744894652634,
+    -87.80740739383387
+  ],
+  "Brown Blvd.": [
+    41.159404281071126,
+    -87.88200568928173
+  ],
+  "Brown Blvd": [
+    41.159404281071126,
+    -87.88200568928173
+  ],
+  "Casey's": [
+    41.17828391176039,
+    -87.87541613699665
+  ],
+  "Riverside Campus": [
+    41.186761671739895,
+    -87.87480535668745
+  ],
+  "Bourbonnais Metro Centre": [
+    41.19211971384574,
+    -87.85388660942918
+  ],
+  "W. Bethel Dr.": [
+    41.17007963893411,
+    -87.8769921317929
+  ],
+  "W Bethel Dr": [
+    41.17007963893411,
+    -87.8769921317929
+  ],
+  "Almar Parkway": [
+    41.162948486175914,
+    -87.88960639872772
+  ],
+  "McDonald's 5th Ave.": [
+    41.1326117754686,
+    -87.87677284999614
+  ],
+  "McDonald's 5th Ave": [
+    41.1326117754686,
+    -87.87677284999614
+  ],
+  "McDonald's 5th Av": [
+    41.1326117754686,
+    -87.87677284999614
+  ],
+  "ONU": [
+    41.153721762263274,
+    -87.87410652758352
+  ],
+  "Northfield Meadows": [
+    41.16762980982191,
+    -87.84087733559768
+  ],
+  "Kroger": [
+    41.16271068571246,
+    -87.87220974513384
+  ],
+  "Walgreens Kennedy Dr.": [
+    41.13234219260196,
+    -87.87678109564315
+  ],
+  "Walgreens Kennedy Dr": [
+    41.13234219260196,
+    -87.87678109564315
+  ],
+  "Shine FM": [
+    41.15220119805676,
+    -87.8762914403508
+  ],
+  "Meijer": [
+    41.159552329462045,
+    -87.84633372817697
+  ],
+  "Heritage/Convent": [
+    41.164397441386505,
+    -87.87605929529754
+  ],
+  "Perry Farm": [
+    41.14513141081932,
+    -87.8761003596662
+  ],
+  "Walgreen's": [
+    41.13234219260196,
+    -87.87678109564315
+  ],
+  "Fairmont/Court": [
+    41.1190439816238,
+    -87.84379627277646
+  ],
+  "Eagle/Maple": [
+    41.11384931363248,
+    -87.8423653344399
+  ],
+  "Eagle and Chicago": [
+    41.115,
+    -87.85
+  ],
+  "Maple and Eagle": [
+    41.108,
+    -87.845
+  ],
+  "Station/Schuyler": [
+    41.11773987875508,
+    -87.86392499482622
+  ],
+  "Mercy Housing": [
+    41.121,
+    -87.858
+  ],
+  "Kankakee Jewel": [
+    41.116374675009936,
+    -87.86832066410358
+  ],
+  "Aroma Park Shelter": [
+    41.08,
+    -87.808
+  ],
+  "Crestview": [
+    41.09,
+    -87.82
+  ],
+  "Riverside East": [
+    41.095,
+    -87.83
+  ],
+  "Dollar General": [
+    41.1,
+    -87.835
+  ]
+};
+function haversine(lat1, lon1, lat2, lon2){
+  const R=6371e3; const toRad=x=>x*Math.PI/180;
+  const dLat=toRad(lat2-lat1); const dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  return R*c;
+}
+function findNearestStop(){
+  const btn=document.getElementById('gpsBtn'); const txt=document.getElementById('gpsText'); const icon=document.getElementById('gpsIcon'); const res=document.getElementById('gpsResult');
+  if(!navigator.geolocation){
+    if(res){res.classList.remove('hidden'); res.innerHTML='⚠ Location not supported';}
+    return;
+  }
+  if(txt) txt.textContent='LOCATING...'; if(btn) btn.disabled=true; if(icon) icon.textContent='⌛';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude, longitude} = pos.coords;
+    let all=[]; 
+    routes.forEach(route=>{
+      route.stops.forEach(stop=>{
+        const c=STOP_COORDS[stop.name];
+        if(!c) return;
+        const d=haversine(latitude, longitude, c[0], c[1]);
+        all.push({stop, route, dist:d});
+      });
+    });
+    all.sort((a,b)=>a.dist-b.dist);
+    const top = all.slice(0,3); // 3 closest
+    if(top.length>0){
+      const best = top[0];
+      const miles = (best.dist*0.000621371).toFixed(2);
+      if(txt) txt.textContent=`NEAREST: ${best.stop.name} • ${best.route.name} (${miles} mi)`;
+      if(res){
+        res.classList.remove('hidden');
+        let html = `<div class="font-black text-blue-300 mb-1">📍 Closest to you:</div>`;
+        top.forEach((item, idx)=>{
+          const m = (item.dist*0.000621371).toFixed(2);
+          const isBest = idx===0;
+          html += `<div class="flex items-center justify-between py-1.5 ${isBest?'bg-white/[0.06] rounded-lg px-2':''}"><span class="${isBest?'font-bold':''}">${isBest?'⭐':''} ${item.stop.name} <span class="opacity-60">(${m} mi) on ${item.route.name}</span></span><button onclick="selectRoute(${item.route.id})" class="ml-2 bg-blue-500 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-black">${isBest?'USE':'SELECT'}</button></div>`;
+        });
+        html += `<div class="mt-2 text-[10px] opacity-60">Suggestion only</div>`;
+        res.innerHTML=html;
+      }
+      // Highlight but DO NOT force - just scroll route list to show best on top
+      // Pre-fill search with best stop name as hint (user can clear)
+      // No confirm() popup
+    } else {
+      if(res){res.classList.remove('hidden'); res.innerHTML='⚠ No stops with GPS data found';}
+    }
+    if(btn) btn.disabled=false; if(icon) icon.textContent='📍';
+  }, err=>{
+    if(res){res.classList.remove('hidden'); res.innerHTML=`⚠ Location error: ${err.message} • Enable location`;}
+    if(txt) txt.textContent='USE MY LOCATION • FIND NEAREST STOP'; if(btn) btn.disabled=false; if(icon) icon.textContent='📍';
+  }, {enableHighAccuracy:true, timeout:8000, maximumAge:60000});
+}
+// === PULL TO REFRESH ===
+let pullStartY=0; let pulling=false;
+const appContainer=document.querySelector('.app-container');
+const pullIndicator=document.getElementById('pullIndicator');
+if(appContainer){
+  appContainer.addEventListener('touchstart', e=>{
+    if(appContainer.scrollTop===0){pullStartY=e.touches[0].clientY; pulling=true;}
+  }, {passive:true});
+  appContainer.addEventListener('touchmove', e=>{
+    if(!pulling) return;
+    const curY=e.touches[0].clientY;
+    const diff=curY-pullStartY;
+    if(diff>0 && appContainer.scrollTop===0){
+      if(pullIndicator){
+        pullIndicator.classList.add('active');
+        pullIndicator.innerHTML = diff>70 ? '<span>↻</span> Release to refresh...' : '<span>↓</span> Pull to refresh...';
+      }
+      if(diff>70){ appContainer.style.transform=`translateY(${Math.min(diff*0.4, 60)}px)`; }
+    }
+  }, {passive:true});
+  appContainer.addEventListener('touchend', e=>{
+    if(!pulling) return;
+    pulling=false;
+    const diff=e.changedTouches[0].clientY-pullStartY;
+    appContainer.style.transform='translateY(0px)';
+    if(pullIndicator) pullIndicator.classList.remove('active');
+    if(diff>70){ 
+      // refresh
+      if(pullIndicator){pullIndicator.classList.add('active'); pullIndicator.innerHTML='<span class="animate-spin">↻</span> Refreshing...';}
+      setTimeout(()=>{ update(); if(pullIndicator) pullIndicator.classList.remove('active'); }, 600);
+      if(navigator.vibrate) navigator.vibrate(50);
+    }
+    pullStartY=0;
+  });
 }
 window.addEventListener('click',(e)=>{if(!e.target.closest('#routeDropdownRoot')){routeMenuOpen=false;document.getElementById('routeMenu').classList.add('hidden');document.getElementById('routeArrow').textContent='▼';}});
 update();setInterval(update,30000);
@@ -185,9 +731,12 @@ onValue(alertsRefForDot, (snap)=>{
       countEl.classList.remove('hidden');
     }
     if(navigator.vibrate) navigator.vibrate([100,50,100]);
-    // Optional: show latest alert in status-msg bar
-    if(statusText && unread[0]){
-      statusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 inline-block mr-2 animate-pulse"></span><b class="text-red-400">${unread[0].route||'SYSTEM'} ALERT:</b> ${unread[0].title} - Tap NOTICES to view`;
+    const alertBanner=document.getElementById('alertBanner'); const alertTextEl=document.getElementById('alertText');
+    if(alertBanner && alertTextEl && unread[0]){
+      alertBanner.classList.remove('hidden');
+      alertTextEl.innerHTML = `<b class="text-red-400">${unread[0].route||'SYSTEM'} ALERT:</b> ${unread[0].title} - Tap NOTICES`;
+    } else if(alertBanner){
+      alertBanner.classList.add('hidden');
     }
   } else {
     dot.classList.add('hidden');
