@@ -4,201 +4,457 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.json">
 <title>River Valley Metro | Premium - NOTICES</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { font-family:'Plus Jakarta Sans',sans-serif; background:#000; overflow:hidden; height:100dvh; color:white; display:flex; justify-content:center; align-items:center; }
-#canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
-.app-container { position:relative; width:100vw; height:100dvh; max-width:430px; z-index:10; overflow-y:auto; scrollbar-width:none; background:rgba(0,0,0,0.2); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); scroll-behavior:smooth; }
+body { font-family:'Plus Jakarta Sans',sans-serif; background:#dbeeff; overflow:hidden; height:100dvh; color:#0b2a4a; display:flex; justify-content:center; align-items:center; }
+#canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; }
+.app-container { position:relative; width:100vw; height:100dvh; max-width:430px; z-index:10; overflow-y:auto; scrollbar-width:none; background:rgba(219,238,255,0.35); backdrop-filter:blur(18px) saturate(1.4); -webkit-backdrop-filter:blur(18px) saturate(1.4); scroll-behavior:smooth; }
 .app-container::-webkit-scrollbar { display:none; }
-#splash { position:fixed; inset:0; background:#000; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; transition:all 0.8s cubic-bezier(0.4,0,0.2,1); overflow:hidden; }
-#splashBg { position:absolute; inset:0; background-image:url('https://alchetron.com/cdn/river-valley-metro-mass-transit-district-89a6b261-79cc-4ec1-882a-41fbf8b47f2-resize-750.jpeg'); background-size:cover; background-position:center; filter:brightness(0.65) contrast(1.15) saturate(1.1); }
-#splashOverlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.9) 100%); }
-#splashContent { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; width:100%; height:100%; }
-.loader-track { width:140px; height:3px; background:rgba(255,255,255,0.2); border-radius:9999px; overflow:hidden; margin-top:24px; }
-.loader-progress { width:40%; height:100%; background:#3b82f6; border-radius:9999px; animation:loading 1.5s infinite ease-in-out; box-shadow:0 0 10px #3b82f6; }
-@keyframes loading { 0% { transform:translateX(-100%); } 100% { transform:translateX(350%); } }
-@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-.fade-up { animation:fadeUp 0.8s ease-out forwards; }
-.fade-up-delay { animation:fadeUp 0.8s ease-out 0.3s forwards; opacity:0; }
-.glass-card { background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:2.5rem; }
-.glow-text { background:linear-gradient(135deg,#fff 0%,#94a3b8 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.service-alert { background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(15,23,42,0.8)); border:1px solid rgba(239,68,68,0.3); animation:alertPulse 2s infinite; }
-@keyframes alertPulse { 0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.2);}50%{box-shadow:0 0 30px rgba(239,68,68,0.4);} }
+
+/* --- SPLASH - LIGHT BLUE GLASS --- */
+#splash { position:fixed; inset:0; background:linear-gradient(180deg,#bfe0ff 0%,#d9ecff 38%,#eef7ff 68%,#ffffff 100%); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10000; transition:all .8s cubic-bezier(.4,0,.2,1); overflow:visible; }
+#splashBg { position:absolute; inset:0; background-image:url('https://alchetron.com/cdn/river-valley-metro-mass-transit-district-89a6b261-79cc-4ec1-882a-41fbf8b47f2-resize-750.jpeg'); background-size:cover; background-position:center; filter:brightness(1.05) saturate(.9); opacity:.28; }
+#splashOverlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(191,224,255,.25) 0%, rgba(217,236,255,.45) 45%, rgba(238,247,255,.92) 100%); backdrop-filter:blur(2px); }
+#splashContent { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; padding:1rem 1rem calc(env(safe-area-inset-bottom) + 1rem); width:100%; height:100%; overflow:visible; }
+.loader-track { width:140px; height:4px; background:rgba(11,42,74,.12); border-radius:9999px; overflow:hidden; margin-top:24px; }
+.loader-progress { width:40%; height:100%; background:#0ea5e9; border-radius:9999px; animation:loading 1.5s infinite ease-in-out; box-shadow:0 0 12px #38bdf8; }
+@keyframes loading { 0% { transform:translateX(-100%);} 100% { transform:translateX(350%);} }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);} }
+.fade-up { animation:fadeUp .8s ease-out forwards; }
+.fade-up-delay { animation:fadeUp .8s ease-out .3s forwards; opacity:0; }
+
+/* --- LIGHT BLUE GLASSMORPHISM --- */
+.glass-card { background:rgba(255,255,255,.55); backdrop-filter:blur(22px) saturate(1.5); -webkit-backdrop-filter:blur(22px) saturate(1.5); border:1px solid rgba(255,255,255,.85); border-radius:2.5rem; box-shadow:0 12px 32px rgba(14,165,233,.14), inset 0 1px 0 rgba(255,255,255,.9); }
+.glass-strong { background:rgba(255,255,255,.72); backdrop-filter:blur(24px) saturate(1.6); -webkit-backdrop-filter:blur(24px) saturate(1.6); border:1px solid rgba(255,255,255,.9); box-shadow:0 16px 40px rgba(14,165,233,.18), inset 0 1px 0 #fff; }
+.glow-text { background:linear-gradient(135deg,#0b2a4a 0%,#0369a1 55%,#0ea5e9 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.service-alert { background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(254,226,226,.65)); border:1px solid rgba(239,68,68,.28); box-shadow:0 12px 28px rgba(239,68,68,.12); }
 @keyframes slideDown { from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);} }
-.slide-down { animation:slideDown 0.4s ease-out; }
-.schedule-row { transition:all 0.3s ease; border-radius:0.8rem; padding:0.5rem 0.7rem; margin:0 -0.7rem; }
-.schedule-row.today { background:linear-gradient(135deg, rgba(59,130,246,0.25), rgba(59,130,246,0.05)); border:1px solid rgba(59,130,246,0.4); box-shadow:0 0 20px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.1); transform:scale(1.02); }
-.schedule-row.today span:first-child { color:white !important; font-weight:800; }
-.schedule-row.today span:last-child { color:#60a5fa !important; text-shadow:0 0 10px #3b82f6; }
-.schedule-row.today-weekend { background:linear-gradient(135deg, rgba(99,102,241,0.25), rgba(99,102,241,0.05)); border:1px solid rgba(99,102,241,0.4); box-shadow:0 0 20px rgba(99,102,241,0.25); }
-.today-badge { display:none; font-size:7px; font-weight:900; letter-spacing:0.15em; padding:2px 6px; border-radius:9999px; margin-left:8px; }
-.schedule-row.today .today-badge { display:inline-block; background:#3b82f6; color:white; box-shadow:0 0 8px #3b82f6; animation:badgePulse 2s infinite; }
+.slide-down { animation:slideDown .4s ease-out; }
+.schedule-row { transition:all .3s ease; border-radius:.9rem; padding:.55rem .7rem; margin:0 -.7rem; }
+.schedule-row.today { background:linear-gradient(135deg, rgba(14,165,233,.22), rgba(255,255,255,.6)); border:1px solid rgba(14,165,233,.45); box-shadow:0 0 20px rgba(14,165,233,.22), inset 0 1px 0 #fff; transform:scale(1.02); }
+.schedule-row.today span:first-child { color:#0b2a4a !important; font-weight:800; }
+.schedule-row.today span:last-child { color:#0369a1 !important; }
+.schedule-row.today-weekend { background:linear-gradient(135deg, rgba(99,102,241,.18), rgba(255,255,255,.6)); border:1px solid rgba(99,102,241,.4); }
+.today-badge { display:none; font-size:7px; font-weight:900; letter-spacing:.15em; padding:2px 6px; border-radius:9999px; margin-left:8px; }
+.schedule-row.today .today-badge { display:inline-block; background:#0284c7; color:white; box-shadow:0 0 8px #38bdf8; animation:badgePulse 2s infinite; }
 .schedule-row.today-weekend .today-badge { display:inline-block; background:#6366f1; }
 @keyframes badgePulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
-/* LOGO FIX ONLY - wide rectangular logo, so show it whole, not cropped to a circle */
-.logo-box { background:#ffffff; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.logo-box { background:#ffffff; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 10px 28px rgba(2,132,199,.18), inset 0 1px 0 #fff; }
 .logo-box img { width:100%; height:100%; object-fit:contain; }
+/* RVM APP draw */
+.rvm-wrap{ width:min(360px,92vw); overflow:visible; padding:6px 4px; margin:0 auto; display:block; }
+.rvm-svg{ width:100%; height:auto; min-height:110px; overflow:visible; display:block; filter:drop-shadow(0 6px 18px rgba(2,132,199,.25)); }
+.rvm-letter{ fill:none; stroke:#0b2a4a; stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
+.rvm-letter.teal{ stroke:#0284c7; }
+.rvm-dot{ fill:#0284c7; }
+.speed{ fill:none; stroke:#0b2a4a; stroke-width:2; opacity:.55; }
+/* Hamburger + Drawer */
+#hamburgerBtn{ position:fixed; top:calc(env(safe-area-inset-top) + 14px); left:14px; z-index:9998; width:48px; height:48px; border-radius:9999px; background:rgba(255,255,255,.75); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.9); box-shadow:0 10px 24px rgba(2,132,199,.22), inset 0 1px 0 #fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; cursor:pointer; }
+#hamburgerBtn span{ display:block; width:20px; height:2.5px; border-radius:999px; background:#0b2a4a; transition:.3s; }
+#hamburgerBtn.open span:nth-child(1){ transform:translateY(7.5px) rotate(45deg); }
+#hamburgerBtn.open span:nth-child(2){ opacity:0; }
+#hamburgerBtn.open span:nth-child(3){ transform:translateY(-7.5px) rotate(-45deg); }
+#drawerOverlay{ position:fixed; inset:0; background:rgba(11,42,74,.28); backdrop-filter:blur(3px); z-index:9990; opacity:0; pointer-events:none; transition:.3s; }
+#drawerOverlay.show{ opacity:1; pointer-events:auto; }
+#drawer{ position:fixed; top:0; left:0; height:100dvh; width:min(300px,84vw); z-index:9995; background:rgba(219,238,255,.82); backdrop-filter:blur(28px) saturate(1.6); -webkit-backdrop-filter:blur(28px) saturate(1.6); border-right:1px solid rgba(255,255,255,.9); box-shadow:20px 0 50px rgba(2,132,199,.18); transform:translateX(-105%); transition:transform .38s cubic-bezier(.2,.9,.25,1); display:flex; flex-direction:column; padding:22px 18px calc(env(safe-area-inset-bottom) + 18px); }
+#drawer.show{ transform:translateX(0); }
+.drawer-link{ display:flex; align-items:center; gap:12px; padding:14px 14px; border-radius:18px; background:rgba(255,255,255,.62); border:1px solid rgba(255,255,255,.9); box-shadow:inset 0 1px 0 #fff, 0 6px 16px rgba(2,132,199,.08); font-weight:800; font-size:13px; color:#0b2a4a; text-decoration:none; }
+.drawer-link.active{ background:#0284c7; color:#fff; border-color:#0284c7; box-shadow:0 10px 22px rgba(2,132,199,.35); }
+.drawer-link.active span{ color:#fff !important; }
+
+/* --- WHITE + LIGHT BLUE ANIMATED GRADIENT BACKGROUND (CSS ONLY - NO LOGIC TOUCHED) --- */
+body{
+  background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 22%, #bae6fd 42%, #dbeafe 62%, #eff6ff 80%, #ffffff 100%) !important;
+  background-size: 300% 300% !important;
+  animation: rvmWhiteBlueShift 14s ease-in-out infinite alternate !important;
+}
+@keyframes rvmWhiteBlueShift{
+  0%{ background-position: 0% 0%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 100%; }
+}
+/* Soft moving light-blue blobs behind the glass - makes the glass pop */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(560px 380px at 12% 8%, rgba(147,197,253,.65), transparent 65%),
+    radial-gradient(620px 420px at 88% 18%, rgba(255,255,255,.95), transparent 60%),
+    radial-gradient(700px 460px at 50% 100%, rgba(125,211,252,.55), transparent 62%),
+    radial-gradient(420px 300px at 85% 85%, rgba(191,219,254,.70), transparent 65%);
+  background-size: 130% 130%;
+  animation: rvmBlobDrift 18s ease-in-out infinite alternate;
+}
+@keyframes rvmBlobDrift{
+  0%{ background-position: 0% 0%, 100% 0%, 50% 100%, 100% 100%; opacity:.95; }
+  100%{ background-position: 20% 15%, 80% 20%, 45% 85%, 75% 80%; opacity:1; }
+}
+/* Keep all app content above the animated background */
+#app, .software-window, #splashContent, main, header, footer{ position:relative; z-index:1; }
+/* Slightly deepen glass shadows so glass reads against the lighter background */
+.glass-card{ box-shadow: 0 12px 32px rgba(59,130,246,.14), inset 0 1px 0 rgba(255,255,255,.85) !important; }
+
+
+/* --- SERVICE ALERT PULSE - CSS ONLY, NO LOGIC TOUCHED --- */
+/* Only pulses when banner is VISIBLE (not .hidden). System Normal never pulses. */
+@keyframes rvmAlertPulse{
+  0%,100%{ box-shadow: 0 12px 28px rgba(239,68,68,.12), 0 0 0 0 rgba(239,68,68,0); transform: scale(1); }
+  50%{ box-shadow: 0 16px 36px rgba(239,68,68,.28), 0 0 0 10px rgba(239,68,68,0); transform: scale(1.012); }
+}
+@keyframes rvmAlertRing{
+  0%{ box-shadow: 0 0 0 0 rgba(239,68,68,.45); }
+  100%{ box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+}
+#liveServiceBanner:not(.hidden) .service-alert{
+  animation: rvmAlertPulse 2s ease-in-out infinite;
+}
+/* Pulsing ring on the alert icon + the live dot */
+#liveServiceBanner:not(.hidden) .service-alert > div > div:first-child{
+  animation: rvmAlertRing 1.8s ease-out infinite;
+}
+#liveServiceBanner:not(.hidden) #bannerRoute{
+  animation: rvmAlertRing 1.8s ease-out infinite;
+}
+
 </style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
+
+<!-- SPLASH -->
 <div id="splash">
   <div id="splashBg"></div>
   <div id="splashOverlay"></div>
   <div id="splashContent">
     <div class="fade-up flex flex-col items-center">
-      <div class="logo-box w-56 h-28 mx-auto rounded-[1.5rem] p-3 shadow-[0_0_40px_rgba(59,130,246,0.6)] mb-6 border-2 border-white/30">
+      <div class="logo-box w-48 h-24 mx-auto rounded-[1.5rem] p-3 mb-2 border-2 border-white/80 shrink-0">
         <img src="https://www.rivervalleymetro.com/wp-content/themes/wp-bootstrap-rivervalley/assets/images/logo-river-valley-metro-color.png" alt="River Valley Metro logo">
       </div>
-      <h1 class="text-white text-2xl font-black tracking-tighter uppercase drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">River Valley Metro</h1>
-      <p class="text-blue-400 font-bold text-[10px] uppercase tracking-[0.4em] mt-1 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">Official Transit Portal</p>
+      <div class="rvm-wrap" aria-label="RVM App">
+        <svg class="rvm-svg" viewBox="0 0 960 200" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="xMidYMid meet">
+          <!-- R -->
+          <g class="draw"><path class="rvm-letter" d="M30 165 L30 45 L105 45 Q145 45 145 85 Q145 125 105 125 L30 125"/><path class="rvm-letter" d="M100 125 L150 165"/></g>
+          <!-- V -->
+          <g class="draw"><path class="rvm-letter teal" d="M185 45 L240 165 L295 45"/></g>
+          <!-- M -->
+          <g class="draw"><path class="rvm-letter" d="M330 165 L330 45 L390 115 L450 45 L450 165"/></g>
+          <!-- SPACE -->
+          <!-- A -->
+          <g class="draw"><path class="rvm-letter teal" d="M510 165 L565 45 L620 165 M535 120 L595 120"/></g>
+          <!-- P -->
+          <g class="draw"><path class="rvm-letter" d="M655 165 L655 45 L730 45 Q765 45 765 85 Q765 125 730 125 L655 125"/></g>
+          <!-- P -->
+          <g class="draw"><path class="rvm-letter" d="M800 165 L800 45 L875 45 Q910 45 910 85 Q910 125 875 125 L800 125"/></g>
+          <circle class="rvm-dot" cx="935" cy="145" r="7"/>
+        </svg>
+      </div>
+      <h1 class="text-[#0b2a4a] text-2xl font-black tracking-tighter uppercase drop-shadow-[0_2px_10px_rgba(255,255,255,0.9)] mt-1">River Valley Metro</h1>
+      <p class="text-sky-700 font-bold text-[10px] uppercase tracking-[0.4em] mt-1">Official Transit Portal</p>
     </div>
     <div class="fade-up-delay mt-auto mb-10 flex flex-col items-center">
-      <p class="text-white text-[15px] font-extrabold tracking-wide text-center leading-relaxed max-w-[300px] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">Go where you want to go<br>with <span class="text-blue-400">River Valley Metro</span>.</p>
+      <p class="text-[#0b2a4a] text-[15px] font-extrabold tracking-wide text-center leading-relaxed max-w-[300px]">Go where you want to go<br>with <span class="text-sky-700">River Valley Metro</span>.</p>
       <div class="loader-track"><div class="loader-progress"></div></div>
-      <p class="text-white/50 text-[9px] font-bold tracking-[0.3em] uppercase mt-3">LOADING • CONNECTING TO DISPATCH</p>
+      <p class="text-[#0b2a4a]/50 text-[9px] font-bold tracking-[0.3em] uppercase mt-3">LOADING • CONNECTING TO DISPATCH</p>
     </div>
   </div>
 </div>
+
+<!-- HAMBURGER -->
+<button id="hamburgerBtn" aria-label="Open menu" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
+<div id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+<aside id="drawer">
+  <div class="flex items-center gap-3 pb-4 border-b border-white/70">
+    <div class="logo-box w-14 h-14 rounded-2xl p-1.5 shrink-0"><img src="https://www.rivervalleymetro.com/wp-content/themes/wp-bootstrap-rivervalley/assets/images/logo-river-valley-metro-color.png" alt="Logo"></div>
+    <div><p class="font-black text-[15px] leading-tight text-[#0b2a4a]">River Valley Metro</p><p class="text-[9px] font-bold tracking-[0.25em] text-sky-700 uppercase">Official Transit Portal</p></div>
+  </div>
+  <nav class="flex flex-col gap-2.5 mt-5">
+    <a href="./status.html" class="drawer-link">⚠ <span>Alerts</span><span class="ml-auto text-[10px] text-slate-400">→</span></a>
+    <a href="./map.html" class="drawer-link">🚌 <span>Find Bus</span><span class="ml-auto text-[10px] text-slate-400">→</span></a>
+    <a href="./midway.html" class="drawer-link">✈ <span>Midway</span><span class="ml-auto text-[10px] text-slate-400">→</span></a>
+    <a href="./notices.html" class="drawer-link active">📋 <span>Notices</span><span class="ml-auto text-[10px]">●</span></a>
+    <a href="./passes.html" class="drawer-link">🎫 <span>Passes</span><span class="ml-auto text-[10px] text-slate-400">→</span></a>
+    <a href="./weather.html" class="drawer-link">☁️ <span>Weather</span><span class="ml-auto text-[10px] text-slate-400">→</span></a>
+  </nav>
+  <div class="mt-auto space-y-3">
+    <a href="tel:8159374287" class="drawer-link justify-center !bg-[#0b2a4a] !text-white !border-[#0b2a4a]">📞 CALL DISPATCH</a>
+    <a href="https://www.rivervalleymetro.com" target="_blank" class="block text-center text-[10px] font-bold tracking-widest text-sky-700 uppercase">rivervalleymetro.com ↗</a>
+  </div>
+</aside>
+
 <div class="app-container" id="scrollContainer">
-  <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-12 pb-40">
+  <div id="mainContent" class="opacity-0 transition-opacity duration-1000 p-6 pt-[76px] pb-10">
     <header class="text-center mb-6">
-      <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8"></div>
       <div class="flex justify-center mb-4">
-        <div class="logo-box w-44 h-20 rounded-2xl border-2 border-white/20 shadow-xl p-2">
+        <div class="logo-box w-44 h-20 rounded-2xl border-2 border-white/80 p-2">
           <img src="https://www.rivervalleymetro.com/wp-content/themes/wp-bootstrap-rivervalley/assets/images/logo-river-valley-metro-color.png" alt="River Valley Metro logo">
         </div>
       </div>
       <h1 class="text-3xl font-black glow-text tracking-tight">River Valley Metro</h1>
-      <p class="text-blue-500 font-bold text-[10px] uppercase tracking-[0.4em]">Official Transit Portal</p>
-      <a href="https://www.rivervalleymetro.com" target="_blank" class="inline-block mt-3 text-[10px] text-white/40 hover:text-blue-400 underline tracking-widest uppercase">Visit Website • rivervalleymetro.com</a>
-      <p id="todayLabel" class="mt-3 text-[10px] font-black tracking-[0.2em] text-blue-400 uppercase bg-blue-500/10 border border-blue-500/20 inline-block px-3 py-1 rounded-full">—</p>
+      <p class="text-sky-700 font-bold text-[10px] uppercase tracking-[0.4em]">Official Transit Portal</p>
+      <a href="https://www.rivervalleymetro.com" target="_blank" class="inline-block mt-3 text-[10px] text-sky-800/60 hover:text-sky-700 underline tracking-widest uppercase">Visit Website • rivervalleymetro.com</a>
+      <p id="todayLabel" class="mt-3 text-[10px] font-black tracking-[0.2em] text-sky-800 uppercase bg-white/60 border border-sky-200 inline-block px-3 py-1 rounded-full shadow-sm">—</p>
     </header>
+
     <div id="liveServiceBanner" class="hidden mb-6" onclick="markSeenOnly()" title="Tap to mark as read - Only dispatch can remove this alert">
       <div class="service-alert rounded-[1.8rem] p-5 slide-down">
         <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center flex-shrink-0"><span class="text-red-400 text-lg">⚠</span></div>
+          <div class="w-10 h-10 rounded-full bg-red-500/15 border border-red-300 flex items-center justify-center flex-shrink-0"><span class="text-red-600 text-lg">⚠</span></div>
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1"><span id="bannerRoute" class="bg-red-500/20 border border-red-500/30 text-red-300 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest">SYSTEM</span><span class="flex items-center gap-1.5 text-[9px] font-bold text-red-400 tracking-widest"><span class="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></span>LIVE FROM DISPATCH</span></div>
-            <h3 id="bannerTitle" class="text-[14px] font-black uppercase tracking-tight text-white leading-tight">Service Alert</h3>
-            <p id="bannerMessage" class="text-[12px] leading-relaxed text-slate-300 mt-1 font-medium">Details loading...</p>
-            <p id="bannerTime" class="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-widest">Just now</p>
+            <div class="flex items-center gap-2 mb-1"><span id="bannerRoute" class="bg-red-100 border border-red-200 text-red-700 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest">SYSTEM</span><span class="flex items-center gap-1.5 text-[9px] font-bold text-red-600 tracking-widest"><span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>LIVE FROM DISPATCH</span></div>
+            <h3 id="bannerTitle" class="text-[14px] font-black uppercase tracking-tight text-[#0b2a4a] leading-tight">Service Alert</h3>
+            <p id="bannerMessage" class="text-[12px] leading-relaxed text-slate-600 mt-1 font-medium">Details loading...</p>
+            <p id="bannerTime" class="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-widest">Just now</p>
           </div>
-          <div class="w-7 h-7 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center" title="Only dispatch can remove this"><span class="w-2 h-2 bg-red-400 rounded-full animate-pulse"></span></div>
+          <div class="w-7 h-7 rounded-full bg-red-500/10 border border-red-200 flex items-center justify-center"><span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span></div>
         </div>
       </div>
     </div>
-    <div id="normalStatus" class="glass-card rounded-[1.8rem] p-4 mb-6 flex items-center gap-3 border-emerald-500/20">
-      <div class="w-10 h-10 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center"><span class="text-emerald-400">✓</span></div>
-      <div><h3 class="text-[13px] font-black uppercase tracking-tight">System Normal</h3><p class="text-[11px] text-slate-400">All routes operating on schedule</p></div>
-      <div class="ml-auto"><span class="w-2 h-2 bg-emerald-400 rounded-full inline-block animate-pulse shadow-[0_0_8px_#22c55e]"></span></div>
+
+    <div id="rvmDebug" class="hidden glass-card rounded-[1.2rem] p-4 mb-4 text-left"><p class="text-[11px] font-black text-[#0b2a4a]">🔍 DEBUG — WHY SYSTEM NORMAL?</p><p id="rvmDebugText" class="text-[11px] text-slate-600 mt-1 leading-relaxed whitespace-pre-wrap">Checking…</p><button onclick="location.reload()" class="mt-2 bg-[#0b2a4a] text-white text-[11px] font-bold px-3 py-2 rounded-full">Re-check now</button></div>
+    <div id="normalStatus" class="glass-card rounded-[1.8rem] p-4 mb-6 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-emerald-500/15 border border-emerald-300 flex items-center justify-center"><span class="text-emerald-600">✓</span></div>
+      <div class="flex-1 min-w-0"><h3 class="text-[13px] font-black uppercase tracking-tight text-[#0b2a4a]">System Normal</h3><p class="text-[11px] text-slate-500">All routes operating on schedule</p><p id="normalChecked" class="text-[9px] text-slate-400 mt-0.5 font-bold uppercase tracking-widest">Checking dispatch…</p></div>
+      <div class="ml-auto"><span class="w-2 h-2 bg-emerald-500 rounded-full inline-block animate-pulse shadow-[0_0_8px_#22c55e]"></span></div>
     </div>
+
     <div class="space-y-6">
       <div class="glass-card p-6">
-        <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">Local &amp; Metro Plus <span class="text-[9px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black">HOURS</span></h2>
+        <h2 class="font-extrabold text-[#0b2a4a] mb-5 flex items-center justify-between">Local &amp; Metro Plus <span class="text-[9px] bg-sky-500/15 px-2 py-1 rounded text-sky-700 font-black">HOURS</span></h2>
         <div class="space-y-2 text-sm">
-          <div id="row-mon-fri" class="schedule-row flex justify-between items-center"><span class="text-white/40 flex items-center">Mon – Fri <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">5:00A - 9:30P</span></div>
-          <div id="row-sat" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Saturday <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
-          <div id="row-sun" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Sun / Holiday <span class="today-badge">TODAY</span></span><span class="font-bold text-blue-400">8:00A - 4:00P</span></div>
+          <div id="row-mon-fri" class="schedule-row flex justify-between items-center"><span class="text-slate-500 flex items-center">Mon – Fri <span class="today-badge">TODAY</span></span><span class="font-bold text-[#0b2a4a]">5:00A - 9:30P</span></div>
+          <div id="row-sat" class="schedule-row flex justify-between items-center border-t border-white/70 pt-3"><span class="text-slate-500 flex items-center">Saturday <span class="today-badge">TODAY</span></span><span class="font-bold text-[#0b2a4a]">7:00A - 9:30P</span></div>
+          <div id="row-sun" class="schedule-row flex justify-between items-center border-t border-white/70 pt-3"><span class="text-slate-500 flex items-center">Sun / Holiday <span class="today-badge">TODAY</span></span><span class="font-bold text-sky-700">8:00A - 4:00P</span></div>
         </div>
       </div>
       <div class="glass-card p-6">
-        <h2 class="font-extrabold text-white mb-5 flex items-center justify-between">Midway Commuter<span class="text-[9px] bg-indigo-500/20 px-2 py-1 rounded text-indigo-400 font-black">HOURS</span></h2>
+        <h2 class="font-extrabold text-[#0b2a4a] mb-5 flex items-center justify-between">Midway Commuter<span class="text-[9px] bg-indigo-500/15 px-2 py-1 rounded text-indigo-600 font-black">HOURS</span></h2>
         <div class="space-y-2 text-sm">
-          <div id="row-mid-mon-fri" class="schedule-row flex justify-between items-center"><span class="text-white/40 flex items-center">Mon – Fri <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">4:45A - 9:30P</span></div>
-          <div id="row-mid-sat" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Saturday <span class="today-badge">TODAY</span></span><span class="font-bold text-white/90">7:00A - 9:30P</span></div>
-          <div id="row-mid-sun" class="schedule-row flex justify-between items-center border-t border-white/5 pt-3"><span class="text-white/40 flex items-center">Sun / Holiday <span class="today-badge">TODAY</span></span><span class="font-bold text-indigo-400">8:00A - 6:40P</span></div>
+          <div id="row-mid-mon-fri" class="schedule-row flex justify-between items-center"><span class="text-slate-500 flex items-center">Mon – Fri <span class="today-badge">TODAY</span></span><span class="font-bold text-[#0b2a4a]">4:45A - 9:30P</span></div>
+          <div id="row-mid-sat" class="schedule-row flex justify-between items-center border-t border-white/70 pt-3"><span class="text-slate-500 flex items-center">Saturday <span class="today-badge">TODAY</span></span><span class="font-bold text-[#0b2a4a]">7:00A - 9:30P</span></div>
+          <div id="row-mid-sun" class="schedule-row flex justify-between items-center border-t border-white/70 pt-3"><span class="text-slate-500 flex items-center">Sun / Holiday <span class="today-badge">TODAY</span></span><span class="font-bold text-indigo-600">8:00A - 6:40P</span></div>
         </div>
       </div>
       <div class="glass-card p-5">
-        <h2 class="font-extrabold text-white mb-4 text-[13px] tracking-widest uppercase">Quick Links</h2>
+        <h2 class="font-extrabold text-[#0b2a4a] mb-4 text-[13px] tracking-widest uppercase">Quick Links</h2>
         <div class="grid grid-cols-2 gap-3 text-[11px]">
-          <a href="https://www.rivervalleymetro.com" target="_blank" class="bg-white/5 border border-white/10 rounded-2xl p-4 font-bold hover:bg-white/10 transition">🌐 Website</a>
-          <a href="./map.html" class="bg-blue-500/15 border border-blue-500/20 rounded-2xl p-4 font-bold text-blue-300">🚌 Find Bus</a>
-          <a href="./status.html" class="bg-white/5 border border-white/10 rounded-2xl p-4 font-bold">⚠ Alerts</a>
-          <a href="./midway.html" class="bg-white/5 border border-white/10 rounded-2xl p-4 font-bold">✈ Midway</a>
+          <a href="https://www.rivervalleymetro.com" target="_blank" class="bg-white/70 border border-white rounded-2xl p-4 font-bold text-[#0b2a4a] shadow-sm">🌐 Website</a>
+          <a href="./map.html" class="bg-sky-500/15 border border-sky-200 rounded-2xl p-4 font-bold text-sky-800">🚌 Find Bus</a>
+          <a href="./status.html" class="bg-white/70 border border-white rounded-2xl p-4 font-bold text-[#0b2a4a] shadow-sm">⚠ Alerts</a>
+          <a href="./midway.html" class="bg-white/70 border border-white rounded-2xl p-4 font-bold text-[#0b2a4a] shadow-sm">✈ Midway</a>
         </div>
       </div>
-      <div class="pt-2"><a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-white text-black w-full py-5 rounded-[2rem] font-black active:scale-95 transition-all shadow-xl">📞 CALL DISPATCH • (815) 937-4287</a><p class="text-center text-[9px] text-white/30 mt-3 tracking-[0.2em] uppercase">Official River Valley Metro App</p></div>
+      <div class="pt-2"><a href="tel:8159374287" class="flex items-center justify-center gap-3 bg-[#0b2a4a] text-white w-full py-5 rounded-[2rem] font-black active:scale-95 transition-all shadow-xl shadow-sky-900/20">📞 CALL DISPATCH • (815) 937-4287</a><p class="text-center text-[9px] text-sky-900/40 mt-3 tracking-[0.2em] uppercase">Official River Valley Metro App</p></div>
     </div>
   </div>
 </div>
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-    <a href="./status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span></a>
-    <a href="./map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span></a>
-    <a href="./midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Midway</span></a>
-    <a href="./notices.html" class="nav-link active flex flex-col items-center gap-1.5 text-blue-500 flex-1 relative"><span id="noticesDot" class="hidden absolute -top-1 right-3 w-3.5 h-3.5 bg-red-500 rounded-full border-[2px] border-slate-900 shadow-[0_0_10px_#ef4444]"><span class="absolute inset-0 rounded-full bg-red-500 animate-ping"></span></span><span id="noticesCount" class="hidden absolute -top-2 right-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[14px] text-center leading-none">0</span><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12" /></svg><span class="text-[8px] font-black uppercase tracking-tighter text-blue-500">Notices</span></a>
-    <a href="./passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Passes</span></a>
-    <a href="./weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg><span class="text-[8px] font-black uppercase tracking-tighter">Weather</span></a>
-</nav>
+
 <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-let stars = [];
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  stars = Array.from({length: 90}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 1.4 + 0.3,
-    o: Math.random() * 0.5 + 0.15
-  }));
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-function drawStars() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grad.addColorStop(0, '#020617');
-  grad.addColorStop(1, '#000000');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  stars.forEach(s => {
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,' + s.o + ')';
-    ctx.fill();
-  });
-}
-drawStars();
-const day = new Date().getDay();
-const todayLabel = document.getElementById('todayLabel');
-const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-if (todayLabel) todayLabel.textContent = 'Today • ' + dayNames[day];
-function highlight(id, isWeekend) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.add('today');
-  if (isWeekend) el.classList.add('today-weekend');
-}
-if (day === 0) { highlight('row-sun', true); highlight('row-mid-sun', true); }
-else if (day === 6) { highlight('row-sat', true); highlight('row-mid-sat', true); }
-else { highlight('row-mon-fri', false); highlight('row-mid-mon-fri', false); }
-let splashHidden = false;
-function hideSplash() {
-  if (splashHidden) return;
-  splashHidden = true;
-  const splash = document.getElementById('splash');
-  const main = document.getElementById('mainContent');
-  if (splash) {
-    splash.style.opacity = '0';
-    splash.style.pointerEvents = 'none';
-    setTimeout(() => { splash.style.display = 'none'; }, 800);
+const canvas=document.getElementById('canvas');const ctx=canvas.getContext('2d');let stars=[];
+function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;stars=Array.from({length:70},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.6+.4,o:Math.random()*.35+.1}));}
+resizeCanvas();addEventListener('resize',resizeCanvas);
+(function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const g=ctx.createLinearGradient(0,0,0,canvas.height);g.addColorStop(0,'#bfe0ff');g.addColorStop(.5,'#d9ecff');g.addColorStop(1,'#eef7ff');ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+s.o+')';ctx.fill();});})();
+(function(){const paths=document.querySelectorAll('.rvm-svg .rvm-letter');paths.forEach(p=>{const l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;});const dots=document.querySelectorAll('.rvm-dot');const speed=document.querySelectorAll('.rvm-svg .speed path');speed.forEach(p=>{const l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;});const tl=gsap.timeline({delay:.15});tl.to(paths,{strokeDashoffset:0,duration:.55,stagger:.18,ease:'power2.out'}).fromTo(dots,{scale:0,transformOrigin:'center'},{scale:1,duration:.35,stagger:.12,ease:'back.out(3)'},'-=.2').to(speed,{strokeDashoffset:0,duration:.3,stagger:.08},'-=.3').to(speed,{opacity:0,duration:.4},'+=.3');})();
+function toggleDrawer(force){const d=document.getElementById('drawer'),o=document.getElementById('drawerOverlay'),b=document.getElementById('hamburgerBtn');const show=force!==undefined?force:!d.classList.contains('show');d.classList.toggle('show',show);o.classList.toggle('show',show);b.classList.toggle('open',show);}
+const day=new Date().getDay();const todayLabel=document.getElementById('todayLabel');const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];if(todayLabel)todayLabel.textContent='Today • '+dayNames[day];
+function highlight(id,isWeekend){const el=document.getElementById(id);if(!el)return;el.classList.add('today');if(isWeekend)el.classList.add('today-weekend');}
+if(day===0){highlight('row-sun',true);highlight('row-mid-sun',true);}else if(day===6){highlight('row-sat',true);highlight('row-mid-sat',true);}else{highlight('row-mon-fri',false);highlight('row-mid-mon-fri',false);}
+let splashHidden=false;function hideSplash(){if(splashHidden)return;splashHidden=true;const s=document.getElementById('splash'),m=document.getElementById('mainContent');if(s){s.style.opacity='0';s.style.pointerEvents='none';setTimeout(()=>s.style.display='none',800);}if(m)m.classList.remove('opacity-0');}
+addEventListener('load',()=>setTimeout(hideSplash,2200));setTimeout(hideSplash,4200);
+
+/* ===== SYSTEM NORMAL — ACTUALLY WORKING =====
+   Truth source (in order):
+   1) window.RVM_ALERT — set by dispatch / another page before load
+   2) localStorage: rvm_active_alert (JSON) — what dispatch saves
+   3) localStorage: rvm_broadcast / rvm_service_alert (legacy keys, dispatch may use these)
+   4) URL: ?alert=Title|Message|Route  (for testing / deep-link from dispatch)
+   If none found / alert expired / alert cleared => System Normal shows.
+   If an active alert exists => banner shows, System Normal hides. Never both.
+*/
+function parseAlert(raw){
+  if(!raw) return null;
+  let a;
+  try{ a = typeof raw === 'string' ? JSON.parse(raw) : raw; }catch(e){
+    // plain text broadcast, e.g. "Detour on Main"
+    const t = String(raw).trim();
+    if(!t || t==='{}' || t==='[]' || t==='null') return null;
+    return {title:'Service Alert', message:t, route:'SYSTEM', time:''};
   }
-  if (main) main.classList.remove('opacity-0');
+  if(!a) return null;
+  // --- Dispatch often saves an ARRAY of notices / a wrapper object ---
+  // e.g. [{...},{...}]  or  {activeBroadcast:{...}, hiddenBroadcast:{...}}  or  {broadcasts:[...]}  or {notices:[...]}
+  if(Array.isArray(a)){
+    if(a.length && typeof a[0]==='string'){ const t=a.join(' ').trim(); if(t) return {title:'Service Alert', message:t, route:'SYSTEM', time:''}; }
+    // pick first ACTIVE, not-expired, already-started item
+    for(const item of a){ const p=parseAlert(item); if(p) return p; }
+    return null;
+  }
+  if(a.activeBroadcast) return parseAlert(a.activeBroadcast);
+  if(a.active && typeof a.active==='object') return parseAlert(a.active);
+  if(a.current) return parseAlert(a.current);
+  if(a.broadcast) return parseAlert(a.broadcast);
+  if(Array.isArray(a.broadcasts)){ for(const it of a.broadcasts){ const p=parseAlert(it); if(p) return p; } return null; }
+  if(Array.isArray(a.notices)){ for(const it of a.notices){ const p=parseAlert(it); if(p) return p; } return null; }
+  if(Array.isArray(a.alerts)){ for(const it of a.alerts){ const p=parseAlert(it); if(p) return p; } return null; }
+  // hidden / scheduled-only wrapper must NOT show on passenger side
+  if(a.hiddenBroadcast && !a.activeBroadcast) return null;
+  if(a.isHidden===true || a.hidden===true || a.visible===false || a.showOnPassenger===false) return null;
+  if(a.cleared===true || a.active===false || a.status==='cleared' || a.status==='normal' || a.status==='hidden' || a.status==='scheduled') return null;
+  const _badge=(a.badgeStatus||'').toString().toUpperCase();
+  if(_badge==='ON TIME' || _badge==='SYSTEM NORMAL') return null;
+
+  // --- Field aliases dispatch actually uses ---
+  const title = a.badgeStatus || a.title || a.heading || a.subject || a.name || 'Service Alert';
+  const message = a.message || a.body || a.text || a.details || a.broadcastText || a.content || a.notice || a.description || a.msg || a.alert || a.broadcast || (typeof a.active==='string' ? a.active : '') || '';
+  let route = a.route || a.routeNormalized || a.routeName || a.affectedRoute || a.routes || a.routeNames || 'SYSTEM';
+  if(Array.isArray(route)) route = route.join(', ') || 'SYSTEM';
+  const time = a.time || a.updatedAt || a.timestamp || a.createdAt || a.postedAt || a.date || '';
+
+  // --- Start / expire aliases dispatch uses: startDate / expireDate / endDate ---
+  if(typeof a.startsAtTS==='number' && a.startsAtTS > Date.now()) return null;
+  if(typeof a.expiresAtTS==='number' && a.expiresAtTS < Date.now()) return null;
+  if(a.active===false) return null;
+  const starts = a.startsAt || a.startDate || a.start || a.startTime || a.publishAt || null;
+  if(starts){
+    const s = new Date(starts).getTime();
+    if(!isNaN(s) && s > Date.now()) return null; // scheduled, not yet live
+  }
+  const expires = a.expiresAt || a.expires || a.expireDate || a.expiry || a.endDate || a.end || a.endTime || null;
+  if(expires){
+    const e = new Date(expires).getTime();
+    if(!isNaN(e) && e < Date.now()) return null; // expired
+  }
+  // Empty object with no real message = no alert (old code never hit this because title defaulted)
+  if(!String(message).trim() && !a.title && !a.heading && !a.subject) return null;
+  return {title, message:String(message), route:String(route), time:String(time)};
 }
-window.addEventListener('load', () => setTimeout(hideSplash, 1200));
-setTimeout(hideSplash, 3500);
-function markSeenOnly() {
-  const banner = document.getElementById('liveServiceBanner');
-  if (banner) banner.style.opacity = '0.6';
+function getActiveAlert(){
+  const debug = new URLSearchParams(location.search).get('debug')==='1';
+  const tried = [];
+  // 0) Firebase cache FIRST - this is where dispatch actually saves (alerts/ in RTDB)
+  if(window._rvmFirebaseAlerts){ const a=parseAlert(window._rvmFirebaseAlerts); if(a) return a; }
+  // 1) in-memory
+  if(window.RVM_ALERT){ const a=parseAlert(window.RVM_ALERT); if(a) return a; }
+  // 2) URL
+  try{
+    const q=new URLSearchParams(location.search);
+    if(q.get('alert')){ const parts=q.get('alert').split('|'); return parseAlert({title:parts[0], message:parts[1]||'', route:parts[2]||'SYSTEM'}); }
+    if(q.get('clearAlert')==='1') return null;
+  }catch(e){}
+  // 3) BRUTE FORCE: scan EVERY key in localStorage + sessionStorage.
+  // Dispatch may use ANY key name - we no longer guess. If a value looks like an alert, use it.
+  const scanStore = (store, storeName)=>{
+    try{
+      for(let i=0;i<store.length;i++){
+        const key = store.key(i);
+        if(!key) continue;
+        const raw = store.getItem(key);
+        if(!raw || raw==='null' || raw==='{}' || raw==='[]' || raw==='""') continue;
+        tried.push(storeName+':'+key);
+        // Skip obviously unrelated keys (theme, etc) unless they contain alert words
+        const low = raw.toLowerCase();
+        const looksLikeAlert = /alert|broadcast|detour|notice|service|route|delay|closure|closed|reroute/.test(low) || key.toLowerCase().includes('rvm') || key.toLowerCase().includes('broadcast') || key.toLowerCase().includes('alert') || key.toLowerCase().includes('notice') || key.toLowerCase().includes('dispatch');
+        if(!looksLikeAlert) continue;
+        const a = parseAlert(raw);
+        if(a){ if(debug) console.log('[RVM] FOUND ALERT IN', storeName, key, a); return a; }
+      }
+    }catch(e){ if(debug) console.log('[RVM] store scan error', storeName, e); }
+    return null;
+  };
+  let found = scanStore(localStorage, 'localStorage');
+  if(found) return found;
+  found = scanStore(sessionStorage, 'sessionStorage');
+  if(found) return found;
+  if(debug) console.log('[RVM] No alert found. Keys checked:', tried);
+  // Expose for debug panel
+  window._rvmTriedKeys = tried;
+  return null;
 }
+// If dispatch uses BroadcastChannel to push alerts, listen for it
+try{
+  const bc = new BroadcastChannel('rvm');
+  bc.onmessage = (e)=>{ const a=parseAlert(e.data); if(a) showAlert(a); else updateSystemStatus(); };
+  window._rvmBC = bc;
+}catch(e){}
+try{
+  const bc2 = new BroadcastChannel('rvm-alerts');
+  bc2.onmessage = (e)=>{ const a=parseAlert(e.data); if(a) showAlert(a); };
+}catch(e){}
+function showNormal(checkedLabel){
+  const banner=document.getElementById('liveServiceBanner');
+  const normal=document.getElementById('normalStatus');
+  if(banner) banner.classList.add('hidden');
+  if(normal) normal.classList.remove('hidden');
+  const el=document.getElementById('normalChecked');
+  if(el) el.textContent = checkedLabel || ('Checked dispatch • ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}));
+}
+function showAlert(a){
+  const banner=document.getElementById('liveServiceBanner');
+  const normal=document.getElementById('normalStatus');
+  if(normal) normal.classList.add('hidden');
+  if(!banner) return;
+  const t=document.getElementById('bannerTitle'); if(t) t.textContent=a.title;
+  const m=document.getElementById('bannerMessage'); if(m) m.textContent=a.message;
+  const r=document.getElementById('bannerRoute'); if(r) r.textContent=a.route;
+  const tm=document.getElementById('bannerTime'); if(tm) tm.textContent = a.time ? ('Updated • '+a.time) : ('Live • '+new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}));
+  banner.classList.remove('hidden');
+  banner.style.opacity='1';
+}
+function updateSystemStatus(){
+  const a=getActiveAlert();
+  try{
+    if(new URLSearchParams(location.search).get('debug')==='1'){
+      const d=document.getElementById('rvmDebug'); if(d) d.classList.remove('hidden');
+      const t=document.getElementById('rvmDebugText');
+      if(t) t.textContent = (a ? 'FOUND ALERT:\n'+JSON.stringify(a,null,2) : 'NO ALERT FOUND\n\nKeys scanned:\n'+(window._rvmTriedKeys||[]).join('\n')+'\n\nlocalStorage total: '+localStorage.length+' keys\nIf your alert is NOT in that list, dispatch is saving it somewhere else (different domain / Firebase / file) — tell me the key name and I will wire it exactly.');
+    }
+  }catch(e){}
+  console.log('[RVM status]', a ? 'ALERT: '+a.title : 'NORMAL - no active alert found');
+  if(a) showAlert(a); else showNormal();
+  return a;
+}
+function markSeenOnly(){ const b=document.getElementById('liveServiceBanner'); if(b) b.style.opacity='0.6'; }
+// Expose for dispatch / console testing:
+//  setRVMAlert({title,message,route})  •  clearRVMAlert()
+window.setRVMAlert = function(a){ try{ localStorage.setItem('rvm_active_alert', JSON.stringify(a)); localStorage.removeItem('rvm_alert_cleared'); }catch(e){ window.RVM_ALERT=a; } updateSystemStatus(); };
+window.clearRVMAlert = function(){ try{ localStorage.removeItem('rvm_active_alert'); localStorage.removeItem('rvm_service_alert'); localStorage.removeItem('rvm_broadcast'); localStorage.removeItem('rvm_broadcasts'); localStorage.removeItem('rvm_notices'); localStorage.removeItem('rvm_alerts'); localStorage.removeItem('rvm_active_broadcast'); localStorage.setItem('rvm_alert_cleared','1'); }catch(e){} window.RVM_ALERT=null; updateSystemStatus(); };
+// Run on load, on storage change (dispatch updates in another tab), and poll every 10s
+document.addEventListener('DOMContentLoaded', updateSystemStatus);
+window.addEventListener('storage', (e)=>{ if(!e.key || e.key.startsWith('rvm_')) updateSystemStatus(); });
+setInterval(updateSystemStatus, 2000);
+updateSystemStatus();
+
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const firebaseConfig = { apiKey: "AIzaSyCRDkusyC05EzBiT8ZBj8JpZd8E5qVd-4g", authDomain: "rvm-software-manifest.firebaseapp.com", databaseURL: "https://rvm-software-manifest-default-rtdb.firebaseio.com", projectId: "rvm-software-manifest", storageBucket: "rvm-software-manifest.appspot.com", messagingSenderId: "1096220577213", appId: "1:1096220577213:web:8c9a0f8f1a2b3c4d5e6f7a" };
+try{
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+  try{ await signInAnonymously(auth); }catch(e){ console.warn('[RVM passenger] anon auth failed, trying read anyway', e); }
+  onValue(ref(db, 'alerts'), (snap)=>{
+    const val = snap.val() || {};
+    const entries = Object.entries(val);
+    // Same rules as dispatch render: active!==false, not expired, not not-started
+    const live = entries.filter(([id,a]) => a && a.active!==false && !(a.expiresAtTS && Date.now()>a.expiresAtTS) && !(a.startsAtTS && Date.now()<a.startsAtTS));
+    // Newest first, skip ON TIME / System Normal placeholders
+    live.sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+    const found = live.find(([id,a])=>{ const b=(a.badgeStatus||'').toString().toUpperCase(); return b!=='ON TIME' && b!=='SYSTEM NORMAL'; });
+    window._rvmFirebaseAlerts = found ? found[1] : null;
+    window._rvmFirebaseCount = live.length;
+    console.log('[RVM passenger] Firebase alerts:', live.length, 'showing:', found ? found[1].badgeStatus : 'none');
+    if(typeof updateSystemStatus==='function') updateSystemStatus();
+  }, (err)=>{ console.warn('[RVM passenger] Firebase read failed', err); });
+}catch(e){ console.warn('[RVM passenger] Firebase init failed', e); }
 </script>
 </body>
 </html>
