@@ -4,11 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <title>Buy Bus Passes | River Valley Metro</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -23,23 +21,73 @@
     <style type="text/css">
         body { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         .app-container::-webkit-scrollbar { display: none; }
+        /* LIGHTER - CSS ONLY */
+        body{background:linear-gradient(180deg,#eaf2fb 0%,#dbe7f3 45%,#cbd5e1 100%) !important;color:#000 !important}
+        #canvas{opacity:.18 !important}
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(255,255,255,.82) !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.14) !important;
+            box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.12) !important;
+            color:#000 !important;
         }
+        .text-slate-50{color:#000 !important}
+        .text-slate-100{color:#000 !important}
+        .text-slate-400{color:#475569 !important}
+        .text-slate-500{color:#64748b !important}
+        .text-slate-600{color:#475569 !important}
+        .text-blue-400{color:#1d4ed8 !important}
+        .text-blue-500{color:#1d4ed8 !important}
+        .bg-white\/10{background:rgba(0,0,0,.08) !important}
+        .bg-white\/5{background:rgba(0,0,0,.05) !important}
+        .border-white\/10{border-color:rgba(0,0,0,.14) !important}
+        .border-white\/5{border-color:rgba(0,0,0,.08) !important}
+        .bg-blue-500\/10{background:rgba(29,78,216,.08) !important}
+        .border-blue-500\/20{border-color:rgba(29,78,216,.25) !important}
+        footer{color:#000 !important}
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .float-animate { animation: float 3s ease-in-out infinite; }
         @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
         .pulse-button { animation: pulse-gold 2.5s infinite; }
+        /* --- HAMBURGER + DRAWER --- */
+        #hamburgerBtn{position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:14px;z-index:9998;width:48px;height:48px;border-radius:9999px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.14);box-shadow:0 8px 24px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+        #hamburgerBtn span{display:block;width:20px;height:2.5px;border-radius:999px;background:#000;transition:.3s}
+        #hamburgerBtn.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+        #hamburgerBtn.open span:nth-child(2){opacity:0}
+        #hamburgerBtn.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+        #drawerOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9990;opacity:0;pointer-events:none;transition:.3s}
+        #drawerOverlay.show{opacity:1;pointer-events:auto}
+        #drawer{position:fixed;top:0;left:0;height:100dvh;width:min(300px,84vw);z-index:9995;background:#eef2f7;color:#000;border-right:1px solid rgba(0,0,0,.14);box-shadow:0 8px 24px rgba(0,0,0,.18);transform:translateX(-105%);transition:transform .38s cubic-bezier(.2,.9,.25,1);display:flex;flex-direction:column;padding:22px 18px calc(env(safe-area-inset-bottom) + 18px)}
+        #drawer.show{transform:translateX(0)}
+        .drawer-link{display:flex;align-items:center;gap:12px;padding:14px 14px;border-radius:18px;background:#fff;border:1px solid rgba(0,0,0,.12);font-weight:800;font-size:13px;color:#000;text-decoration:none}
+        .drawer-link.active{background:#0284c7;color:#fff !important;border-color:#0284c7}
+        .drawer-link.active span{color:#fff !important}
     </style>
 </head>
 <body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative">
     <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
-    <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-32 scrollbar-hide flex flex-col justify-between">
-        
+    <!-- HAMBURGER -->
+    <button id="hamburgerBtn" aria-label="Open menu" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
+    <div id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+    <aside id="drawer">
+      <div class="flex items-center gap-3 pb-4 border-b border-black/10">
+        <div><p class="font-black text-[15px] leading-tight">BUS PASSES</p><p class="text-[9px] font-bold tracking-[0.25em] text-blue-600 uppercase">Digital Ticketing</p></div>
+      </div>
+      <nav class="flex flex-col gap-2.5 mt-5">
+        <a href="status.html" class="drawer-link" data-page="status.html">⚠ <span>Alerts</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+        <a href="index.html" class="drawer-link" data-page="index.html">🚌 <span>Find Bus</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+        <a href="midway.html" class="drawer-link" data-page="midway.html">✈ <span>Midway</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+        <a href="notices.html" class="drawer-link" data-page="notices.html">📋 <span>Notices</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+        <a href="passes.html" class="drawer-link active" data-page="passes.html">🎫 <span>Passes</span><span class="ml-auto text-[10px]">●</span></a>
+        <a href="weather.html" class="drawer-link" data-page="weather.html">☁ <span>Weather</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+      </nav>
+      <div class="mt-auto space-y-3">
+        <a href="tel:8159374287" class="drawer-link justify-center !bg-[#0b2a4a] !text-white !border-[#0b2a4a]">📞 CALL DISPATCH</a>
+        <a href="https://www.rivervalleymetro.com" target="_blank" class="block text-center text-[10px] font-bold tracking-widest text-blue-600 uppercase">rivervalleymetro.com ↗</a>
+      </div>
+    </aside>
+    <main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-10 scrollbar-hide flex flex-col justify-between">
         <header class="glass-panel rounded-[2.5rem] p-6 text-center mb-4 flex-none">
             <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-4"></div>
             <div class="flex justify-between items-center px-2">
@@ -54,7 +102,6 @@
         </header>
         <section class="flex-1 flex flex-col items-center justify-center my-4">
             <div class="glass-panel rounded-[2.5rem] p-8 w-full text-center relative overflow-hidden border border-white/10">
-                
                 <div class="float-animate mb-6 inline-block p-5 rounded-3xl bg-blue-500/10 border border-blue-500/20 shadow-inner">
                     <span class="text-5xl block filter drop-shadow-md">🎫</span>
                 </div>
@@ -62,19 +109,12 @@
                 <p class="text-slate-400 text-xs font-medium mb-8 leading-relaxed max-w-xs mx-auto">
                     Secure your journey instantly. Purchase River Valley Metro passes safely using the secure <span class="text-blue-400 font-bold">Token Transit</span> gateway.
                 </p>
-                <!-- BOTH OPTIONS - APPLE + ANDROID -->
                 <div class="flex flex-col gap-3 w-full">
-                    <!-- APPLE - KEEP YOUR ORIGINAL -->
-                    <a href="https://apps.apple.com/us/app/token-transit/id1163625818" 
-                       target="_blank" 
-                       class="pulse-button flex items-center justify-center gap-3 w-full py-4 px-6 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg active:scale-95 transition-all duration-200">
+                    <a href="https://apps.apple.com/us/app/token-transit/id1163625818" target="_blank" class="pulse-button flex items-center justify-center gap-3 w-full py-4 px-6 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg active:scale-95 transition-all duration-200">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.11 1.23-2.12 3.35.02 2.38 2.07 3.16 2.1 3.17-.02.06-.33 1.13-1.09 2.24-.66 1-1.35 1.96-2.74 1.99zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
                         <span>Buy on iPhone</span>
                     </a>
-                    <!-- ANDROID - NEW -->
-                    <a href="https://play.google.com/store/apps/details?id=com.tokentransit.tokentransit&hl=en-US&pli=1" 
-                       target="_blank" 
-                       class="flex items-center justify-center gap-3 w-full py-4 px-6 bg-white hover:bg-slate-100 text-slate-900 font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg active:scale-95 transition-all duration-200 border border-white/10">
+                    <a href="https://play.google.com/store/apps/details?id=com.tokentransit.tokentransit&hl=en-US&pli=1" target="_blank" class="flex items-center justify-center gap-3 w-full py-4 px-6 bg-white hover:bg-slate-100 text-slate-900 font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg active:scale-95 transition-all duration-200 border border-white/10">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5C3 21.88 4.12 23 5.5 23L20 12L5.5 1C4.12 1 3 2.12 3 3.5V20.5Z"/></svg>
                         <span>Buy on Android</span>
                     </a>
@@ -97,33 +137,6 @@
             &copy; 2026 River Valley Metro Transit
         </footer>
     </main>
-    <!-- CORRECT 6-ITEM PREMIUM NAV -->
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[98%] max-w-[460px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-        <a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            <span class="text-[7px] font-black uppercase">ALERTS</span>
-        </a>
-        <a href="index.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span class="text-[7px] font-black uppercase">FIND BUS</span>
-        </a>
-        <a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-            <span class="text-[7px] font-black uppercase">MIDWAY</span>
-        </a>
-        <a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg>
-            <span class="text-[7px] font-black uppercase">NOTICES</span>
-        </a>
-        <a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-blue-500 flex-1">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg>
-            <span class="text-[7px] font-black uppercase">PASSES</span>
-        </a>
-        <a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-            <span class="text-[7px] font-black uppercase">WEATHER</span>
-        </a>
-    </nav>
     <script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
     <script id="fs" type="x-shader/x-fragment">
         precision highp float; uniform float uTime; uniform vec2 uRes;
@@ -139,6 +152,7 @@
         }
     </script>
     <script>
+        function toggleDrawer(force){const d=document.getElementById('drawer'),o=document.getElementById('drawerOverlay'),b=document.getElementById('hamburgerBtn');const show=force!==undefined?force:!d.classList.contains('show');d.classList.toggle('show',show);o.classList.toggle('show',show);b.classList.toggle('open',show);}
         const canvas = document.getElementById('canvas'), gl = canvas.getContext('webgl');
         function resize() {
             canvas.width = window.innerWidth;
@@ -174,4 +188,3 @@
     </script>
 </body>
 </html>
-
