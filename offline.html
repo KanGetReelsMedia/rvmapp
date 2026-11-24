@@ -1,32 +1,54 @@
 // sw.js — Premium Offline Handler for RVM
-const CACHE = 'rvm-premium-v2';
-const OFFLINE_URL = '/offline.html';
-const PRECACHE = [OFFLINE_URL, '/map.html', '/app.css'];
+// v3 - Navigation-first, cache-safe, no stale traps
 
+const CACHE = 'rvm-premium-v3';
+const OFFLINE_URL = '/offline.html';
+const PRECACHE = [
+  OFFLINE_URL,
+  '/map.html',
+  '/app.css'
+];
+
+// INSTALL - cache shell, don't fail whole install on 1 bad file
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE).then(async (cache) => {
+      await Promise.allSettled(
+        PRECACHE.map(url => cache.add(url).catch(err => console.warn('[SW] Skip precache:', url, err)))
+      );
+    }).then(() => self.skipWaiting())
   );
 });
 
+// ACTIVATE - delete old caches + take control immediately
 self.addEventListener('activate', (e) => {
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle navigations for offline fallback
-  if (event.request.mode === 'navigate') {
+  const req = event.request;
+
+  // Only GET - let POST / PUT / etc. pass through untouched
+  if (req.method !== 'GET') return;
+
+  // 1) NAVIGATIONS - network-first so passengers never see a stale page
+  if (req.mode === 'navigate') {
     event.respondWith((async () => {
       try {
-        const res = await fetch(event.request);
-        // update cache in background
-        const cache = await caches.open(CACHE);
-        cache.put(event.request, res.clone());
+        const res = await fetch(req);
+        // Only cache good, same-origin responses
+        if (res.ok && new URL(req.url).origin === self.location.origin) {
+          const cache = await caches.open(CACHE);
+          cache.put(req, res.clone());
+        }
         return res;
       } catch (err) {
         const cache = await caches.open(CACHE);
-        const cached = await cache.match(event.request);
+        const cached = await cache.match(req);
         // 1) try cached navigation
         // 2) fallback to premium offline page
         return cached || (await cache.match(OFFLINE_URL));
@@ -34,8 +56,26 @@ self.addEventListener('fetch', (event) => {
     })());
     return;
   }
-  // For assets: cache-first
-  event.respondWith(
-    caches.match(event.request).then(r => r || fetch(event.request))
-  );
+
+  // 2) ASSETS - stale-while-revalidate (fast + fresh next time)
+  // Old version was pure cache-first, so app.css / map.html could stay stale forever
+  if (new URL(req.url).origin === self.location.origin) {
+    event.respondWith(
+      caches.match(req).then(cached => {
+        const network = fetch(req).then(res => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(req, clone));
+          }
+          return res;
+        }).catch(() => cached);
+        return cached || network;
+      })
+    );
+    return;
+  }
+
+  // 3) Cross-origin (fonts, tiles, APIs) - network-only, don't cache
+  // Prevents caching opaque / live responses that can poison the cache
+  event.respondWith(fetch(req));
 });
