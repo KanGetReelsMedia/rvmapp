@@ -11,7 +11,34 @@
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']}}}}</script>
 <style>
 body{-webkit-tap-highlight-color:transparent; font-family:'Inter',sans-serif}
-.glass-panel{background:rgba(15,23,42,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 32px rgba(0,0,0,0.8)}
+/* LIGHT - CSS ONLY */
+body{background:linear-gradient(180deg,#eaf2fb 0%,#dbe7f3 45%,#cbd5e1 100%) !important;color:#000 !important}
+#canvas{opacity:.18 !important}
+.glass-panel{background:rgba(255,255,255,.82) !important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,.14) !important;box-shadow:0 8px 24px rgba(0,0,0,.12) !important;color:#000 !important}
+.text-slate-50{color:#000 !important}
+.text-slate-400{color:#475569 !important}
+.text-slate-500{color:#64748b !important}
+.text-slate-300{color:#1e293b !important}
+.text-blue-400{color:#1d4ed8 !important}
+.text-blue-500{color:#1d4ed8 !important}
+/* Rider alert text - JS sets these dark-mode colours, make them readable on light */
+.text-blue-200{color:#1e40af !important}
+.text-red-200{color:#991b1b !important}
+.text-amber-200{color:#92400e !important}
+.text-emerald-200{color:#065f46 !important}
+.bg-blue-500\/10{background:rgba(29,78,216,.08) !important}
+.bg-red-500\/10{background:rgba(220,38,38,.08) !important}
+.bg-amber-500\/10{background:rgba(217,119,6,.10) !important}
+.bg-emerald-500\/10{background:rgba(4,120,87,.08) !important}
+.bg-slate-500\/10{background:rgba(0,0,0,.06) !important}
+.border-blue-500\/20{border-color:rgba(29,78,216,.3) !important}
+.border-red-500\/20{border-color:rgba(220,38,38,.3) !important}
+.border-amber-500\/20{border-color:rgba(217,119,6,.3) !important}
+.border-emerald-500\/20{border-color:rgba(4,120,87,.3) !important}
+.bg-white\/\[0\.04\],.bg-white\/\[0\.04\]{background:rgba(0,0,0,.05) !important}
+.bg-white\/10{background:rgba(0,0,0,.08) !important}
+.border-white\/5{border-color:rgba(0,0,0,.12) !important}
+.border-white\/10{border-color:rgba(0,0,0,.14) !important}
 #pullIndicator{transform:translateY(-100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
 #pullIndicator.show{transform:translateY(0)}
 #animation-layer{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
@@ -20,20 +47,52 @@ body{-webkit-tap-highlight-color:transparent; font-family:'Inter',sans-serif}
 .fade-in{animation:fadeIn .4s ease-out forwards}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .app-container::-webkit-scrollbar{display:none}
+/* --- HAMBURGER + DRAWER --- */
+#hamburgerBtn{position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:14px;z-index:9998;width:48px;height:48px;border-radius:9999px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.14);box-shadow:0 8px 24px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+#hamburgerBtn span{display:block;width:20px;height:2.5px;border-radius:999px;background:#000;transition:.3s}
+#hamburgerBtn.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+#hamburgerBtn.open span:nth-child(2){opacity:0}
+#hamburgerBtn.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+#drawerOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9990;opacity:0;pointer-events:none;transition:.3s}
+#drawerOverlay.show{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;left:0;height:100dvh;width:min(300px,84vw);z-index:9995;background:#eef2f7;color:#000;border-right:1px solid rgba(0,0,0,.14);box-shadow:0 8px 24px rgba(0,0,0,.18);transform:translateX(-105%);transition:transform .38s cubic-bezier(.2,.9,.25,1);display:flex;flex-direction:column;padding:22px 18px calc(env(safe-area-inset-bottom) + 18px)}
+#drawer.show{transform:translateX(0)}
+.drawer-link{display:flex;align-items:center;gap:12px;padding:14px 14px;border-radius:18px;background:#fff;border:1px solid rgba(0,0,0,.12);font-weight:800;font-size:13px;color:#000;text-decoration:none}
+.drawer-link.active{background:#0284c7;color:#fff !important;border-color:#0284c7}
+.drawer-link.active span{color:#fff !important}
 </style>
 </head>
 <body class="text-slate-50 antialiased overflow-hidden h-[100dvh] flex flex-col items-center justify-center relative bg-black">
-<div id="pullIndicator" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-blue-500 text-slate-900 text-[10px] font-black tracking-widest px-6 py-2 rounded-b-2xl">↓ PULL TO REFRESH</div>
+<div id="pullIndicator" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-blue-500 text-white text-[10px] font-black tracking-widest px-6 py-2 rounded-b-2xl">↓ PULL TO REFRESH</div>
 <canvas id="canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
 <div id="animation-layer"></div>
-<main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-36" id="scrollContainer">
+<!-- HAMBURGER -->
+<button id="hamburgerBtn" aria-label="Open menu" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
+<div id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+<aside id="drawer">
+  <div class="flex items-center gap-3 pb-4 border-b border-black/10">
+    <div><p class="font-black text-[15px] leading-tight">WEATHER OUTLOOK</p><p class="text-[9px] font-bold tracking-[0.25em] text-blue-600 uppercase">Kankakee • Live Forecast</p></div>
+  </div>
+  <nav class="flex flex-col gap-2.5 mt-5">
+    <a href="status.html" class="drawer-link" data-page="status.html">⚠ <span>Alerts</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+    <a href="map.html" class="drawer-link" data-page="map.html">🚌 <span>Find Bus</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+    <a href="midway.html" class="drawer-link" data-page="midway.html">✈ <span>Midway</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+    <a href="notices.html" class="drawer-link" data-page="notices.html">📋 <span>Notices</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+    <a href="passes.html" class="drawer-link" data-page="passes.html">🎫 <span>Passes</span><span class="ml-auto text-[10px] opacity-50">→</span></a>
+    <a href="weather.html" class="drawer-link active" data-page="weather.html">☁ <span>Weather</span><span class="ml-auto text-[10px]">●</span></a>
+  </nav>
+  <div class="mt-auto space-y-3">
+    <a href="tel:8159374287" class="drawer-link justify-center !bg-[#0b2a4a] !text-white !border-[#0b2a4a]">📞 CALL DISPATCH</a>
+    <a href="https://www.rivervalleymetro.com" target="_blank" class="block text-center text-[10px] font-bold tracking-widest text-blue-600 uppercase">rivervalleymetro.com ↗</a>
+  </div>
+</aside>
+<main class="app-container relative z-10 w-full max-w-[420px] h-[95dvh] overflow-y-auto px-5 pt-8 pb-10" id="scrollContainer">
 <header class="glass-panel rounded-[2.5rem] p-6 text-center mb-4">
 <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mb-4"></div>
 <h1 class="text-2xl font-black tracking-tight leading-none italic uppercase">WEATHER <span class="text-blue-500">OUTLOOK</span></h1>
 <p class="text-[10px] mt-2 text-blue-400 font-bold tracking-[0.3em] uppercase opacity-80">Kankakee • Live Transit Forecast</p>
 <p id="liveClock" class="mt-2 text-[10px] font-bold tracking-widest text-slate-400">--:-- --</p>
 </header>
-<!-- Current -->
 <div class="glass-panel rounded-[2.5rem] p-7 text-center relative overflow-hidden">
 <div class="absolute -top-20 -right-20 w-60 h-60 bg-blue-500/10 rounded-full blur-[40px] pointer-events-none"></div>
 <span class="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-1 block">Current Conditions</span>
@@ -48,30 +107,20 @@ body{-webkit-tap-highlight-color:transparent; font-family:'Inter',sans-serif}
 <div class="bg-white/[0.04] border border-white/5 p-4 rounded-2xl"><span class="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Humidity</span><span id="hum-val" class="text-[13px] font-black">--</span></div>
 <div class="bg-white/[0.04] border border-white/5 p-4 rounded-2xl"><span class="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Air Quality</span><span id="aqi-val" class="text-[13px] font-black">Good</span></div>
 </div>
-<!-- Rider impact -->
 <div id="riderAlert" class="mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug hidden"></div>
 </div>
-<!-- Hourly -->
 <div class="glass-panel rounded-[2rem] p-5 mt-4">
 <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Next 8 Hours • Kankakee</h3>
 <div id="hourly-list" class="flex gap-2 overflow-x-auto pb-1"></div>
 </div>
-<!-- 7-day -->
 <div class="space-y-2 mt-4" id="forecast-list"></div>
-<button onclick="fetchWeather(true)" class="w-full mt-4 py-4 rounded-[1.8rem] font-black text-[11px] tracking-[0.2em] bg-white text-slate-900 active:scale-[0.98] transition-all uppercase flex items-center justify-center gap-2"><span id="refreshIcon">⟳</span> UPDATE FORECAST</button>
+<button onclick="fetchWeather(true)" class="w-full mt-4 py-4 rounded-[1.8rem] font-black text-[11px] tracking-[0.2em] bg-slate-900 text-white active:scale-[0.98] transition-all uppercase flex items-center justify-center gap-2"><span id="refreshIcon">⟳</span> UPDATE FORECAST</button>
 <p id="lastUpdated" class="text-center text-[9px] font-bold tracking-widest uppercase opacity-30 mt-3"></p>
 </main>
-<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] bg-slate-900/95 backdrop-blur-xl border border-white/10 h-20 rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl z-[9999]">
-<a href="status.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Alerts</span></a>
-<a href="map.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Find Bus</span></a>
-<a href="midway.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Midway</span></a>
-<a href="notices.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8a2 2 0 012 2v10s0 2-2 2H8s-2 0-2-2V9a2 2 0 012-2zm0 0V5a2 2 0 012-2h4a2 2 0 012 2v2M9 17v1m6-1v1M6 11h12"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Notices</span></a>
-<a href="passes.html" class="nav-link flex flex-col items-center gap-1.5 text-slate-400 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Passes</span></a>
-<a href="weather.html" class="nav-link flex flex-col items-center gap-1.5 text-blue-500 flex-1"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg><span class="text-[8px] font-black uppercase tracking-tighter">Weather</span></a>
-</nav>
 <script id="vs" type="x-shader/x-vertex">attribute vec2 position; void main(){gl_Position=vec4(position,0.,1.);}</script>
 <script id="fs" type="x-shader/x-fragment">precision highp float; uniform float uTime; uniform vec2 uRes; void main(){vec2 uv=(gl_FragCoord.xy-0.5*uRes)/min(uRes.x,uRes.y);float t=uTime*0.1;vec3 c=vec3(0.);for(float i=1.;i<4.;i++){uv.x+=.4/i*sin(i*3.*uv.y+t);uv.y+=.4/i*cos(i*3.*uv.x+t);c+=.004/abs(sin(t+uv.y+uv.x));}gl_FragColor=vec4(c*vec3(.05,.2,.6),1.);}</script>
 <script>
+function toggleDrawer(force){const d=document.getElementById('drawer'),o=document.getElementById('drawerOverlay'),b=document.getElementById('hamburgerBtn');const show=force!==undefined?force:!d.classList.contains('show');d.classList.toggle('show',show);o.classList.toggle('show',show);b.classList.toggle('open',show);}
 // Canvas
 const canvas=document.createElement('canvas');canvas.id='canvas-el';const orig=document.getElementById('canvas');if(orig){const gl=orig.getContext('webgl');function resize(){orig.width=innerWidth;orig.height=innerHeight;gl.viewport(0,0,orig.width,orig.height)}addEventListener('resize',resize);resize();const program=gl.createProgram();const addShader=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);gl.attachShader(program,s)};addShader(gl.VERTEX_SHADER,document.getElementById('vs').textContent);addShader(gl.FRAGMENT_SHADER,document.getElementById('fs').textContent);gl.linkProgram(program);gl.useProgram(program);const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);const pos=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);function render(t){if(document.hidden){requestAnimationFrame(render);return}gl.uniform1f(gl.getUniformLocation(program,'uTime'),t*0.001);gl.uniform2f(gl.getUniformLocation(program,'uRes'),orig.width,orig.height);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render)}render(0)}
 </script>
@@ -92,8 +141,6 @@ async function fetchWeather(manual=false){
     document.getElementById("hum-val").textContent=`${cur.relative_humidity_2m}%`;
     document.getElementById("feels-like").textContent=`Feels ${Math.round(cur.apparent_temperature)}°`;
     document.getElementById("weather-sub").textContent=`Gusts ${Math.round(cur.wind_gusts_10m)} mph • ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
-    
-    // Rider impact
     const rider=document.getElementById('riderAlert');
     let impact='';let cls='mt-4 rounded-2xl px-4 py-3 text-left border text-[11px] leading-snug ';
     if(cur.weather_code>=71&&cur.weather_code<=86){impact='❄ Snow may cause minor bus delays. Allow extra time at stops.';cls+='bg-blue-500/10 border-blue-500/20 text-blue-200'}
@@ -151,7 +198,6 @@ function renderVisuals(code){
     for(let i=0;i<22;i++){const p=document.createElement('div');p.className='particle';p.textContent=char;p.style.left=Math.random()*100+'vw';p.style.animationDuration=(Math.random()*2+2)+'s';p.style.fontSize=(Math.random()*8+10)+'px';p.style.opacity=Math.random()*0.4+0.2;layer.appendChild(p)}
   }
 }
-// Clock + pull to refresh
 let startY=0,pulling=false;
 const scrollEl=document.getElementById('scrollContainer');const pullEl=document.getElementById('pullIndicator');
 scrollEl.addEventListener('touchstart',e=>{if(scrollEl.scrollTop<=0)startY=e.touches[0].clientY},{passive:true});
