@@ -289,7 +289,7 @@ onValue(alertsRefForDot, (snap)=>{
   const statusText = document.getElementById('statusText');
   if(!dot) return;
   if(!val){dot.classList.add('hidden');if(countEl) countEl.classList.add('hidden');return;}
-  const entries = Object.entries(val).map(([id,data])=>({id,...data})).filter(a=>a.active!==false && (!a.expiresAtTS || Date.now() < a.expiresAtTS)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const entries = Object.entries(val).map(([id,data])=>({id,...data})).filter(a=>a.active!==false && (!a.expiresAtTS || Date.now() < a.expiresAtTS) && (!a.startsAtTS || Date.now() >= a.startsAtTS)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   const lastSeen = parseInt(localStorage.getItem('rvm_last_seen_notices_ts')||'0');
   const unread = entries.filter(a=>(a.createdAt||0) > lastSeen);
   if(unread.length>0 && entries.length>0){
